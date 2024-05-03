@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -26,10 +28,15 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.time.LocalDateTime
+import speedTest.*
+import util.IPInfoUtil
+import util.Location
+import util.LocationUtil
+import kotlin.concurrent.thread
 
 @Composable
 fun Navigation(
-    onMeasureClicked:() -> Unit,
+    onMeasureClicked: () -> Unit,
     onTowerClicked: () -> Unit,
     onAboutAppClicked: () -> Unit,
     onDslCityClicked: () -> Unit,
@@ -124,12 +131,92 @@ fun Content(currentContent: @Composable () -> Unit, modifier: Modifier = Modifie
     }
 }
 
+var speedglobal = 0L
+var globalProgress = 0f
+var globalLocation = Location(0.0, 0.0)
+var globalProvider = ""
 @Composable
-fun Measure(){
-    Text(
-        text = "You are viewing speedtest tab.",
-        modifier = Modifier.fillMaxSize().wrapContentSize()
-    )
+fun Measure(
+
+) {
+    var speed by remember { mutableStateOf(speedglobal) }
+    var currentProgress by remember { mutableStateOf(globalProgress) }
+    var location by remember { mutableStateOf(globalLocation) }
+    var provider by remember { mutableStateOf(globalProvider) }
+
+    Column(
+        modifier = Modifier.fillMaxHeight().fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+
+                onClick = {
+                    thread {
+                        globalProgress = 0f
+                        currentProgress = globalProgress
+                        //This code is 1 to 1 copy of measure cycle function of SpeedTest.kt but applied here to allow increasing progress bar over time
+                        val speedTest = SpeedTest()
+                        val results = Array<Long>(10) { 0 }
+                        for (i in 0..<10) {
+                            results[i] = speedTest.measure()
+                            println(results[i])
+                            globalProgress += 0.1f
+                            currentProgress = globalProgress
+                        }
+                        var sum = 0L
+                        for (i in 3..<10) {
+                            sum += results[i]
+                        }
+                        speedglobal = sum / 7
+                        println("Final $speedglobal")
+                        speed = speedglobal
+
+                        try {
+                            globalLocation = LocationUtil.getLocation()
+                        } catch (e: RuntimeException) {
+                            println(e)
+                        }
+
+                        try {
+                            globalProvider = IPInfoUtil.getProvider()
+                        } catch (e: RuntimeException) {
+                            println(e)
+                        }
+
+                        location = globalLocation
+                        provider = globalProvider
+
+                    }
+                },
+            ) {
+                Text(
+                    text = "Measure speed"
+                )
+            }
+            LinearProgressIndicator(
+                progress = currentProgress,
+                modifier = Modifier.fillMaxWidth(0.8f),
+            )
+        }
+
+        Text(
+            text = "Measured speed = $speed",
+            modifier = Modifier.fillMaxWidth().wrapContentSize()
+        )
+
+        Text(
+            text = "$location",
+            modifier = Modifier.fillMaxWidth().wrapContentSize()
+        )
+
+        Text(
+            text = "Provider: $provider",
+            modifier = Modifier.fillMaxWidth().wrapContentSize()
+        )
+    }
 }
 
 @Composable
@@ -141,20 +228,19 @@ fun Towers() {
 }
 
 
-
 @Composable
-fun Navbar(
+fun EditorNavbar(
     loadFromFile: () -> Unit,
     saveToFile: () -> Unit,
     saveToFileAs: () -> Unit,
     runCode: () -> Unit,
     alphaStatus: Float
-){
+) {
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-    ){
+    ) {
         Box(
             modifier = Modifier.clickable(onClick = loadFromFile)
         ) {
@@ -208,7 +294,7 @@ fun Navbar(
         }
     }
 }
-@OptIn(ExperimentalComposeUiApi::class)
+
 @Composable
 fun Editor() {
     var text by remember { mutableStateOf("") }
@@ -220,15 +306,15 @@ fun Editor() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Navbar(
+        EditorNavbar(
             loadFromFile = {
                 val fileDialog = FileDialog(Frame(), "Select File", FileDialog.LOAD)
                 fileDialog.isVisible = true
-                currentFilePath = fileDialog.directory+fileDialog.file
+                currentFilePath = fileDialog.directory + fileDialog.file
 
                 try {
                     text = File(currentFilePath).readText()
-                } catch (e: FileNotFoundException){
+                } catch (e: FileNotFoundException) {
                     output += "\nFile not found"
                 }
                 alphaStatus = 0f
@@ -238,7 +324,7 @@ fun Editor() {
                 try {
                     File(currentFilePath).writeText(text)
                     alphaStatus = 0.7f
-                } catch (e: FileNotFoundException){
+                } catch (e: FileNotFoundException) {
                     output += "\nFile not found"
                 }
 
@@ -246,7 +332,7 @@ fun Editor() {
             saveToFileAs = {
                 val fileDialog = FileDialog(Frame(), "Select File", FileDialog.LOAD)
                 fileDialog.isVisible = true
-                val newFilePath = fileDialog.directory+fileDialog.file
+                val newFilePath = fileDialog.directory + fileDialog.file
                 println(newFilePath)
                 if (newFilePath != null && !File(newFilePath).exists()) {
                     File(newFilePath).createNewFile()
@@ -255,7 +341,7 @@ fun Editor() {
                 alphaStatus = 0.7f
             },
             runCode = {
-                output += "@"+LocalDateTime.now()+"\n"
+                output += "@" + LocalDateTime.now() + "\n"
                 val out = ByteArrayOutputStream()
                 Parser(Scanner(ForForeachFFFAutomaton, text.toByteArray().inputStream())).parse().eval(out)
                 output += String(out.toByteArray())
@@ -266,7 +352,7 @@ fun Editor() {
             value = text,
             onValueChange = {
 
-                newText ->
+                    newText ->
                 run {
                     text = newText.replace("\t", " ")
                     println(text)
@@ -297,7 +383,6 @@ fun Editor() {
                 cursorColor = Color.Black
             )
         )
-
         Text(
             text = "Output:",
             style = MaterialTheme.typography.body1,
@@ -325,6 +410,8 @@ fun Editor() {
                 cursorColor = Color.Black
             )
         )
+
+
     }
 }
 
@@ -338,11 +425,239 @@ fun Scraper() {
 }
 
 @Composable
+fun GeneratorNavbar(
+    generateToCSV: () -> Unit,
+    generateToMongo: () -> Unit,
+    alphaStatus: Float
+) {
+    val options = listOf("CSV", "MongoDB")
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(selectedOption)
+        }
+        DropdownMenu(
+            expanded = isSelectorOpen,
+            onDismissRequest = { isSelectorOpen = false },
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(onClick = {
+                    selectedOption = option
+                    isSelectorOpen = false
+                }) {
+                    Text(option)
+                }
+            }
+        }
+        Box(
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(7.dp).alpha(alphaStatus),
+                text = "Generated",
+                textAlign = TextAlign.Center
+
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier.clickable(onClick = {
+                when (selectedOption) {
+                    "CSV" -> {
+                        generateToCSV()
+                    }
+
+                    "MongoDB" -> {
+                        generateToMongo()
+                    }
+                }
+            })
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(7.dp),
+                text = "Generate",
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
 fun Generator() {
-    Text(
-        text = "You are viewing generator tab.",
-        modifier = Modifier.fillMaxSize().wrapContentSize()
-    )
+    var alphaStatus by remember { mutableStateOf(0f) }
+
+    var minValue by remember { mutableStateOf("50000") }
+    var maxValue by remember { mutableStateOf("100000") }
+
+    val options = listOf("Data", "WiFi")
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    var operator by remember { mutableStateOf("") }
+    var locationMarker1 by remember { mutableStateOf(Location(0.0, 0.0)) }
+    var locationMarker2 by remember { mutableStateOf(Location(0.0, 0.0)) }
+    var userId by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        GeneratorNavbar(
+            generateToCSV = { println("generating to csv"); alphaStatus = 0.7f },
+            generateToMongo = { println("generating to mongo"); alphaStatus = 0.7f },
+            alphaStatus = alphaStatus
+        )
+        Text(
+            text = "Parameters:"
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TextField(
+                value = minValue,
+                onValueChange = { newText ->
+                    minValue = newText
+                },
+                maxLines = 1,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = MaterialTheme.shapes.small
+                ).weight(0.3f),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = MaterialTheme.typography.body1.fontSize
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black
+                )
+            )
+            Text(
+                text = "< Generated Value <",
+                modifier = Modifier.weight(0.3f).wrapContentSize(),
+            )
+            TextField(
+                value = maxValue,
+                onValueChange = { newText ->
+                    maxValue = newText
+                },
+                maxLines = 1,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = MaterialTheme.shapes.small
+                ).weight(0.3f),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = MaterialTheme.typography.body1.fontSize
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black
+                )
+            )
+        }
+
+        Text("MAP GOES HERE") //TODO add area selections
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(text = selectedOption)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Provider: "
+            )
+            TextField(
+                value = operator,
+                onValueChange = { newText ->
+                    operator = newText
+                },
+                maxLines = 1,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = MaterialTheme.shapes.small
+                ).fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = MaterialTheme.typography.body1.fontSize
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black
+                )
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(
+                text = "UserID: "
+            )
+            TextField(
+                value = userId,
+                onValueChange = { newText ->
+                    userId = newText
+                },
+                maxLines = 1,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = MaterialTheme.shapes.small
+                ).fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = MaterialTheme.typography.body1.fontSize
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black
+                )
+            )
+        }
+
+    }
+
 }
 
 
@@ -376,14 +691,14 @@ fun AboutApp() {
 @Composable
 @Preview
 fun App() {
-    val currentContent = mutableStateOf<@Composable () -> Unit>({ Editor() })
+    val currentContent = mutableStateOf<@Composable () -> Unit>({ Measure() })
     MaterialTheme {
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
             Navigation(
-                onMeasureClicked = {  currentContent.value = { Measure() } },
-                onTowerClicked  = { currentContent.value = { Towers() } },
+                onMeasureClicked = { currentContent.value = { Measure() } },
+                onTowerClicked = { currentContent.value = { Towers() } },
                 onAboutAppClicked = { currentContent.value = { AboutApp() } },
                 onDslCityClicked = { currentContent.value = { Editor() } },
                 onScraperClicked = { currentContent.value = { Scraper() } },

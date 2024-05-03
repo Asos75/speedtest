@@ -1,4 +1,4 @@
-package speedTest
+package util
 
 data class Location(
     var lat: Double,
