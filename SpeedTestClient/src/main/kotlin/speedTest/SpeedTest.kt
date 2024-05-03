@@ -27,11 +27,11 @@ class SpeedTest(
         endTime = LocalTime.now()
     }
 
-    private fun showResults() {
+    private fun showResults(): Long {
         duration = Duration.between(startTime, endTime).toMillis()
         val bitsLoaded = downloadSize * 8
         val speedBps = bitsLoaded / duration!!
-        println(speedBps)
+        return speedBps
     }
 
     fun measure(imgAddress: String, downloadSize: Long) {
@@ -41,7 +41,7 @@ class SpeedTest(
         showResults()
     }
 
-    fun measure() {
+    fun measure(): Long {
         imgAddress =
             "https://wallpaperswide.com/download/shadow_of_the_tomb_raider_2018_puzzle_video_game-wallpaper-7680x4800.jpg?n=${
                 Random.nextInt(
@@ -50,14 +50,19 @@ class SpeedTest(
                 )
             }"
         downloadImg()
-        showResults()
+        return showResults()
     }
 
     fun measureCycle(): Long {
+        val results = Array<Long>(10) { 0 }
         //Doing 10 cycles to account for tcp ramp up
-        for (i in 1..10) {
-            measure()
+        for (i in 0..<10) {
+            results[i] = measure()
         }
-        return 0
+        var sum = 0L
+        for(i in 3..<10){
+            sum += results[i]
+        }
+        return sum/7
     }
 }
