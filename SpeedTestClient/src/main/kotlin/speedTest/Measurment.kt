@@ -1,0 +1,4 @@
+package speedTest
+
+class Measurment {
+}
