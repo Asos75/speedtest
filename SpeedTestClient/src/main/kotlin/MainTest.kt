@@ -1,4 +1,4 @@
 import util.*
 fun main(){
-    println(IPInfoUtil.getProvider())
+    println(System.getProperty("os.name"))
 }

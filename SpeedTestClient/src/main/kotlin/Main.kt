@@ -325,7 +325,7 @@ fun Editor() {
                     File(currentFilePath).writeText(text)
                     alphaStatus = 0.7f
                 } catch (e: FileNotFoundException) {
-                    output += "\nFile not found"
+                    output += "\nFile not found\n"
                 }
 
             },
@@ -343,8 +343,15 @@ fun Editor() {
             runCode = {
                 output += "@" + LocalDateTime.now() + "\n"
                 val out = ByteArrayOutputStream()
-                Parser(Scanner(ForForeachFFFAutomaton, text.toByteArray().inputStream())).parse().eval(out)
-                output += String(out.toByteArray())
+                try{
+                    Parser(Scanner(ForForeachFFFAutomaton, text.toByteArray().inputStream())).parse().eval(out)
+                    output += String(out.toByteArray())
+                } catch (e : Exception){
+                    output += e
+                } catch (e : Error){
+                    output += e
+                }
+
             },
             alphaStatus = alphaStatus
         )
@@ -355,7 +362,6 @@ fun Editor() {
                     newText ->
                 run {
                     text = newText.replace("\t", " ")
-                    println(text)
                 }
                 alphaStatus = 0f
             },
@@ -494,6 +500,11 @@ fun GeneratorNavbar(
 }
 
 @Composable
+fun standardTextField(modVal: String){
+
+}
+
+@Composable
 fun Generator() {
     var alphaStatus by remember { mutableStateOf(0f) }
 
@@ -505,6 +516,11 @@ fun Generator() {
     var isSelectorOpen by remember { mutableStateOf(false) }
 
     var operator by remember { mutableStateOf("") }
+    var lat1 by remember { mutableStateOf("") }
+    var lon1 by remember { mutableStateOf("") }
+    var lat2 by remember { mutableStateOf("") }
+    var lon2 by remember { mutableStateOf("") }
+
     var locationMarker1 by remember { mutableStateOf(Location(0.0, 0.0)) }
     var locationMarker2 by remember { mutableStateOf(Location(0.0, 0.0)) }
     var userId by remember { mutableStateOf("") }
@@ -573,7 +589,109 @@ fun Generator() {
             )
         }
 
-        Text("MAP GOES HERE") //TODO add area selections
+        Row (
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(0.5f)
+            ) {
+                Text(
+                    text = "Position 1:"
+                )
+                TextField(
+                    value = lat1,
+                    onValueChange = { newText ->
+                        lat1 = newText
+                    },
+                    maxLines = 1,
+                    modifier = Modifier.border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = MaterialTheme.shapes.small
+                    ).fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = MaterialTheme.typography.body1.fontSize
+                    ),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    )
+                )
+                TextField(
+                    value = lon1,
+                    onValueChange = { newText ->
+                        lon1 = newText
+                    },
+                    maxLines = 1,
+                    modifier = Modifier.border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = MaterialTheme.shapes.small
+                    ).fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = MaterialTheme.typography.body1.fontSize
+                    ),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    )
+                )
+
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Position 2:"
+                )
+                TextField(
+                    value = lat2,
+                    onValueChange = { newText ->
+                        lat2 = newText
+                    },
+                    maxLines = 1,
+                    modifier = Modifier.border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = MaterialTheme.shapes.small
+                    ).fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = MaterialTheme.typography.body1.fontSize
+                    ),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    )
+                )
+                TextField(
+                    value = lon2,
+                    onValueChange = { newText ->
+                        lon2 = newText
+                    },
+                    maxLines = 1,
+                    modifier = Modifier.border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = MaterialTheme.shapes.small
+                    ).fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = MaterialTheme.typography.body1.fontSize
+                    ),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    )
+                )
+            }
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -631,7 +749,7 @@ fun Generator() {
             modifier = Modifier.padding(top = 8.dp)
         ) {
             Text(
-                text = "UserID: "
+                text = "Users ID: "
             )
             TextField(
                 value = userId,

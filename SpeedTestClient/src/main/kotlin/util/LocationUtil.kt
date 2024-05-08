@@ -54,11 +54,19 @@ object LocationUtil {
         return Location(lat, lon)
     }
 
+    private fun getLocationLinux(): Location{
+        //TODO retrieve linux location
+        return Location(0.0,0.0)
+    }
+
     fun getLocation(): Location{
         if(System.getProperty("os.name").startsWith("Windows")){
             return getLocationWindows()
         }
+
+        if(System.getProperty("os.name").startsWith("Linux")){
+            return getLocationWindows()
+        }
         return Location(0.0,0.0)
-        //TODO handle linux
     }
 }
