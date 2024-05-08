@@ -22,6 +22,7 @@ import androidx.compose.ui.window.application
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
 import dslCity.Scanner
+import kotlinx.coroutines.selects.select
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.ByteArrayOutputStream
@@ -29,9 +30,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.time.LocalDateTime
 import speedTest.*
-import util.IPInfoUtil
-import util.Location
-import util.LocationUtil
+import util.*
 import kotlin.concurrent.thread
 
 @Composable
@@ -508,31 +507,51 @@ fun standardTextField(modVal: String){
 fun Generator() {
     var alphaStatus by remember { mutableStateOf(0f) }
 
+    //SPEED
     var minValue by remember { mutableStateOf("50000") }
     var maxValue by remember { mutableStateOf("100000") }
 
+    //TYPE
     val options = listOf("Data", "WiFi")
     var selectedOption by remember { mutableStateOf(options.first()) }
     var isSelectorOpen by remember { mutableStateOf(false) }
 
+    //OPERATOR
     var operator by remember { mutableStateOf("") }
+
+    //LOCATION
     var lat1 by remember { mutableStateOf("") }
     var lon1 by remember { mutableStateOf("") }
     var lat2 by remember { mutableStateOf("") }
     var lon2 by remember { mutableStateOf("") }
-
     var locationMarker1 by remember { mutableStateOf(Location(0.0, 0.0)) }
     var locationMarker2 by remember { mutableStateOf(Location(0.0, 0.0)) }
+
+    //USER
     var userId by remember { mutableStateOf("") }
 
+    var count by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         GeneratorNavbar(
-            generateToCSV = { println("generating to csv"); alphaStatus = 0.7f },
-            generateToMongo = { println("generating to mongo"); alphaStatus = 0.7f },
+            generateToCSV = {
+                try {
+                GeneratorUtil.generateToCSV(
+                minValue.toLong(),
+                maxValue.toLong(),
+                if(selectedOption == "Data") Type.data else Type.wifi,
+                operator,
+                Location(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble()),
+                Location(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble()),
+                userId,
+                count.replace(" ", "").toInt()
+            )} catch (e: Exception){
+                println(e)
+            };  alphaStatus = 0.7f },
+            generateToMongo = { GeneratorUtil.generateToMongo(); alphaStatus = 0.7f },
             alphaStatus = alphaStatus
         )
         Text(
@@ -773,7 +792,35 @@ fun Generator() {
                 )
             )
         }
-
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(
+                text = "Count #: "
+            )
+            TextField(
+                value = count,
+                onValueChange = { newText ->
+                    count = newText
+                },
+                maxLines = 1,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = MaterialTheme.shapes.small
+                ).fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = MaterialTheme.typography.body1.fontSize
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black
+                )
+            )
+        }
     }
 
 }
