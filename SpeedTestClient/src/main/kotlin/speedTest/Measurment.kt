@@ -9,7 +9,9 @@ class Measurment (
     var operator: String,
     var location: Location,
     var time: LocalDateTime,
-    var userId: Int
+    var userId: String
 ){
-
+    override fun toString(): String {
+        return "$speed, $type, $operator, ${location.lat}, ${location.lon}, $time, $userId"
+    }
 }
