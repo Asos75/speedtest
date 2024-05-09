@@ -3,13 +3,23 @@ var Schema   = mongoose.Schema;
 
 var measurementSchema = new Schema({
 	'speed' : Number,
-	tip: {
+	'type': {
     type: String,
     enum: ['wifi', 'data']
 	},
 	'provider' : String,
 	'time' : Date,
-	'location' : String,
+	'location': {
+    type: {
+      type: String, 
+      enum: ['Point'], 
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  },
 	'user' : {
 	 	type: Schema.Types.ObjectId,
 	 	ref: 'user'
