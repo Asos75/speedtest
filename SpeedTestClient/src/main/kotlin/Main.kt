@@ -19,9 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
 import dslCity.Scanner
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import java.awt.FileDialog
 import java.awt.Frame
@@ -33,8 +36,11 @@ import speedTest.*
 import util.*
 import kotlin.concurrent.thread
 
+var conn : MongoDatabase? = null
+
 @Composable
 fun Navigation(
+    onDataClicked: () -> Unit,
     onMeasureClicked: () -> Unit,
     onTowerClicked: () -> Unit,
     onAboutAppClicked: () -> Unit,
@@ -69,6 +75,16 @@ fun Navigation(
                     modifier = Modifier
                         .padding(7.dp),
                     text = "\uD83D\uDDFCTower Confirm",
+                    textAlign = TextAlign.Center
+                )
+            }
+            Box(
+                modifier = Modifier.clickable(onClick = onDataClicked).fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(7.dp),
+                    text = "\uD83D\uDDC4Data",
                     textAlign = TextAlign.Center
                 )
             }
@@ -226,6 +242,42 @@ fun Towers() {
     )
 }
 
+
+@Composable
+fun Data(){
+    val options = if(conn != null) runBlocking {  DatabaseUtil.listAllCollection(conn!!).toList().toTypedArray() } else arrayOf("No options")
+
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(selectedOption)
+        }
+        DropdownMenu(
+            expanded = isSelectorOpen,
+            onDismissRequest = { isSelectorOpen = false },
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(onClick = {
+                    selectedOption = option
+                    isSelectorOpen = false
+                }) {
+                    Text(option)
+                }
+            }
+        }
+    }
+    Text(
+        text = "You are viewing data tab.",
+        modifier = Modifier.fillMaxSize().wrapContentSize()
+    )
+}
 
 @Composable
 fun EditorNavbar(
@@ -862,6 +914,7 @@ fun App() {
             modifier = Modifier.fillMaxSize()
         ) {
             Navigation(
+                onDataClicked = { currentContent.value = { Data() } },
                 onMeasureClicked = { currentContent.value = { Measure() } },
                 onTowerClicked = { currentContent.value = { Towers() } },
                 onAboutAppClicked = { currentContent.value = { AboutApp() } },
@@ -876,6 +929,8 @@ fun App() {
 }
 
 fun main() = application {
+    conn = runBlocking { DatabaseUtil.setupConnection() }
+
     Window(onCloseRequest = ::exitApplication) {
         App()
     }

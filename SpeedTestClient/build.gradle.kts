@@ -21,6 +21,10 @@ dependencies {
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
     implementation("org.json:json:20231013")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
+    implementation("ch.qos.logback:logback-classic:1.2.6")
+    implementation("org.slf4j:slf4j-api:1.7.32")
 
 }
 
