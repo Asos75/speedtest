@@ -1,9 +1,13 @@
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
+const bcrypt = require('bcrypt');
+
+
 
 var userSchema = new Schema({
 	'username' : String,
 	'password' : String,
+	'email': String,
 	'measurements' : {
 	 	type: Schema.Types.ObjectId,
 	 	ref: 'measurement'
@@ -22,4 +26,4 @@ userSchema.pre('save', function(next){
 	});
 });
 
-module.exports = mongoose.model('user ', userSchema);
+module.exports = mongoose.model('user', userSchema);

@@ -54,6 +54,7 @@ module.exports = {
         var user = new UserModel({
 			username : req.body.username,
 			password : req.body.password,
+            email : req.body.email,
 			measurements : req.body.measurements,
 			admin : req.body.admin
         });
