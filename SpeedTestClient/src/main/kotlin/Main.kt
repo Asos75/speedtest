@@ -19,9 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
 import dslCity.Scanner
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.selects.select
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.ByteArrayOutputStream
@@ -29,13 +33,14 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.time.LocalDateTime
 import speedTest.*
-import util.IPInfoUtil
-import util.Location
-import util.LocationUtil
+import util.*
 import kotlin.concurrent.thread
+
+var conn : MongoDatabase? = null
 
 @Composable
 fun Navigation(
+    onDataClicked: () -> Unit,
     onMeasureClicked: () -> Unit,
     onTowerClicked: () -> Unit,
     onAboutAppClicked: () -> Unit,
@@ -70,6 +75,16 @@ fun Navigation(
                     modifier = Modifier
                         .padding(7.dp),
                     text = "\uD83D\uDDFCTower Confirm",
+                    textAlign = TextAlign.Center
+                )
+            }
+            Box(
+                modifier = Modifier.clickable(onClick = onDataClicked).fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(7.dp),
+                    text = "\uD83D\uDDC4Data",
                     textAlign = TextAlign.Center
                 )
             }
@@ -227,6 +242,42 @@ fun Towers() {
     )
 }
 
+
+@Composable
+fun Data(){
+    val options = if(conn != null) runBlocking {  DatabaseUtil.listAllCollection(conn!!).toList().toTypedArray() } else arrayOf("No options")
+
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(selectedOption)
+        }
+        DropdownMenu(
+            expanded = isSelectorOpen,
+            onDismissRequest = { isSelectorOpen = false },
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(onClick = {
+                    selectedOption = option
+                    isSelectorOpen = false
+                }) {
+                    Text(option)
+                }
+            }
+        }
+    }
+    Text(
+        text = "You are viewing data tab.",
+        modifier = Modifier.fillMaxSize().wrapContentSize()
+    )
+}
 
 @Composable
 fun EditorNavbar(
@@ -508,31 +559,51 @@ fun standardTextField(modVal: String){
 fun Generator() {
     var alphaStatus by remember { mutableStateOf(0f) }
 
+    //SPEED
     var minValue by remember { mutableStateOf("50000") }
     var maxValue by remember { mutableStateOf("100000") }
 
+    //TYPE
     val options = listOf("Data", "WiFi")
     var selectedOption by remember { mutableStateOf(options.first()) }
     var isSelectorOpen by remember { mutableStateOf(false) }
 
+    //OPERATOR
     var operator by remember { mutableStateOf("") }
+
+    //LOCATION
     var lat1 by remember { mutableStateOf("") }
     var lon1 by remember { mutableStateOf("") }
     var lat2 by remember { mutableStateOf("") }
     var lon2 by remember { mutableStateOf("") }
-
     var locationMarker1 by remember { mutableStateOf(Location(0.0, 0.0)) }
     var locationMarker2 by remember { mutableStateOf(Location(0.0, 0.0)) }
+
+    //USER
     var userId by remember { mutableStateOf("") }
 
+    var count by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         GeneratorNavbar(
-            generateToCSV = { println("generating to csv"); alphaStatus = 0.7f },
-            generateToMongo = { println("generating to mongo"); alphaStatus = 0.7f },
+            generateToCSV = {
+                try {
+                GeneratorUtil.generateToCSV(
+                minValue.toLong(),
+                maxValue.toLong(),
+                if(selectedOption == "Data") Type.data else Type.wifi,
+                operator,
+                Location(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble()),
+                Location(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble()),
+                userId,
+                count.replace(" ", "").toInt()
+            )} catch (e: Exception){
+                println(e)
+            };  alphaStatus = 0.7f },
+            generateToMongo = { GeneratorUtil.generateToMongo(); alphaStatus = 0.7f },
             alphaStatus = alphaStatus
         )
         Text(
@@ -773,7 +844,35 @@ fun Generator() {
                 )
             )
         }
-
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(
+                text = "Count #: "
+            )
+            TextField(
+                value = count,
+                onValueChange = { newText ->
+                    count = newText
+                },
+                maxLines = 1,
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = MaterialTheme.shapes.small
+                ).fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = MaterialTheme.typography.body1.fontSize
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black
+                )
+            )
+        }
     }
 
 }
@@ -815,6 +914,7 @@ fun App() {
             modifier = Modifier.fillMaxSize()
         ) {
             Navigation(
+                onDataClicked = { currentContent.value = { Data() } },
                 onMeasureClicked = { currentContent.value = { Measure() } },
                 onTowerClicked = { currentContent.value = { Towers() } },
                 onAboutAppClicked = { currentContent.value = { AboutApp() } },
@@ -829,6 +929,8 @@ fun App() {
 }
 
 fun main() = application {
+    conn = runBlocking { DatabaseUtil.setupConnection() }
+
     Window(onCloseRequest = ::exitApplication) {
         App()
     }
