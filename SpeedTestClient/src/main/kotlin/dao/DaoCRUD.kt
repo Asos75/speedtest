@@ -1,11 +1,12 @@
 package dao
 
+import org.bson.types.ObjectId
 import java.util.*
 interface DaoCrud<T> {
-    fun getById(id: UUID): T?
-    fun getAll(): List<T>
-    fun insert(obj: T): Boolean
-    fun update(obj: T): Boolean
-    fun delete(obj: T): Boolean
+    suspend fun getById(id: ObjectId): T?
+    suspend fun getAll(): List<T>
+    suspend fun insert(obj: T): Boolean
+    suspend fun update(obj: T): Boolean
+    suspend fun delete(obj: T): Boolean
 
 }

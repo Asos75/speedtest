@@ -583,9 +583,6 @@ fun Generator() {
     var locationMarker2 by remember { mutableStateOf( Location(coordinates = listOf(0.0, 0.0))) }
 
     //USER
-    var userId by remember { mutableStateOf("") }
-
-    //USER
     val mongoUser = MongoUser(conn)
     if(userOptions.isEmpty()) userOptions = runBlocking {
         val users = mongoUser.getAll()
