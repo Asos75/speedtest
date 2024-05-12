@@ -1,30 +1,33 @@
 var express = require('express');
 var router = express.Router();
 var userController = require('../controllers/userController.js');
+var authenticateToken = require('../middleware/authenticateToken.js');
 
-/*
- * GET
- */
-router.get('/', userController.list);
+// GET routes
+router.get('/', authenticateToken, userController.list);
+router.get('/register', userController.showRegister);
+router.get('/login', userController.showLogin);
+router.get('/profile', authenticateToken, userController.profile);
+router.get('/profile/:id', authenticateToken, userController.profile);
+router.get('/logout', authenticateToken, userController.logout);
+router.get('/:id', authenticateToken, userController.show);
+router.get('/users/:id', authenticateToken, userController.show);
 
-/*
- * GET
- */
-router.get('/:id', userController.show);
-
-/*
- * POST
- */
+// POST routes
 router.post('/', userController.create);
+router.post('/login', userController.login);
 
-/*
- * PUT
- */
-router.put('/:id', userController.update);
+// PUT routes
+router.put('/:id', authenticateToken, userController.update);
 
-/*
- * DELETE
- */
-router.delete('/:id', userController.remove);
+// DELETE routes
+router.delete('/:id', authenticateToken, userController.remove);
+
+// Preizkusna pot, ki zahteva veljaven JWT žeton
+router.get('/test', authenticateToken, function(req, res) {
+	// Če smo tukaj, pomeni, da je JWT žeton veljaven
+	// Uporabnikov ID je na voljo v req.user.userId
+	res.json({ message: 'JWT token is valid', userId: req.user.userId });
+});
 
 module.exports = router;

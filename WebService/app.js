@@ -4,13 +4,15 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+require('dotenv').config();
+
 
 const mongoose = require('mongoose');
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://david:nice@host.cqupown.mongodb.net/?retryWrites=true&w=majority&appName=SpeedDB";
+
+const uri = process.env.MONGO_URL;
 
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -59,6 +61,10 @@ app.use(cors({
     return callback(null, true);
   }
 }));
+
+app.listen(3000, function() {
+  console.log('Server started on port 3000');
+});
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -111,47 +117,5 @@ app.use(function(err, req, res, next) {
 
 const User = require('./models/userModel'); 
 const Measurement = require('./models/measurementModel');
-
-async function createUser() {
-  const newUser = new User({
-    username: 'user2',
-    password: 'nekaj',
-    admin: true
-  });
-
-  try {
-    const result = await newUser.save();
-    console.log('User created:', result);
-  } catch (error) {
-    console.error('Error creating user:', error);
-  }
-}
-
-createUser();
-
-
-
-async function createMeasure() {
-  const newMeasure = new Measurement({
-    speed: 10000,
-		type: 'data',
-		provider: "Telekom",
-		time: Date.now(),
-		location: {
-				type: "Point",
-				coordinates: [46.562119, 15.640014]
-		}
-  });
-
-  try {
-    const result = await newMeasure.save();
-    console.log('Measure created:', result);
-  } catch (error) {
-    console.error('Error creating measure:', error);
-  }
-}
-
-createMeasure();
 run().catch(console.dir);
 module.exports = app;
-

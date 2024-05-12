@@ -20,10 +20,12 @@ var measurementSchema = new Schema({
       required: true
     }
   },
-	'user' : {
+	'measuredBy' : {
 	 	type: Schema.Types.ObjectId,
 	 	ref: 'user'
 	}
 });
+
+measurementSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('measurement', measurementSchema);

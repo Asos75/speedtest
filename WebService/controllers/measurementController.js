@@ -11,14 +11,17 @@ module.exports = {
      * measurementController.list()
      */
     list: function (req, res) {
-        MeasurementModel.find(function (err, measurements) {
+        MeasurementModel.find()
+        .populate('measuredBy')
+        .exec(function (err, measurements) {
             if (err) {
                 return res.status(500).json({
-                    message: 'Error when getting measurement.',
+                    message: 'Error when getting photo.',
                     error: err
                 });
             }
-
+            var data = [];
+            data.measurements = measurements;
             return res.json(measurements);
         });
     },
