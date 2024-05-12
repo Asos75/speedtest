@@ -5,7 +5,8 @@ var measurementController = require('../controllers/measurementController.js');
 /*
  * GET
  */
-router.get('/', measurementController.list);
+router.get('/', measurementController.listAll);
+router.get('/measure', measurementController.listNearby);
 
 /*
  * GET
