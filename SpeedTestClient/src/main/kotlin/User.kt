@@ -1,9 +1,9 @@
 import org.bson.types.ObjectId
 
 class User (
-    val id: ObjectId,
-    val username: String,
+    var username: String,
     val password: String,
+    val id: ObjectId = ObjectId(),
     //TODO add mail
 ) {
 

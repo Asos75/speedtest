@@ -13,5 +13,6 @@ suspend fun main(){
     }
 
     val mongoUser = MongoUser(conn)
-    mongoUser.getAll().forEach{ println(it) }
+    val kotlinTest = User("KotlinTester", "admin")
+    println( mongoUser.authenticate(kotlinTest))
 }
