@@ -1,6 +1,3 @@
 package util
 
-data class Location(
-    var lat: Double,
-    var lon: Double
-)
+data class Location(val type: String = "Point", val coordinates: List<Double>)

@@ -1,5 +1,6 @@
 package speedTest
 
+import org.bson.types.ObjectId
 import util.Location
 import java.time.LocalDateTime
 
@@ -9,9 +10,9 @@ class Measurment (
     var operator: String,
     var location: Location,
     var time: LocalDateTime,
-    var userId: String
+    var userId: ObjectId?
 ){
     override fun toString(): String {
-        return "$speed, $type, $operator, ${location.lat}, ${location.lon}, $time, $userId"
+        return "$speed, $type, $operator, ${location.coordinates[0]}, ${location.coordinates[1]}, $time, $userId"
     }
 }

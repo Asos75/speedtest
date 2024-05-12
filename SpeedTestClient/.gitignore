@@ -45,3 +45,5 @@ bin/
 .run/
 .gradle/
 build/
+
+src/main/kotlin/conf/config.json
