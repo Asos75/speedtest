@@ -1,4 +1,9 @@
 package util
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import com.mongodb.reactivestreams.client.MongoClients
+import kotlinx.coroutines.runBlocking
+import org.bson.Document
+import org.bson.types.ObjectId
 import speedTest.Type
 import speedTest.Measurment
 import java.io.File
@@ -13,35 +18,27 @@ object GeneratorUtil {
         operator: String,
         locationMarker1: Location,
         locationMarker2: Location,
-        userId: String,
+        userId: ObjectId,
         count: Int
     ){
         val out =  File("speedData.csv").outputStream()
 
-        val latSmaller: Double
-        val latBigger: Double
-        if(locationMarker1.lat < locationMarker2.lat){
-            latSmaller = locationMarker1.lat
-            latBigger = locationMarker2.lat
+        val latRange = if (locationMarker1.coordinates[1] < locationMarker2.coordinates[1]) {
+            locationMarker1.coordinates[1]..locationMarker2.coordinates[1]
         } else {
-            latSmaller = locationMarker2.lat
-            latBigger = locationMarker1.lat
+            locationMarker2.coordinates[1]..locationMarker1.coordinates[1]
         }
 
-        val lonSmaller: Double
-        val lonBigger: Double
-        if(locationMarker1.lon < locationMarker2.lon){
-            lonSmaller = locationMarker1.lon
-            lonBigger = locationMarker2.lon
+        val lonRange = if (locationMarker1.coordinates[0] < locationMarker2.coordinates[0]) {
+            locationMarker1.coordinates[0]..locationMarker2.coordinates[0]
         } else {
-            lonSmaller = locationMarker2.lon
-            lonBigger = locationMarker1.lon
+            locationMarker2.coordinates[0]..locationMarker1.coordinates[0]
         }
 
         for(i in 0 .. count){
             val value = Random.nextLong(minValue, maxValue)
 
-            val location = Location(Random.nextDouble(latSmaller, latBigger), Random.nextDouble(lonSmaller, lonBigger))
+            val location = Location(coordinates = listOf(Random.nextDouble(latRange.start, latRange.endInclusive), Random.nextDouble(lonRange.start, lonRange.endInclusive)))
 
             val measurement = Measurment(value, type, operator, location, LocalDateTime.now(), userId)
             out.write("$measurement\n".toByteArray())
@@ -50,8 +47,52 @@ object GeneratorUtil {
 
     }
 
-    fun generateToMongo(){
-        println("generating to mongo")
+    fun generateToMongo(
+        minValue: Long,
+        maxValue: Long,
+        type: Type,
+        operator: String,
+        locationMarker1: Location,
+        locationMarker2: Location,
+        userId: ObjectId,
+        count: Int,
+        conn: MongoDatabase?
+    ) {
+        if (conn == null) throw RuntimeException("Database not connected")
+
+        val latRange = if (locationMarker1.coordinates[1] < locationMarker2.coordinates[1]) {
+            locationMarker1.coordinates[1]..locationMarker2.coordinates[1]
+        } else {
+            locationMarker2.coordinates[1]..locationMarker1.coordinates[1]
+        }
+
+        val lonRange = if (locationMarker1.coordinates[0] < locationMarker2.coordinates[0]) {
+            locationMarker1.coordinates[0]..locationMarker2.coordinates[0]
+        } else {
+            locationMarker2.coordinates[0]..locationMarker1.coordinates[0]
+        }
+
+        val collection = conn.getCollection<Document>("measurements")
+        val documents = mutableListOf<Document>()
+
+        repeat(count) {
+            val speed = Random.nextLong(minValue, maxValue)
+            val location = Location(coordinates = listOf(Random.nextDouble(latRange.start, latRange.endInclusive), Random.nextDouble(lonRange.start, lonRange.endInclusive)))
+            val measurement = Measurment(speed, type, operator, location, LocalDateTime.now(), userId)
+            val document = Document()
+                .append("speed", measurement.speed)
+                .append("type", measurement.type)
+                .append("provider", measurement.operator)
+                .append("time", measurement.time)
+                .append(
+                    "location", Document()
+                        .append("type", measurement.location.type)
+                        .append("coordinates", measurement.location.coordinates)
+                )
+                .append("user", measurement.userId)
+            documents.add(document)
+        }
+        runBlocking {collection.insertMany(documents)}
     }
 
 }

@@ -20,12 +20,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import dao.mongodb.MongoUser
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
 import dslCity.Scanner
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
+import org.bson.types.ObjectId
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.ByteArrayOutputStream
@@ -148,7 +150,7 @@ fun Content(currentContent: @Composable () -> Unit, modifier: Modifier = Modifie
 
 var speedglobal = 0L
 var globalProgress = 0f
-var globalLocation = Location(0.0, 0.0)
+var globalLocation = Location(coordinates = listOf(0.0, 0.0))
 var globalProvider = ""
 @Composable
 fun Measure(
@@ -223,7 +225,7 @@ fun Measure(
         )
 
         Text(
-            text = "$location",
+            text = "(${location.coordinates[0]}, ${location.coordinates[1]})",
             modifier = Modifier.fillMaxWidth().wrapContentSize()
         )
 
@@ -555,6 +557,7 @@ fun standardTextField(modVal: String){
 
 }
 
+var userOptions = mutableListOf<Pair<String, ObjectId>>()
 @Composable
 fun Generator() {
     var alphaStatus by remember { mutableStateOf(0f) }
@@ -576,12 +579,24 @@ fun Generator() {
     var lon1 by remember { mutableStateOf("") }
     var lat2 by remember { mutableStateOf("") }
     var lon2 by remember { mutableStateOf("") }
-    var locationMarker1 by remember { mutableStateOf(Location(0.0, 0.0)) }
-    var locationMarker2 by remember { mutableStateOf(Location(0.0, 0.0)) }
+    var locationMarker1 by remember { mutableStateOf( Location(coordinates = listOf(0.0, 0.0))) }
+    var locationMarker2 by remember { mutableStateOf( Location(coordinates = listOf(0.0, 0.0))) }
 
     //USER
     var userId by remember { mutableStateOf("") }
 
+    //USER
+    val mongoUser = MongoUser(conn)
+    if(userOptions.isEmpty()) userOptions = runBlocking {
+        val users = mongoUser.getAll()
+        users.map { user ->
+            user.username to user.id
+        }.toMutableList()
+    }
+    var selectedUser by remember { mutableStateOf(userOptions.first()) }
+    var isUserSelectorOpen by remember { mutableStateOf(false) }
+
+    //COUNT
     var count by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
@@ -591,19 +606,37 @@ fun Generator() {
         GeneratorNavbar(
             generateToCSV = {
                 try {
-                GeneratorUtil.generateToCSV(
-                minValue.toLong(),
-                maxValue.toLong(),
-                if(selectedOption == "Data") Type.data else Type.wifi,
-                operator,
-                Location(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble()),
-                Location(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble()),
-                userId,
-                count.replace(" ", "").toInt()
-            )} catch (e: Exception){
-                println(e)
-            };  alphaStatus = 0.7f },
-            generateToMongo = { GeneratorUtil.generateToMongo(); alphaStatus = 0.7f },
+                    GeneratorUtil.generateToCSV(
+                        minValue.toLong(),
+                        maxValue.toLong(),
+                        if (selectedOption == "Data") Type.data else Type.wifi,
+                        operator,
+                        Location(coordinates = listOf(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble())),
+                        Location(coordinates = listOf(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble())),
+                        selectedUser.second,
+                        count.replace(" ", "").toInt()
+                    )
+                } catch (e: Exception) {
+                    println(e)
+                }; alphaStatus = 0.7f
+            },
+            generateToMongo = {
+                try {
+                    GeneratorUtil.generateToMongo(
+                        minValue.toLong(),
+                        maxValue.toLong(),
+                        if (selectedOption == "Data") Type.data else Type.wifi,
+                        operator,
+                        Location(coordinates = listOf(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble())),
+                        Location(coordinates = listOf(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble())),
+                        selectedUser.second,
+                        count.replace(" ", "").toInt(),
+                        conn
+                    )
+                } catch (e: Exception) {
+                    println(e)
+                }; alphaStatus = 0.7f
+            },
             alphaStatus = alphaStatus
         )
         Text(
@@ -817,33 +850,27 @@ fun Generator() {
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Users ID: "
-            )
-            TextField(
-                value = userId,
-                onValueChange = { newText ->
-                    userId = newText
-                },
-                maxLines = 1,
-                modifier = Modifier.border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = MaterialTheme.shapes.small
-                ).fillMaxWidth(),
-                textStyle = LocalTextStyle.current.copy(
-                    fontSize = MaterialTheme.typography.body1.fontSize
-                ),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.Black
-                )
-            )
+            IconButton(onClick = { isUserSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(text = selectedUser.first)
+            DropdownMenu(
+                expanded = isUserSelectorOpen,
+                onDismissRequest = { isUserSelectorOpen = false },
+            ) {
+                userOptions.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedUser = option
+                        isUserSelectorOpen = false
+                    }) {
+                        Text(option.first)
+                    }
+                }
+            }
         }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 8.dp)
@@ -875,6 +902,11 @@ fun Generator() {
         }
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            userOptions.clear()
+        }
+    }
 }
 
 
@@ -929,7 +961,7 @@ fun App() {
 }
 
 fun main() = application {
-    conn = runBlocking { DatabaseUtil.setupConnection() }
+    runBlocking { conn = DatabaseUtil.setupConnection() }
 
     Window(onCloseRequest = ::exitApplication) {
         App()

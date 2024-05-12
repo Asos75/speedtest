@@ -51,12 +51,12 @@ object LocationUtil {
             throw RuntimeException("Error retrieving the location")
 
         }
-        return Location(lat, lon)
+        return Location(coordinates = listOf(lat, lon))
     }
 
     private fun getLocationLinux(): Location{
         //TODO retrieve linux location
-        return Location(0.0,0.0)
+        return Location(coordinates = listOf(0.0, 0.0))
     }
 
     fun getLocation(): Location{
@@ -67,6 +67,6 @@ object LocationUtil {
         if(System.getProperty("os.name").startsWith("Linux")){
             return getLocationWindows()
         }
-        return Location(0.0,0.0)
+        return Location(coordinates = listOf(0.0, 0.0))
     }
 }
