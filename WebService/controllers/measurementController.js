@@ -1,5 +1,28 @@
 var MeasurementModel = require('../models/measurementModel.js');
+const turf = require('@turf/turf');
 
+/**
+ * Vrne točke znotraj določenega radija okoli dane točke.
+ *
+ * @param {Array} center Koordinate središčne točke v obliki [lon, lat].
+ * @param {Array} points Seznam točk, kjer vsaka točka ima koordinate [lon, lat].
+ * @param {number} radius Radij v kilometrih.
+ * @return {Array} Seznam točk znotraj radija.
+ */
+
+// Funkcija, ki vrne točke znotraj določenega radija od dane točke
+function findPointsWithinRadius(center, points, radius) {
+    const centerPoint = turf.point(center);
+    const searchArea = turf.circle(centerPoint, radius, { steps: 64, units: 'kilometers' });
+  
+    const results = points.filter(point => {
+        
+        const targetPoint = turf.point(point);
+        return turf.booleanPointInPolygon(targetPoint, searchArea);
+    });
+  
+    return results;
+}
 /**
  * measurementController.js
  *
@@ -10,7 +33,7 @@ module.exports = {
     /**
      * measurementController.list()
      */
-    list: function (req, res) {
+    listAll: function (req, res) {
         MeasurementModel.find()
         .populate('measuredBy')
         .exec(function (err, measurements) {
@@ -26,6 +49,37 @@ module.exports = {
         });
     },
 
+    listNearby: async function (req, res) {
+        try {
+            const measurements = await MeasurementModel.find()
+                .select('location.coordinates -_id')
+                .populate('measuredBy');
+    
+            const coordinates = measurements.map(measurement => {
+                return [
+                    measurement.location.coordinates[1],
+                    measurement.location.coordinates[0]
+                    
+                ];
+            });
+            
+            const center = [46.555163, 15.641621]; // Središčna točka
+            const radius = 1; // Radij v kilometrih
+    
+            // Najdi koordinate znotraj določenega radija
+            const pointsWithinRadius = findPointsWithinRadius(center, coordinates, radius);
+    
+            return res.status(200).json({ pointsWithinRadius });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Error when getting measurements.',
+                error: error
+            });
+        }
+    },
+    
+    
+    
     /**
      * measurementController.show()
      */
