@@ -16,7 +16,10 @@ var mobileTowerSchema = new Schema({
 	'operator' : String,
 	'type' : String,
 	'confirmed' : Boolean,
-	'locator' : String
+	'locator' : {
+	 	type: Schema.Types.ObjectId,
+	 	ref: 'user'
+	}
 });
 
 module.exports = mongoose.model('mobileTower', mobileTowerSchema);
