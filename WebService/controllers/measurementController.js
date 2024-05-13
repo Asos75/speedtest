@@ -20,9 +20,36 @@ function findPointsWithinRadius(center, points, radius) {
         const targetPoint = turf.point(point);
         return turf.booleanPointInPolygon(targetPoint, searchArea);
     });
-  
+
     return results;
 }
+
+    /**
+ * Ustvari pravokotnik glede na dve koordinati (levi zgornji kot in desni spodnji kot).
+ * @param {Array} topLeftKoordinate Koordinate levega zgornjega kota pravokotnika [lat, lon].
+ * @param {Array} bottomRightKoordinate Koordinate desnega spodnjega kota pravokotnika [lat, lon].
+ * @param {Array} tocke Koordinate preverjanja [lat, lon].
+ * @returns {boolean} true, če je koordinata znotraj pravokotnika, sicer false.
+ */
+
+function isWithinRectangle(topLeftKoordinate, bottomRightKoordinate, tocke) {
+    const topLeft = turf.point(topLeftKoordinate);
+    const bottomRight = turf.point(bottomRightKoordinate);
+    const bbox = turf.bbox(turf.featureCollection([topLeft, bottomRight]));
+    const bboxPolygon = turf.bboxPolygon(bbox);
+
+    const results = tocke.filter(point => {
+        
+    const tocka = turf.point(point);
+    return turf.booleanPointInPolygon(tocka, bboxPolygon);
+    });
+
+    return results;
+}
+    
+
+  
+
 /**
  * measurementController.js
  *
@@ -78,6 +105,33 @@ module.exports = {
         }
     },
     
+    listWithinRectangle: async function (req, res) {
+        try {
+            const measurements = await MeasurementModel.find()
+                .select('location.coordinates -_id')
+                .populate('measuredBy');
+    
+            const coordinates = measurements.map(measurement => {
+                return [
+                    measurement.location.coordinates[1],
+                    measurement.location.coordinates[0]
+                    
+                ];
+            });
+            
+            const topLeftKoordinate = [46.572, 15.64]; // Levo zgoraj
+            const bottomRightKoordinate = [46.562, 15.65]; // Desno spodaj
+          
+            const pointsWithinRectangle = isWithinRectangle(topLeftKoordinate, bottomRightKoordinate, coordinates);
+    
+            return res.status(200).json({ pointsWithinRectangle });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Error when getting measurements.',
+                error: error
+            });
+        }
+    },
     
     
     /**
