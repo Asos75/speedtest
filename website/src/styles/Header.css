@@ -1,0 +1,67 @@
+.header{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    height: 130px;
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+.header-title{
+    color: var(--color-white);
+    background-color: var(--color-purple);
+    box-shadow: 5px 7px var(--color-purple-dark);
+    padding: 10px 20px;
+    margin: auto;
+    text-align: center;
+    border-radius: 45px;
+    transition: var(--hover-duration) ease;
+}
+
+.header-title:hover{
+    background-color: var(--color-purple-light);
+    box-shadow: 5px 7px var(--color-black-light);
+    cursor: pointer;
+}
+
+.header-right {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.header-right > *{
+    color: var(--color-white);
+    background-color: var(--color-purple);
+    box-shadow: 3px 5px var(--color-purple-dark);
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: var(--hover-duration) ease;
+}
+
+.header-right > *:hover{
+    background-color: var(--color-purple-light);
+    box-shadow: 3px 5px var(--color-black-light);
+    cursor: pointer;
+}
+
+.header-Login{
+    margin-right: 15px;
+}
+
+.header-Register:hover{
+    color: var(--color-white);
+}
+  
+.header-title {
+    margin: auto;
+    text-align: center;
+}
+
+.header-title-link{
+    color: var(--color-white);
+    text-decoration: none;
+}

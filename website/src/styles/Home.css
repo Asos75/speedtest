@@ -1,0 +1,93 @@
+.backgroundImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/mariborMain.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Darker for 15% */
+    filter: brightness(85%);
+}
+
+.homePage{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align:center;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.homePageDescription{
+    display:flex;
+    font-size: 25px;
+    color: var(--color-white);
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    padding: 15px 20px;
+    border-radius: 25px;
+    width: 1000px;
+    height: 350px;
+}
+
+.homePageTitle{
+    width: fit-content;
+    color: var(--color-white);
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px 25px;
+    border-radius: 25px;
+    margin: 10px;
+}
+
+.homePageTitle b{
+    transition: var(--hover-duration) ease;
+}
+
+.homePageTitle b:hover{
+    color: var(--color-purple);
+    cursor: pointer;
+}
+
+.homePageSubtitle{
+    color: white;
+    font-size: 30px;
+    border-radius: 25px;
+    margin: 0;
+}
+
+.homePageSubLayout{
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+}
+
+.mainContentLayout{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mainContentElement{
+    background-color: var(--color-purple);
+    border-radius: 25px;
+    padding: 10px;
+    margin: 10px;
+    box-shadow: 3px 4px var(--color-purple-dark);
+    transition: var(--hover-duration) ease;
+}
+
+.mainContentElement:hover{
+    background-color: var(--color-purple-light);
+    box-shadow: 3px 4px var(--color-black-light);
+    cursor: pointer;
+}
+
+.mainContentLink{
+    color: var(--color-white);
+   text-decoration: none;;
+}
