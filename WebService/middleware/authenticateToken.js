@@ -1,0 +1,21 @@
+const jwt = require('jsonwebtoken');
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Missing JWT token' });
+  }
+
+  jwt.verify(token, 'nice', (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid JWT token' });
+    }
+    // Če je JWT žeton veljaven, shranimo uporabniške podatke v zahtevo in nadaljujemo
+    req.user = user;
+    next();
+  });
+}
+
+module.exports = authenticateToken;
