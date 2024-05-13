@@ -1,18 +1,17 @@
-package speedTest
-
 import org.bson.types.ObjectId
-import util.Location
+import speedTest.Type
 import java.time.LocalDateTime
 
 class Measurment (
     var speed: Long,
     var type: Type,
-    var operator: String,
+    var provider: String,
     var location: Location,
     var time: LocalDateTime,
-    var userId: ObjectId?
+    var userId: ObjectId?,
+    val id: ObjectId = ObjectId()
 ){
     override fun toString(): String {
-        return "$speed, $type, $operator, ${location.coordinates[0]}, ${location.coordinates[1]}, $time, $userId"
+        return "$speed, $type, $provider, ${location.coordinates[0]}, ${location.coordinates[1]}, $time, $userId"
     }
 }

@@ -20,13 +20,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import dao.mongodb.MongoMeasurement
 import dao.mongodb.MongoUser
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
 import dslCity.Scanner
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.selects.select
 import org.bson.types.ObjectId
 import java.awt.FileDialog
 import java.awt.Frame
@@ -206,6 +206,19 @@ fun Measure(
                         location = globalLocation
                         provider = globalProvider
 
+                        val mongoMeasurement = MongoMeasurement(conn)
+                        runBlocking {
+                            mongoMeasurement.insert(
+                                Measurment(
+                                    speedglobal,
+                                    Type.wifi,
+                                    globalProvider,
+                                    location,
+                                    LocalDateTime.now(),
+                                    null
+                                )
+                            )
+                        }
                     }
                 },
             ) {
@@ -579,8 +592,8 @@ fun Generator() {
     var lon1 by remember { mutableStateOf("") }
     var lat2 by remember { mutableStateOf("") }
     var lon2 by remember { mutableStateOf("") }
-    var locationMarker1 by remember { mutableStateOf( Location(coordinates = listOf(0.0, 0.0))) }
-    var locationMarker2 by remember { mutableStateOf( Location(coordinates = listOf(0.0, 0.0))) }
+    var locationMarker1 by remember { mutableStateOf(Location(coordinates = listOf(0.0, 0.0))) }
+    var locationMarker2 by remember { mutableStateOf(Location(coordinates = listOf(0.0, 0.0))) }
 
     //USER
     val mongoUser = MongoUser(conn)
@@ -608,8 +621,18 @@ fun Generator() {
                         maxValue.toLong(),
                         if (selectedOption == "Data") Type.data else Type.wifi,
                         operator,
-                        Location(coordinates = listOf(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble())),
-                        Location(coordinates = listOf(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble())),
+                        Location(
+                            coordinates = listOf(
+                                lat1.replace(" ", "").toDouble(),
+                                lon1.replace(" ", "").toDouble()
+                            )
+                        ),
+                        Location(
+                            coordinates = listOf(
+                                lat2.replace(" ", "").toDouble(),
+                                lon2.replace(" ", "").toDouble()
+                            )
+                        ),
                         selectedUser.second,
                         count.replace(" ", "").toInt()
                     )
@@ -624,8 +647,18 @@ fun Generator() {
                         maxValue.toLong(),
                         if (selectedOption == "Data") Type.data else Type.wifi,
                         operator,
-                        Location(coordinates = listOf(lat1.replace(" ", "").toDouble(), lon1.replace(" ", "").toDouble())),
-                        Location(coordinates = listOf(lat2.replace(" ", "").toDouble(), lon2.replace(" ", "").toDouble())),
+                        Location(
+                            coordinates = listOf(
+                                lat1.replace(" ", "").toDouble(),
+                                lon1.replace(" ", "").toDouble()
+                            )
+                        ),
+                        Location(
+                            coordinates = listOf(
+                                lat2.replace(" ", "").toDouble(),
+                                lon2.replace(" ", "").toDouble()
+                            )
+                        ),
                         selectedUser.second,
                         count.replace(" ", "").toInt(),
                         conn

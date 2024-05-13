@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.first
 import org.mindrot.jbcrypt.BCrypt
 import util.HashingUtil
 
-class MongoUser(val database: MongoDatabase?): UserCRUD {
+class MongoUser(database: MongoDatabase?): UserCRUD {
 
-    val collection = (database ?: throw RuntimeException("Database not found")).getCollection<Document>("user ") //TODO fix space
+    private val collection = (database ?: throw RuntimeException("Database not found")).getCollection<Document>("user ") //TODO fix space
 
     override suspend fun getAll(): List<User>{
         val users = mutableListOf<User>()
