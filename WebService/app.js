@@ -6,8 +6,8 @@ const logger = require('morgan');
 const http = require('http');
 const socketIo = require('socket.io');
 
-
-require('dotenv').config();
+// Changed the path of the .env file for the dotenv package
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const mongoose = require('mongoose');
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -32,7 +32,7 @@ async function run() {
   }
 }
 
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(uri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
