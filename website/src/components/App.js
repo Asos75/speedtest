@@ -13,7 +13,6 @@ import '../styles/App.css';
 import '../styles/Home.css';
 import '../styles/Header.css';
 
-// Route paths
 
 const App = () => (
   <>

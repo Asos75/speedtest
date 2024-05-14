@@ -1,12 +1,13 @@
 import React from 'react';
 
 const Home = () => {
+        //BACKEND URL -> process.env.REACT_APP_BACKEND_URL
 return (
     <>
     <div className="backgroundImage"></div>
     <div className="homePage">
         <h1 className="homePageTitle">Welcome to <b>Speedtest Reader</b></h1>
-        <div class="homePageDescription">
+        <div className="homePageDescription">
             {/* Change this part to ul > li list */}
             <p>This is a website for reading internet speed test results, 
                 data from various internet speed test sites, 
@@ -16,9 +17,9 @@ return (
                 Project created by Andraž, David and Domen.
                 </p>
         </div>
-        <div class="homePageSubLayout">
+        <div className="homePageSubLayout">
             <h3 className="homePageSubtitle">Explore the tools available on this website</h3>
-            <div class="mainContentLayout">
+            <div className="mainContentLayout">
                 <div className="mainContentElement">
                         <a href="/measurement" className="mainContentLink">⚡Measure Speed</a>
                 </div>
