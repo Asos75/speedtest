@@ -6,7 +6,7 @@ return (
     <>
     <div className="backgroundImage"></div>
     <div className="homePage">
-        <h1 className="homePageTitle">Welcome to <b>Speedtest Reader</b></h1>
+        <h1 className="homePageTitle">Welcome to <a href="/">Speedtest Reader</a></h1>
         <div className="homePageDescription">
             <p>This is a website for reading internet speed test results, 
                 data from various internet speed test sites, 
