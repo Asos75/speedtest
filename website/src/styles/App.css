@@ -8,6 +8,16 @@
   --color-black: black;
   --color-black-light: rgb(35, 35, 35);
   --color-black-transparent: rgba(0, 0, 0, 0.6);
+  /* Tools | Geolocation | Mobile towers color */
+  --color-lightgray: lightgray;
   /* Animation */
   --hover-duration: 0.3s;
+}
+
+.grayBackground {
+  position: absolute;
+  background-color: var(--color-lightgray);
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
 }

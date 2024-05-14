@@ -45,12 +45,14 @@
     margin: 10px;
 }
 
-.homePageTitle b{
+.homePageTitle a{
     transition: var(--hover-duration) ease;
+    color: var(--color-white);
+    text-decoration: none;
 }
 
-.homePageTitle b:hover{
-    color: var(--color-purple);
+.homePageTitle a:hover{
+    color: var(--color-purple-light);
     cursor: pointer;
 }
 

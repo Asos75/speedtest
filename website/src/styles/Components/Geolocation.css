@@ -1,0 +1,35 @@
+/* Globe moving around from left to right */
+/*.geolocationBackground {
+    background-color: lightgray;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .geolocationBackground::before {
+    content: "🌍";
+    font-size: 200px;
+    position: absolute;
+    animation: move 3s infinite;
+    animation-direction:alternate-reverse;
+  }
+  
+  @keyframes move {
+    0% { left: 0; }
+    100% { left: calc(100% - 15vw); }
+  }
+*/
+
+.geolocationTitle{
+    font-size: 2rem;
+    color: var(--color-black);
+    text-align: center;
+}
+
+.geolocationLayout{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
