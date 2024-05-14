@@ -20,14 +20,14 @@
     justify-content: center;
     text-align:center;
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: var(--color-black-transparent);
 }
 
 .homePageDescription{
     display:flex;
     font-size: 25px;
     color: var(--color-white);
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: var(--color-black-transparent);
     align-items: center;
     padding: 15px 20px;
     border-radius: 25px;
@@ -38,7 +38,7 @@
 .homePageTitle{
     width: fit-content;
     color: var(--color-white);
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: var(--color-black-transparent);
     padding: 20px 25px;
     border-radius: 25px;
     margin: 10px;
@@ -62,7 +62,7 @@
 
 .homePageSubLayout{
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: var(--color-black-transparent);
     padding: 20px;
 }
 

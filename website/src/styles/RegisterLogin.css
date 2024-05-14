@@ -1,0 +1,114 @@
+.registerLoginContainer{
+    display: flex;
+    color: var(--color-white);
+    background-color: var(--color-black-transparent);
+    box-shadow: 0 0 10px var(--color-black-light);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    padding: 20px;
+    border-radius: 30px;
+    width: 700px;
+}
+
+.registerLoginContainer input{
+    color: var(--color-white);
+    background-color: var(--color-black-light);
+    width: 400px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    border:none;
+    font-weight: bold;
+}
+
+.registerLoginContainer input::placeholder{
+    color: var(--color-white);
+    font-weight:normal;
+}
+
+.registerLoginContainer h3{
+    font-size: 1.3rem;
+    margin:0;
+}
+
+.registerLoginContainer button{
+    color: var(--color-white);
+    background-color: var(--color-purple);
+    box-shadow: 4px 4px var(--color-purple-dark);
+    width: 200px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    border:none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--hover-duration) ease;
+}
+
+.registerLoginContainer button:hover{
+    background-color: var(--color-purple-light);
+    box-shadow: 2px 2px var(--color-black-light);
+}
+
+/* If screen smaller then 1050px, then change width of regsiterForm accordingly */
+@media screen and (max-width: 1050px){
+    .registerLoginContainer{
+        width: 90%;
+    }
+}
+
+/* If screen smaller then 500px, then change width of loginRegisterForm, input accordingly */
+@media screen and (max-width: 500px){
+    .registerLoginContainer{
+        width: 75%;
+    }
+
+    .registerLoginContainer input{
+        width: 90%;
+    }
+
+}
+
+.registerTitle{
+    width: min-content;
+}
+
+.loginTitle{
+    width: 200px;
+}
+
+.registerTitle, .loginTitle{
+    margin: 20px auto;
+    color: var(--color-white);
+    background-color: var(--color-purple);
+    font-size: 2rem;
+    text-align:center;
+    padding: 10px 25px;
+    border-radius: 45px;
+}
+
+.existingAccount{
+    width: 300px;
+    color: var(--color-white);
+    background-color: var(--color-black-light);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 10px auto;
+    transition: var(--hover-duration) ease;
+}
+
+.existingAccount a{
+    color: var(--color-purple);
+    text-decoration: none;
+    font-weight: bold;
+    transition: var(--hover-duration) ease;
+}
+
+.existingAccount a:hover{
+    color: var(--color-purple-light);
+    cursor: pointer;
+}

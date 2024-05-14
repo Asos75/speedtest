@@ -7,6 +7,7 @@
   --color-white-dark: rgb(240, 240, 240);
   --color-black: black;
   --color-black-light: rgb(35, 35, 35);
+  --color-black-transparent: rgba(0, 0, 0, 0.6);
   /* Animation */
   --hover-duration: 0.3s;
 }
