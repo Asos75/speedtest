@@ -8,17 +8,24 @@ return (
     <div className="homePage">
         <h1 className="homePageTitle">Welcome to <b>Speedtest Reader</b></h1>
         <div className="homePageDescription">
-            {/* Change this part to ul > li list */}
             <p>This is a website for reading internet speed test results, 
                 data from various internet speed test sites, 
                 and for creating your own speed test results, 
                 based on your geopgrahic location. <br/>
-                Below you can explore the different tools available on this website. <br/>
-                Project created by Andraž, David and Domen.
-                </p>
+                Below you can explore the different tools available on this website.
+            </p>
+            <h4 className="homePageSubtitle">Features on this website</h4>
+            <ul className="homePageFeatures">
+                <li>Explore, create and edit <a href="/event">events</a></li>
+                <li>Read, mesaure, and create <a href="/geolocation">geolocations</a> on the map</li>
+                <li>Pinpoint exact <a href="/mobile-tower">mobile tower</a> location and explore their data</li>
+                <li>And more</li>
+            </ul>
+            <p className="homePageCredits">Project created by Andraž, David and Domen.</p>
+           
         </div>
         <div className="homePageSubLayout">
-            <h3 className="homePageSubtitle">Explore the tools available on this website</h3>
+            <h3 className="homePageSubtitle">Tools that are available on mobile</h3>
             <div className="mainContentLayout">
                 <div className="mainContentElement">
                         <a href="/measurement" className="mainContentLink">⚡Measure Speed</a>

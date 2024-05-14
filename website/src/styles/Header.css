@@ -24,15 +24,18 @@
     cursor: pointer;
 }
 
-.header-right {
+.header-left, .header-right{
     position: absolute;
-    right: 0;
     display: flex;
     align-items: center;
     padding: 10px;
 }
 
-.header-right > *{
+.header-left{left: 20px;}
+
+.header-right {right: 20px;}
+
+.header-left > *, .header-right > *{
     color: var(--color-white);
     background-color: var(--color-purple);
     box-shadow: 3px 5px var(--color-purple-dark);
@@ -42,10 +45,14 @@
     transition: var(--hover-duration) ease;
 }
 
-.header-right > *:hover{
+.header-right > *:hover, .header-left > *:hover{
     background-color: var(--color-purple-light);
     box-shadow: 3px 5px var(--color-black-light);
     cursor: pointer;
+}
+
+.header-left > *{
+    margin-right: 15px;
 }
 
 .header-Login{
