@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import dao.mongodb.MongoMeasurement
-import dao.mongodb.MongoUser
+import dao.http.HttpMeasurement
+import dao.http.HttpUser
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
 import dslCity.Scanner
@@ -39,7 +39,7 @@ import util.*
 import kotlin.concurrent.thread
 
 var conn : MongoDatabase? = null
-
+val sessionManager = SessionManager()
 @Composable
 fun Navigation(
     onDataClicked: () -> Unit,
@@ -121,6 +121,20 @@ fun Navigation(
                 )
             }
             Spacer(modifier = Modifier.weight(3.0f))
+            Box(
+                modifier = Modifier.clickable(onClick = {  }).fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(7.dp),
+                    text = if (sessionManager.isSet) {
+                        "${sessionManager.user?.username}"
+                    } else {
+                        "Logged out"
+                    },
+                    textAlign = TextAlign.Center
+                )
+            }
             Box(
                 modifier = Modifier.clickable(onClick = onAboutAppClicked).fillMaxWidth()
             ) {
@@ -206,16 +220,16 @@ fun Measure(
                         location = globalLocation
                         provider = globalProvider
 
-                        val mongoMeasurement = MongoMeasurement(conn)
+                        val httpMeasurement = HttpMeasurement()
                         runBlocking {
-                            mongoMeasurement.insert(
+                            httpMeasurement.insert(
                                 Measurment(
                                     speedglobal,
                                     Type.wifi,
                                     globalProvider,
                                     location,
                                     LocalDateTime.now(),
-                                    null
+                                    sessionManager.user
                                 )
                             )
                         }
@@ -482,8 +496,6 @@ fun Editor() {
                 cursorColor = Color.Black
             )
         )
-
-
     }
 }
 
@@ -570,7 +582,7 @@ fun standardTextField(modVal: String){
 
 }
 
-var userOptions = mutableListOf<Pair<String, ObjectId>>()
+var userOptions = mutableListOf<Pair<String, User>>()
 @Composable
 fun Generator() {
     var alphaStatus by remember { mutableStateOf(0f) }
@@ -596,11 +608,11 @@ fun Generator() {
     var locationMarker2 by remember { mutableStateOf(Location(coordinates = listOf(0.0, 0.0))) }
 
     //USER
-    val mongoUser = MongoUser(conn)
+    val httpUser = HttpUser(sessionManager)
     if(userOptions.isEmpty()) userOptions = runBlocking {
-        val users = mongoUser.getAll()
+        val users = httpUser.getAll()
         users.map { user ->
-            user.username to user.id
+            user.username to user
         }.toMutableList()
     }
     var selectedUser by remember { mutableStateOf(userOptions.first()) }
@@ -992,7 +1004,7 @@ fun App() {
 
 fun main() = application {
     runBlocking { conn = DatabaseUtil.setupConnection() }
-
+    HttpUser(sessionManager).authenticate("KotlinTester", "1234")
     Window(onCloseRequest = ::exitApplication) {
         App()
     }

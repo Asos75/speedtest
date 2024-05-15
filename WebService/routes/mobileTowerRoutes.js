@@ -11,7 +11,8 @@ router.get('/', mobileTowerController.list);
  * GET
  */
 router.get('/:id', mobileTowerController.show);
-
+router.get('/confirmed/:status', mobileTowerController.confirmed)
+router.get('/confirm/:id', mobileTowerController.confirm)
 /*
  * POST
  */
@@ -20,6 +21,7 @@ router.post('/', mobileTowerController.create);
 /*
  * PUT
  */
+
 router.put('/:id', mobileTowerController.update);
 
 /*

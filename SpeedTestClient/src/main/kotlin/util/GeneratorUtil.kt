@@ -6,6 +6,7 @@ import org.bson.Document
 import org.bson.types.ObjectId
 import speedTest.Type
 import Measurment
+import User
 import java.io.File
 import java.time.LocalDateTime
 import kotlin.random.Random
@@ -18,7 +19,7 @@ object GeneratorUtil {
         operator: String,
         locationMarker1: Location,
         locationMarker2: Location,
-        userId: ObjectId,
+        userId: User,
         count: Int
     ){
         val out =  File("speedData.csv").outputStream()
@@ -45,7 +46,7 @@ object GeneratorUtil {
                 )
             )
 
-            val measurement = Measurment(value, type, operator, location, LocalDateTime.now(), userId)
+            val measurement = Measurment(value, type, operator, location, LocalDateTime.now(), null)
             out.write("$measurement\n".toByteArray())
         }
         out.close()
@@ -59,7 +60,7 @@ object GeneratorUtil {
         operator: String,
         locationMarker1: Location,
         locationMarker2: Location,
-        userId: ObjectId,
+        user: User,
         count: Int,
         conn: MongoDatabase?
     ) {
@@ -88,7 +89,7 @@ object GeneratorUtil {
                     Random.nextDouble(latRange.start, latRange.endInclusive)
                 )
             )
-            val measurement = Measurment(speed, type, operator, location, LocalDateTime.now(), userId)
+            val measurement = Measurment(speed, type, operator, location, LocalDateTime.now(), user )
             val document = Document()
                 .append("speed", measurement.speed)
                 .append("type", measurement.type)
@@ -99,7 +100,7 @@ object GeneratorUtil {
                         .append("type", measurement.location.type)
                         .append("coordinates", measurement.location.coordinates)
                 )
-                .append("user", measurement.userId)
+                .append("user", measurement.user?.id)
             documents.add(document)
         }
         runBlocking {collection.insertMany(documents)}

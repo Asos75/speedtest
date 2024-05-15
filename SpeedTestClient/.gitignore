@@ -47,3 +47,4 @@ bin/
 build/
 
 src/main/kotlin/conf/config.json
+src/main/kotlin/conf/ipconfig.json

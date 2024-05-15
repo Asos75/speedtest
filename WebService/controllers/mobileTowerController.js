@@ -20,7 +20,7 @@ module.exports = {
             }
 
             return res.json(mobileTowers);
-        });
+        }).populate("locator");
     },
 
     /**
@@ -44,7 +44,22 @@ module.exports = {
             }
 
             return res.json(mobileTower);
-        });
+        }).populate("locator");
+    },
+
+    confirmed: function (req, res) {
+        var status = req.params.status;
+
+        MobiletowerModel.find({confirmed: status}, function(err, mobileTowers){
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting mobileTower.',
+                    error: err
+                });
+            }
+
+            return res.json(mobileTowers);
+        }).populate("locator")
     },
 
     /**
@@ -108,6 +123,23 @@ module.exports = {
                 return res.json(mobileTower);
             });
         });
+    },
+
+    confirm: function (req, res){
+        var id = req.params.id;
+        MobiletowerModel.findOneAndUpdate({_id: id}, 
+            [{ $set: { confirmed: { $not: "$confirmed" } } } ],
+            function (err, mobileTower) {
+
+                if (err) {
+                    return res.status(500).json({
+                        message: 'Error when getting mobileTower.',
+                        error: err
+                    });
+                }
+    
+                return res.json(mobileTower);
+        }).populate("locator")
     },
 
     /**

@@ -161,8 +161,8 @@ module.exports = {
             }
             // Ustvari JWT žeton in ga pošlje kot odgovor
             const jwt = require('jsonwebtoken');
-            const token = jwt.sign({ userId: user._id }, 'your-secret-key');
-            res.json({ token: token });
+            const token = jwt.sign({ userId: user._id }, 'nice');
+            res.json({ token: token, user: user });
         });
     },
 

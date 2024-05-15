@@ -52,7 +52,7 @@ object LocationUtil {
             throw RuntimeException("Error retrieving the location")
 
         }
-        return Location(coordinates = listOf(lat, lon))
+        return Location(coordinates = listOf(lon, lat))
     }
 
     private fun getLocationLinux(): Location {
