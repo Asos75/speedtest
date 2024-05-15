@@ -76,6 +76,45 @@ module.exports = {
         });
     },
 
+    listByUser: function (req, res){
+        var userId = req.params.user_id;
+        MeasurementModel.find({measuredBy: userId})
+        .populate('measuredBy')
+        .exec(function (err, measurements) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting photo.',
+                    error: err
+                });
+            }
+            var data = [];
+            data.measurements = measurements;
+            return res.json(measurements);
+        });
+    },
+
+    listByTimeFrame: function (req, res){
+        var start_time = req.params.date_start;
+        var end_time = req.params.date_end;
+        MeasurementModel.find({
+            time: {
+                $gte: start_time,
+                $lt: end_time
+            }
+        }).populate('measuredBy')
+        .exec(function (err, measurements) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting photo.',
+                    error: err
+                });
+            }
+            var data = [];
+            data.measurements = measurements;
+            return res.json(measurements);
+        });
+    },
+
     listNearby: async function (req, res) {
         try {
             const measurements = await MeasurementModel.find()
@@ -155,7 +194,7 @@ module.exports = {
             }
 
             return res.json(measurement);
-        });
+        }).populate("measuredBy");
     },
 
     /**
@@ -168,7 +207,7 @@ module.exports = {
 			provider : req.body.provider,
 			time : req.body.time,
 			location : req.body.location,
-			user : req.body.user
+			measuredBy : req.body.measuredBy
         });
 
         measurement.save(function (err, measurement) {
@@ -180,6 +219,27 @@ module.exports = {
             }
 
             return res.status(201).json(measurement);
+        });
+    },
+
+    createMany: function (req, res){
+        var measurements = req.body.measurements;
+
+        if (!Array.isArray(measurements)) {
+            return res.status(400).json({
+                message: 'Invalid request format. Expected an array of measurements.'
+            });
+        }
+    
+        MeasurementModel.insertMany(measurements, function(err, createdMeasurements) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when creating measurements',
+                    error: err
+                });
+            }
+    
+            return res.status(201).json(createdMeasurements);
         });
     },
 
@@ -208,7 +268,7 @@ module.exports = {
 			measurement.provider = req.body.provider ? req.body.provider : measurement.provider;
 			measurement.time = req.body.time ? req.body.time : measurement.time;
 			measurement.location = req.body.location ? req.body.location : measurement.location;
-			measurement.user = req.body.user ? req.body.user : measurement.user;
+			measurement.measuredBy = req.body.measuredBy ? req.body.measuredBy : measurement.measuredBy;
 			
             measurement.save(function (err, measurement) {
                 if (err) {

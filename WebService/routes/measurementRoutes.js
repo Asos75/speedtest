@@ -12,12 +12,15 @@ router.get('/measureRectangle', measurementController.listWithinRectangle);
 /*
  * GET
  */
+router.get('/user/:user_id', measurementController.listByUser);
+router.get('/timeframe/:date_start/:date_end', measurementController.listByTimeFrame);
 router.get('/:id', measurementController.show);
 
 /*
  * POST
  */
 router.post('/', measurementController.create);
+router.post('/many', measurementController.createMany)
 
 /*
  * PUT

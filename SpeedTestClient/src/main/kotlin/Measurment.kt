@@ -8,10 +8,10 @@ class Measurment (
     var provider: String,
     var location: Location,
     var time: LocalDateTime,
-    var userId: ObjectId?,
+    var user: User?,
     val id: ObjectId = ObjectId()
 ){
     override fun toString(): String {
-        return "$speed, $type, $provider, ${location.coordinates[0]}, ${location.coordinates[1]}, $time, $userId"
+        return "$speed, $type, $provider, ${location.coordinates[0]}, ${location.coordinates[1]}, $time, $user"
     }
 }

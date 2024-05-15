@@ -54,6 +54,7 @@ module.exports = {
         var event = new EventModel({
 			name : req.body.name,
 			type : req.body.type,
+            time : req.body.time,
 			online : req.body.online,
 			location  : req.body.location 
         });
@@ -92,6 +93,7 @@ module.exports = {
 
             event.name = req.body.name ? req.body.name : event.name;
 			event.type = req.body.type ? req.body.type : event.type;
+            event.time = req.body.time ? req.body.time : event.time;
 			event.online = req.body.online ? req.body.online : event.online;
 			event.location  = req.body.location  ? req.body.location  : event.location ;
 			

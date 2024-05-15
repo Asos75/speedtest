@@ -5,7 +5,7 @@ class MobileTower(
     var provider: String,
     var type: String,
     var confirmed: Boolean,
-    var locator: ObjectId,
+    var locator: User?,
     var id: ObjectId = ObjectId()
 ) {
     override fun toString(): String {
