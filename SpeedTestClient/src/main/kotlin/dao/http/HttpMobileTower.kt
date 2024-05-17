@@ -2,6 +2,7 @@ package dao.http
 
 import Location
 import MobileTower
+import SessionManager
 import User
 import dao.MobileTowerCRUD
 import okhttp3.MediaType.Companion.toMediaType
@@ -13,8 +14,9 @@ import org.jetbrains.skiko.nativeInitializeAccessible
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.time.format.DateTimeFormatter
 
-class HttpMobileTower {
+class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
     private val client = OkHttpClient()
     var ip = ""
     init {
@@ -24,7 +26,7 @@ class HttpMobileTower {
         ip = jsonObject.getString("url")
 
     }
-    fun getByConfirmed(status: Boolean): List<MobileTower> {
+    override fun getByConfirmed(status: Boolean): List<MobileTower> {
         val url = "${ip}/mobile/confirmed/${status}"
         val request = Request.Builder()
             .url(url)
@@ -57,10 +59,11 @@ class HttpMobileTower {
 
     }
 
-    fun toggleConfirm(obj: MobileTower): Boolean {
+    override fun toggleConfirm(obj: MobileTower): Boolean {
         val url = "${ip}/mobile/confirm/${obj.id}"
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .get()
             .build()
 
@@ -75,7 +78,7 @@ class HttpMobileTower {
 
     }
 
-    fun getById(id: ObjectId): MobileTower? {
+    override fun getById(id: ObjectId): MobileTower? {
         val url = "${ip}/mobile/$id"
         val request = Request.Builder()
             .url(url)
@@ -94,7 +97,7 @@ class HttpMobileTower {
         }
     }
 
-    fun getAll(): List<MobileTower> {
+    override fun getAll(): List<MobileTower> {
         val url = "$ip/mobile"
         val request = Request.Builder()
             .url(url)
@@ -102,14 +105,11 @@ class HttpMobileTower {
             .build()
 
         client.newCall(request).execute().use { response ->
-            // Check if the request was successful (HTTP 200 OK)
             if (!response.isSuccessful) {
-                // If not, handle the error
                 println("Failed to execute request: ${response.code}")
                 return emptyList()
             }
 
-            // Get the response body as a string
             val responseBody = response.body?.string()
 
             responseBody?.let {
@@ -128,11 +128,44 @@ class HttpMobileTower {
             return emptyList()
         }
     }
-    fun insert(obj: MobileTower): Boolean {
+    override fun insert(obj: MobileTower): Boolean {
         val url = "$ip/mobile"
         val requestBody = createRequestBody(obj)
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            return response.isSuccessful
+        }
+    }
+    //TODO test insert many
+    override fun insertMany(list: List<MobileTower>): Boolean{
+        val jsonArray = JSONArray()
+        list.forEach { tower ->
+            val jsonObject = JSONObject().apply {
+                put("location", JSONObject().apply {
+                    put("type", "Point")
+                    put("coordinates", tower.location.coordinates)
+                })
+                put("operator", tower.provider)
+                put("type", tower.type)
+                put("confirmed", tower.confirmed)
+                put("locator", tower.locator.toString())
+            }
+            jsonArray.put(jsonObject)
+        }
+
+        val jsonTowers = JSONObject().apply {
+            put("towers", jsonArray)
+        }
+
+        val requestBody = jsonTowers.toString().toRequestBody("application/json".toMediaType())
+        val request = Request.Builder()
+            .url("${ip}/mobileTowerRoutes/createMany")
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .post(requestBody)
             .build()
 
@@ -141,11 +174,12 @@ class HttpMobileTower {
         }
     }
 
-    fun update(obj: MobileTower): Boolean {
+    override fun update(obj: MobileTower): Boolean {
         val url = "$ip/mobile/${obj.id}"
         val requestBody = createRequestBody(obj)
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .put(requestBody)
             .build()
 
@@ -154,10 +188,11 @@ class HttpMobileTower {
         }
     }
 
-    fun delete(obj: MobileTower): Boolean {
+    override fun delete(obj: MobileTower): Boolean {
         val url = "$ip/mobile/${obj.id}"
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .delete()
             .build()
 
@@ -202,4 +237,6 @@ class HttpMobileTower {
         val id = ObjectId(jsonObject.getString("_id"))
         return User(username, password, email, admin, id)
     }
+
+
 }

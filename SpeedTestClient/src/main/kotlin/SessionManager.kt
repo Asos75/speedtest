@@ -1,7 +1,11 @@
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 class SessionManager {
-    var isSet = false
-    var token: String? = null
-    var user: User? = null
+    var isSet by mutableStateOf(false)
+    var token by mutableStateOf<String?>(null)
+    var user by mutableStateOf<User?>(null)
     fun start(pair: Pair<String, User>?) : Boolean {
         if(pair != null){
             isSet = true

@@ -1,40 +1,37 @@
 package util
 import Location
-import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import kotlinx.coroutines.runBlocking
-import org.bson.Document
-import org.bson.types.ObjectId
-import speedTest.Type
 import Measurment
+import MobileTower
+import SessionManager
 import User
+import dao.http.HttpMeasurement
+import dao.http.HttpMobileTower
+import speedTest.Type
 import java.io.File
 import java.time.LocalDateTime
 import kotlin.random.Random
-
 object GeneratorUtil {
-    fun generateToCSV(
+
+    private fun orderCoordinates(locationMarker1: Location, locationMarker2: Location, index: Int) = if (locationMarker1.coordinates[index] < locationMarker2.coordinates[index]) {
+        locationMarker1.coordinates[index]..locationMarker2.coordinates[index]
+    } else {
+        locationMarker2.coordinates[index]..locationMarker1.coordinates[index]
+    }
+    fun generateMeasurementsToCSV(
         minValue: Long,
         maxValue: Long,
         type: Type,
         operator: String,
         locationMarker1: Location,
         locationMarker2: Location,
-        userId: User,
+        user: User?,
         count: Int
     ){
         val out =  File("speedData.csv").outputStream()
 
-        val latRange = if (locationMarker1.coordinates[0] < locationMarker2.coordinates[0]) {
-            locationMarker1.coordinates[0]..locationMarker2.coordinates[0]
-        } else {
-            locationMarker2.coordinates[0]..locationMarker1.coordinates[0]
-        }
+        val lonRange = orderCoordinates(locationMarker1, locationMarker2, 0)
 
-        val lonRange = if (locationMarker1.coordinates[1] < locationMarker2.coordinates[1]) {
-            locationMarker1.coordinates[1]..locationMarker2.coordinates[1]
-        } else {
-            locationMarker2.coordinates[1]..locationMarker1.coordinates[1]
-        }
+        val latRange = orderCoordinates(locationMarker1, locationMarker2, 1)
 
         for(i in 0 .. count){
             val value = Random.nextLong(minValue, maxValue)
@@ -46,41 +43,30 @@ object GeneratorUtil {
                 )
             )
 
-            val measurement = Measurment(value, type, operator, location, LocalDateTime.now(), null)
+            val measurement = Measurment(value, type, operator, location, LocalDateTime.now(), user)
             out.write("$measurement\n".toByteArray())
         }
         out.close()
 
     }
 
-    fun generateToMongo(
+    fun generateMeasurementsToMongo(
         minValue: Long,
         maxValue: Long,
         type: Type,
         operator: String,
         locationMarker1: Location,
         locationMarker2: Location,
-        user: User,
+        user: User?,
         count: Int,
-        conn: MongoDatabase?
+        sessionManager: SessionManager
     ) {
-        if (conn == null) throw RuntimeException("Database not connected")
 
-        val latRange = if (locationMarker1.coordinates[0] < locationMarker2.coordinates[0]) {
-            locationMarker1.coordinates[0]..locationMarker2.coordinates[0]
-        } else {
-            locationMarker2.coordinates[0]..locationMarker1.coordinates[0]
-        }
+        val lonRange = orderCoordinates(locationMarker1, locationMarker2, 0)
 
-        val lonRange = if (locationMarker1.coordinates[1] < locationMarker2.coordinates[1]) {
-            locationMarker1.coordinates[1]..locationMarker2.coordinates[1]
-        } else {
-            locationMarker2.coordinates[1]..locationMarker1.coordinates[1]
-        }
+        val latRange = orderCoordinates(locationMarker1, locationMarker2, 1)
 
-        val collection = conn.getCollection<Document>("measurements")
-        val documents = mutableListOf<Document>()
-
+        val measurements = mutableListOf<Measurment>()
         repeat(count) {
             val speed = Random.nextLong(minValue, maxValue)
             val location = Location(
@@ -89,21 +75,66 @@ object GeneratorUtil {
                     Random.nextDouble(latRange.start, latRange.endInclusive)
                 )
             )
-            val measurement = Measurment(speed, type, operator, location, LocalDateTime.now(), user )
-            val document = Document()
-                .append("speed", measurement.speed)
-                .append("type", measurement.type)
-                .append("provider", measurement.provider)
-                .append("time", measurement.time)
-                .append(
-                    "location", Document()
-                        .append("type", measurement.location.type)
-                        .append("coordinates", measurement.location.coordinates)
-                )
-                .append("user", measurement.user?.id)
-            documents.add(document)
+            val measurement = Measurment(speed, type, operator, location, LocalDateTime.now(), user)
+            measurements.add(measurement)
         }
-        runBlocking {collection.insertMany(documents)}
+        HttpMeasurement(sessionManager).insertMany(measurements)
     }
 
+    fun generateTowersToCSV(
+        locationMarker1: Location,
+        locationMarker2: Location,
+        provider: String,
+        type: String,
+        confirmed: Boolean,
+        locator: User?,
+        count: Int
+    ){
+        val out =  File("towerData.csv").outputStream()
+        val lonRange = orderCoordinates(locationMarker1, locationMarker2, 0)
+
+        val latRange = orderCoordinates(locationMarker1, locationMarker2, 1)
+
+        for(i in 0 .. count){
+
+            val location = Location(
+                coordinates = listOf(
+                    Random.nextDouble(lonRange.start, lonRange.endInclusive),
+                    Random.nextDouble(latRange.start, latRange.endInclusive)
+                )
+            )
+
+            val tower = MobileTower(location, provider, type, confirmed, locator)
+            out.write("$tower\n".toByteArray())
+        }
+        out.close()
+    }
+
+    fun generateTowersToMongo(
+        locationMarker1: Location,
+        locationMarker2: Location,
+        provider: String,
+        type: String,
+        confirmed: Boolean,
+        locator: User?,
+        count: Int,
+        sessionManager: SessionManager
+        ){
+        val lonRange = orderCoordinates(locationMarker1, locationMarker2, 0)
+
+        val latRange = orderCoordinates(locationMarker1, locationMarker2, 1)
+
+        val towers = mutableListOf<MobileTower>()
+        repeat(count) {
+            val location = Location(
+                coordinates = listOf(
+                    Random.nextDouble(lonRange.start, lonRange.endInclusive),
+                    Random.nextDouble(latRange.start, latRange.endInclusive)
+                )
+            )
+            val tower = MobileTower(location, provider, type, confirmed, locator)
+            towers.add(tower)
+        }
+        HttpMobileTower(sessionManager).insertMany(towers)
+    }
 }

@@ -2,10 +2,10 @@ package dao
 
 import org.bson.types.ObjectId
 interface DaoCrud<T> {
-    suspend fun getById(id: ObjectId): T?
-    suspend fun getAll(): List<T>
-    suspend fun insert(obj: T): Boolean
-    suspend fun update(obj: T): Boolean
-    suspend fun delete(obj: T): Boolean
+    fun getById(id: ObjectId): T?
+    fun getAll(): List<T>
+    fun insert(obj: T): Boolean
+    fun update(obj: T): Boolean
+    fun delete(obj: T): Boolean
 
 }

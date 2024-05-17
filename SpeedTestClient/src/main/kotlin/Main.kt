@@ -1,6 +1,8 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,6 +24,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import dao.http.HttpMeasurement
+import dao.http.HttpMobileTower
 import dao.http.HttpUser
 import dslCity.ForForeachFFFAutomaton
 import dslCity.Parser
@@ -36,6 +40,7 @@ import java.io.FileNotFoundException
 import java.time.LocalDateTime
 import speedTest.*
 import util.*
+import java.awt.Button
 import kotlin.concurrent.thread
 
 var conn : MongoDatabase? = null
@@ -48,7 +53,8 @@ fun Navigation(
     onAboutAppClicked: () -> Unit,
     onDslCityClicked: () -> Unit,
     onScraperClicked: () -> Unit,
-    onGeneratorClicked: () -> Unit
+    onGeneratorClicked: () -> Unit,
+    onProfileClicked: () -> Unit
 ) {
     Surface(
         modifier = Modifier.padding(8.dp),
@@ -71,26 +77,6 @@ fun Navigation(
                 )
             }
             Box(
-                modifier = Modifier.clickable(onClick = onTowerClicked).fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(7.dp),
-                    text = "\uD83D\uDDFCTower Confirm",
-                    textAlign = TextAlign.Center
-                )
-            }
-            Box(
-                modifier = Modifier.clickable(onClick = onDataClicked).fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(7.dp),
-                    text = "\uD83D\uDDC4Data",
-                    textAlign = TextAlign.Center
-                )
-            }
-            Box(
                 modifier = Modifier.clickable(onClick = onDslCityClicked).fillMaxWidth()
             ) {
                 Text(
@@ -100,29 +86,51 @@ fun Navigation(
                     textAlign = TextAlign.Center
                 )
             }
-            Box(
-                modifier = Modifier.clickable(onClick = onScraperClicked).fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(7.dp),
-                    text = "\uD83C\uDF10 Scraper",
-                    textAlign = TextAlign.Center
-                )
-            }
-            Box(
-                modifier = Modifier.clickable(onClick = onGeneratorClicked).fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(7.dp),
-                    text = "\uD83D\uDD27 Generator",
-                    textAlign = TextAlign.Center
-                )
+            if(sessionManager.isSet && sessionManager.user?.admin == true){
+                Box(
+                    modifier = Modifier.clickable(onClick = onTowerClicked).fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(7.dp),
+                        text = "\uD83D\uDDFCTower Confirm",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
+                    modifier = Modifier.clickable(onClick = onDataClicked).fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(7.dp),
+                        text = "\uD83D\uDDC4Data",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
+                    modifier = Modifier.clickable(onClick = onScraperClicked).fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(7.dp),
+                        text = "\uD83C\uDF10 Scraper",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
+                    modifier = Modifier.clickable(onClick = onGeneratorClicked).fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(7.dp),
+                        text = "\uD83D\uDD27 Generator",
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
             Spacer(modifier = Modifier.weight(3.0f))
             Box(
-                modifier = Modifier.clickable(onClick = {  }).fillMaxWidth()
+                modifier = Modifier.clickable(onClick = onProfileClicked ).fillMaxWidth()
             ) {
                 Text(
                     modifier = Modifier
@@ -130,7 +138,7 @@ fun Navigation(
                     text = if (sessionManager.isSet) {
                         "${sessionManager.user?.username}"
                     } else {
-                        "Logged out"
+                        "Log in"
                     },
                     textAlign = TextAlign.Center
                 )
@@ -151,7 +159,7 @@ fun Navigation(
 
 @Composable
 fun Content(currentContent: @Composable () -> Unit, modifier: Modifier = Modifier) {
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize().then(modifier)
     ) {
         Box(
@@ -220,7 +228,7 @@ fun Measure(
                         location = globalLocation
                         provider = globalProvider
 
-                        val httpMeasurement = HttpMeasurement()
+                        val httpMeasurement = HttpMeasurement(sessionManager)
                         runBlocking {
                             httpMeasurement.insert(
                                 Measurment(
@@ -265,16 +273,58 @@ fun Measure(
 
 @Composable
 fun Towers() {
-    Text(
-        text = "You are viewing invoices tab.",
-        modifier = Modifier.fillMaxSize().wrapContentSize()
-    )
+    val towers = HttpMobileTower(sessionManager).getByConfirmed(false)
+    val stateVertical = rememberScrollState(0)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(end = 12.dp, bottom = 12.dp)
+    ) {
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(towers) { tower ->
+                TowerRow(tower)
+            }
+        }
+        /*
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            adapter = rememberScrollbarAdapter(scrollState = rememberScrollState())
+        )
+
+         */
+    }
 }
 
+@Composable
+fun TowerRow(tower: MobileTower) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .border(1.dp, Color.Black, MaterialTheme.shapes.small),
+    ) {
+        Text(
+            text = "${tower.location.coordinates[1]} ${tower.location.coordinates[0]} ${tower.type} ${tower.provider} ${tower.locator?.username ?: "Unknown"}",
+            modifier = Modifier.padding(16.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Button(onClick = {
+            HttpMobileTower(sessionManager).toggleConfirm(tower)
+            },
+            modifier = Modifier.padding(4.dp)
+        ) {
+            Text("Confirm")
+        }
+
+    }
+}
 
 @Composable
 fun Data(){
-    val options = if(conn != null) runBlocking {  DatabaseUtil.listAllCollection(conn!!).toList().toTypedArray() } else arrayOf("No options")
+    val options = listOf("Users", "Measurements", "Mobile Towers", "Events")
 
     var selectedOption by remember { mutableStateOf(options.first()) }
     var isSelectorOpen by remember { mutableStateOf(false) }
@@ -628,7 +678,7 @@ fun Generator() {
         GeneratorNavbar(
             generateToCSV = {
                 try {
-                    GeneratorUtil.generateToCSV(
+                    GeneratorUtil.generateMeasurementsToCSV(
                         minValue.toLong(),
                         maxValue.toLong(),
                         if (selectedOption == "Data") Type.data else Type.wifi,
@@ -654,7 +704,7 @@ fun Generator() {
             },
             generateToMongo = {
                 try {
-                    GeneratorUtil.generateToMongo(
+                    GeneratorUtil.generateMeasurementsToMongo(
                         minValue.toLong(),
                         maxValue.toLong(),
                         if (selectedOption == "Data") Type.data else Type.wifi,
@@ -673,7 +723,7 @@ fun Generator() {
                         ),
                         selectedUser.second,
                         count.replace(" ", "").toInt(),
-                        conn
+                        sessionManager
                     )
                 } catch (e: Exception) {
                     println(e)
@@ -980,6 +1030,55 @@ fun AboutApp() {
 }
 
 @Composable
+fun Profile(){
+    Column {
+        Text(text = "Username: ${sessionManager.user?.username}")
+        Text(text = "Email: ${sessionManager.user?.email}")
+        Button(onClick = { sessionManager.destroy() }) {
+            Text("Logout")
+        }
+    }
+}
+@Composable
+fun Login() {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Login", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                HttpUser(sessionManager).authenticate(username, password)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Login")
+        }
+    }
+}
+@Composable
 @Preview
 fun App() {
     val currentContent = mutableStateOf<@Composable () -> Unit>({ Measure() })
@@ -995,6 +1094,7 @@ fun App() {
                 onDslCityClicked = { currentContent.value = { Editor() } },
                 onScraperClicked = { currentContent.value = { Scraper() } },
                 onGeneratorClicked = { currentContent.value = { Generator() } },
+                onProfileClicked = { currentContent.value = { if(sessionManager.isSet) Profile() else Login()} }
             )
             Content(currentContent.value, modifier = Modifier.weight(1f))
 
@@ -1003,7 +1103,6 @@ fun App() {
 }
 
 fun main() = application {
-    runBlocking { conn = DatabaseUtil.setupConnection() }
     HttpUser(sessionManager).authenticate("KotlinTester", "1234")
     Window(onCloseRequest = ::exitApplication) {
         App()
