@@ -2,19 +2,19 @@
     display: flex;
     color: var(--color-white);
     background-color: var(--color-black-transparent);
-    box-shadow: 0 0 10px var(--color-black-light);
+    box-shadow: 0 0 10px var(--color-darkerBlue);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: auto;
+    margin:auto;
     padding: 20px;
-    border-radius: 30px;
+    border-radius: 15px;
     width: 700px;
 }
 
 .registerLoginContainer input{
     color: var(--color-white);
-    background-color: var(--color-black-light);
+    background-color: var(--color-darkerBlue);
     width: 400px;
     padding: 10px;
     margin: 10px;
@@ -29,27 +29,30 @@
 }
 
 .registerLoginContainer h3{
+    width: 100%;
+    text-align:center;    
     font-size: 1.3rem;
-    margin:0;
+    margin:0 10px;
 }
 
 .registerLoginContainer button{
     color: var(--color-white);
-    background-color: var(--color-purple);
-    box-shadow: 4px 4px var(--color-purple-dark);
+    background-color: var(--color-lightBlue);
+    box-shadow: 4px 4px var(--color-darkerBlue);
     width: 200px;
     padding: 10px;
     margin: 10px;
     border-radius: 10px;
     border:none;
-    font-weight: bold;
+    font-weight: bolder;
+    font-size: 1.2rem;
     cursor: pointer;
     transition: var(--hover-duration) ease;
 }
 
 .registerLoginContainer button:hover{
     background-color: var(--color-purple-light);
-    box-shadow: 2px 2px var(--color-black-light);
+    box-shadow: 2px 2px var(--color-darkerBlue);
 }
 
 /* If screen smaller then 1050px, then change width of regsiterForm accordingly */
@@ -71,15 +74,22 @@
 
 }
 
-.registerTitle{
-    width: min-content;
+.registerTitle, .loginTitle{
+    margin: 20px auto;
+    color: var(--color-darkerBlue);
+    /* background-color: var(--color-uraniunBlue); */
+    font-size: 2.2rem;
+    text-align:center;
+    padding: 10px 25px;
+    border-radius: 15px;
+    width: max-content;
 }
 
-.loginTitle{
+/*.loginTitle{
     width: 200px;
 }
 
-.registerTitle, .loginTitle{
+.loginTitle{
     margin: 20px auto;
     color: var(--color-white);
     background-color: var(--color-purple);
@@ -87,12 +97,12 @@
     text-align:center;
     padding: 10px 25px;
     border-radius: 45px;
-}
+}*/
 
 .existingAccount{
     width: 300px;
     color: var(--color-white);
-    background-color: var(--color-black-light);
+    background-color: var(--color-black-transparent);
     padding: 10px;
     border-radius: 10px;
     font-size: 1.2rem;
@@ -102,7 +112,7 @@
 }
 
 .existingAccount a{
-    color: var(--color-purple);
+    color: var(--color-lightBlue);
     text-decoration: none;
     font-weight: bold;
     transition: var(--hover-duration) ease;

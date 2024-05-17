@@ -72,8 +72,7 @@ module.exports = {
                 username : req.body.username,
                 password : hashedPassword,
                 email : req.body.email,
-                measurements : req.body.measurements,
-                admin : req.body.admin
+                admin : req.body.admin || false
             });
     
             await user.save();

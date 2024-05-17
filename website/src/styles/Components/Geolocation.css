@@ -1,5 +1,5 @@
 /* Globe moving around from left to right */
-/*.geolocationBackground {
+.geolocationBackground {
     background-color: lightgray;
     position: relative;
     width: 100%;
@@ -8,7 +8,7 @@
   }
   
   .geolocationBackground::before {
-    content: "🌍";
+    content: "🌍🌍🌍🌍🌍🌍🌍🌍🌍🌍";
     font-size: 200px;
     position: absolute;
     animation: move 3s infinite;
@@ -19,7 +19,7 @@
     0% { left: 0; }
     100% { left: calc(100% - 15vw); }
   }
-*/
+
 
 .geolocationTitle{
     font-size: 2rem;

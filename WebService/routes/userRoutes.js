@@ -15,7 +15,7 @@ router.get('/:id', authenticateToken, userController.show);
 router.get('/users/:id', authenticateToken, userController.show);
 
 // POST routes
-router.post('/', userController.create);
+router.post('/register', userController.create);
 router.post('/login', userController.login);
 
 // PUT routes
