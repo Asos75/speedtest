@@ -8,25 +8,35 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
 import org.bson.BsonInt64
 import org.bson.Document
+import org.json.JSONObject
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.util.*
 
 object DatabaseUtil {
     suspend fun setupConnection(
+        configUrl: String = "src/main/kotlin/conf/config.json",
         databaseName: String = "test",
         connectionEnvVariable: String = "MONGODB_URI"
     ): MongoDatabase? {
+        val jsonString = File(configUrl).readText()
+
+        val jsonObject = JSONObject(jsonString)
+        val url = jsonObject.getString("url")
+        val username = jsonObject.getString("username")
+        val password = jsonObject.getString("password")
+
+
         val connectString = if (System.getenv(connectionEnvVariable) != null) {
             System.getenv(connectionEnvVariable)
         } else {
-            "mongodb+srv://kotlinAdmin:M0F8Yq1njPZpa5f6@speeddb.cqupown.mongodb.net/?retryWrites=true&w=majority&appName=SpeedDB"
+            url.replace("<username>", username).replace("<password>", password)
         }
 
         val client = MongoClient.create(connectionString = connectString)
         val database = client.getDatabase(databaseName = databaseName)
 
         return try {
-            // Send a ping to confirm a successful connection
             val command = Document("ping", BsonInt64(1))
             database.runCommand(command)
             println("Pinged your deployment. You successfully connected to MongoDB!")

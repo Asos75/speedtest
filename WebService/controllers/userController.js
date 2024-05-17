@@ -78,7 +78,7 @@ module.exports = {
     
             await user.save();
     
-            const token = jwt.sign({ userId: user._id }, 'nice', { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
     
             // Vrne JWT žeton in preusmeri uporabnika na stran za prijavo
             return res.status(201).json({
@@ -161,8 +161,8 @@ module.exports = {
             }
             // Ustvari JWT žeton in ga pošlje kot odgovor
             const jwt = require('jsonwebtoken');
-            const token = jwt.sign({ userId: user._id }, 'your-secret-key');
-            res.json({ token: token });
+            const token = jwt.sign({ userId: user._id }, process.env.JWT_KEY);
+            res.json({ token: token, user: user });
         });
     },
 

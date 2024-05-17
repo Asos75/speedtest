@@ -105,6 +105,7 @@ app.use(function (err, req, res, next) {
 
 const User = require('./models/userModel');
 const Measurement = require('./models/measurementModel');
+const measurementModel = require('./models/measurementModel');
 
 
 run().catch(console.dir);
