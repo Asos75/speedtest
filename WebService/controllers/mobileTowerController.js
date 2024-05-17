@@ -1,3 +1,4 @@
+const mobileTowerModel = require('../models/mobileTowerModel.js');
 var MobiletowerModel = require('../models/mobileTowerModel.js');
 
 /**
@@ -20,7 +21,7 @@ module.exports = {
             }
 
             return res.json(mobileTowers);
-        });
+        }).populate("locator");
     },
 
     /**
@@ -44,7 +45,22 @@ module.exports = {
             }
 
             return res.json(mobileTower);
-        });
+        }).populate("locator");
+    },
+
+    confirmed: function (req, res) {
+        var status = req.params.status;
+
+        MobiletowerModel.find({confirmed: status}, function(err, mobileTowers){
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting mobileTower.',
+                    error: err
+                });
+            }
+
+            return res.json(mobileTowers);
+        }).populate("locator")
     },
 
     /**
@@ -68,6 +84,27 @@ module.exports = {
             }
 
             return res.status(201).json(mobileTower);
+        });
+    },
+
+    createMany: function(req, res) {
+        var towers = req.body.towers;
+
+        if (!Array.isArray(towers)) {
+            return res.status(400).json({
+                message: 'Invalid request format. Expected an array of measurements.'
+            });
+        }
+
+        MobiletowerModel.insertMany(towers, function(err, createdTowers) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when creating measurements',
+                    error: err
+                });
+            }
+    
+            return res.status(201).json(createdTowers);
         });
     },
 
@@ -108,6 +145,23 @@ module.exports = {
                 return res.json(mobileTower);
             });
         });
+    },
+
+    confirm: function (req, res){
+        var id = req.params.id;
+        MobiletowerModel.findOneAndUpdate({_id: id}, 
+            [{ $set: { confirmed: { $not: "$confirmed" } } } ],
+            function (err, mobileTower) {
+
+                if (err) {
+                    return res.status(500).json({
+                        message: 'Error when getting mobileTower.',
+                        error: err
+                    });
+                }
+    
+                return res.json(mobileTower);
+        }).populate("locator")
     },
 
     /**
