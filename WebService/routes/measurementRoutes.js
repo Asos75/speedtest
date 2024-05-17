@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var measurementController = require('../controllers/measurementController.js');
 var authenticateToken = require('../middleware/authenticateToken.js');
+var adminCheck = require('../middleware/adminCheck.js');
+
 /*
  * GET
  */
@@ -20,16 +22,16 @@ router.get('/:id', measurementController.show);
  * POST
  */
 router.post('/', measurementController.create);
-router.post('/createMany', authenticateToken, measurementController.createMany)
+router.post('/createMany', authenticateToken, adminCheck, measurementController.createMany)
 
 /*
  * PUT
  */
-router.put('/:id', authenticateToken, measurementController.update);
+router.put('/:id', authenticateToken, adminCheck, measurementController.update);
 
 /*
  * DELETE
  */
-router.delete('/:id', authenticateToken, measurementController.remove);
+router.delete('/:id', authenticateToken, adminCheck, measurementController.remove);
 
 module.exports = router;

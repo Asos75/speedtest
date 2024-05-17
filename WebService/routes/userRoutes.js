@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var userController = require('../controllers/userController.js');
 var authenticateToken = require('../middleware/authenticateToken.js');
+var adminCheck = require('../middleware/adminCheck.js');
 
 // GET routes
 router.get('/', authenticateToken, userController.list);
