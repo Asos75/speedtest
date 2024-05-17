@@ -1,5 +1,6 @@
 package util
 
+import Location
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -51,15 +52,15 @@ object LocationUtil {
             throw RuntimeException("Error retrieving the location")
 
         }
-        return Location(lat, lon)
+        return Location(coordinates = listOf(lon, lat))
     }
 
-    private fun getLocationLinux(): Location{
+    private fun getLocationLinux(): Location {
         //TODO retrieve linux location
-        return Location(0.0,0.0)
+        return Location(coordinates = listOf(0.0, 0.0))
     }
 
-    fun getLocation(): Location{
+    fun getLocation(): Location {
         if(System.getProperty("os.name").startsWith("Windows")){
             return getLocationWindows()
         }
@@ -67,6 +68,6 @@ object LocationUtil {
         if(System.getProperty("os.name").startsWith("Linux")){
             return getLocationWindows()
         }
-        return Location(0.0,0.0)
+        return Location(coordinates = listOf(0.0, 0.0))
     }
 }

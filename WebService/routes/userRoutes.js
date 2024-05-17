@@ -2,13 +2,14 @@ var express = require('express');
 var router = express.Router();
 var userController = require('../controllers/userController.js');
 var authenticateToken = require('../middleware/authenticateToken.js');
+var adminCheck = require('../middleware/adminCheck.js');
 
 // GET routes
 router.get('/', authenticateToken, userController.list);
 router.get('/register', userController.showRegister);
 router.get('/login', userController.showLogin);
-router.get('/profile', authenticateToken, userController.profile);
-router.get('/profile/:id', authenticateToken, userController.profile);
+router.get('/profile', userController.profile);
+router.get('/profile/:id', userController.profile);
 router.get('/logout', authenticateToken, userController.logout);
 router.get('/:id', authenticateToken, userController.show);
 router.get('/users/:id', authenticateToken, userController.show);

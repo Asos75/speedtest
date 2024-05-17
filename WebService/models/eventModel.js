@@ -4,6 +4,7 @@ var Schema   = mongoose.Schema;
 var eventSchema = new Schema({
 	'name' : String,
 	'type' : String,
+	'time' : Date,
 	'online' : Boolean,
 	'location': {
     type: {

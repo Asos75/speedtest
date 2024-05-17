@@ -8,7 +8,7 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ message: 'Missing JWT token' });
   }
 
-  jwt.verify(token, 'nice', (err, user) => {
+  jwt.verify(token, process.env.JWT_KEY, (err, user) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid JWT token' });
     }
