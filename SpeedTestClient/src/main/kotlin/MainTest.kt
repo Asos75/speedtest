@@ -2,6 +2,8 @@ import dao.http.HttpEvent
 import dao.http.HttpMeasurement
 import dao.http.HttpMobileTower
 import dao.http.HttpUser
+import speedTest.Type
+import util.GeneratorUtil
 import java.time.LocalDateTime
 
 fun main(){
@@ -50,7 +52,7 @@ fun main(){
     val httpTower = HttpMobileTower()
     httpTower.getAll().forEach{ println(it) }
     */
-    val httpEvent = HttpEvent()
+    val httpEvent = HttpEvent(sessionManager)
     val event = Event("FC Barcelona ANC", "Football", LocalDateTime.now(), false, Location(coordinates = listOf(15.640411, 46.562581)))
     //httpEvent.getAll().forEach{ println(it) }
     //httpEvent.getAll().forEach{ println(it) }
@@ -69,9 +71,9 @@ fun main(){
     */
 
     println(sessionManager)
-    val httpMobileTower = HttpMobileTower()
-    val httpMeasurment = HttpMeasurement()
-
+    val httpMobileTower = HttpMobileTower(sessionManager)
+    val httpMeasurment = HttpMeasurement(sessionManager)
+/*
     if(sessionManager.isSet) {
         val startDateTime = LocalDateTime.of(2024, 5, 15, 18, 0)
         val endDateTime = LocalDateTime.of(2024, 5, 15, 18, 30)
@@ -81,7 +83,21 @@ fun main(){
             measurements.forEach{ println(it) }
         }
     }
-
+*/
+/*
+    repeat(6){
+        GeneratorUtil.generateMeasurementsToMongo(
+            50000,
+            100000,
+            Type.data,
+            "Test provider",
+            Location(coordinates = listOf(15.615567, 46.570405)),
+            Location(coordinates = listOf(15.683889, 46.526323)),
+            null,
+            500
+        )
+    }
+*/
 
 
 }

@@ -5,6 +5,7 @@ import User
 import java.time.LocalDateTime
 
 interface MeasurementCrud : DaoCrud<Measurment> {
-    suspend fun getByUser(user: User): List<Measurment>
-    suspend fun getByTimeFrame(start: LocalDateTime, end: LocalDateTime): List<Measurment>
+    fun getByUser(user: User): List<Measurment>
+    fun getByTimeFrame(start: LocalDateTime, end: LocalDateTime): List<Measurment>
+    fun insertMany(list: List<Measurment>): Boolean
 }

@@ -2,12 +2,13 @@ package dao.http
 
 import SessionManager
 import User
+import dao.UserCRUD
 import okhttp3.*
 import org.bson.types.ObjectId
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-class HttpUser(val sessionManager: SessionManager) {
+class HttpUser(val sessionManager: SessionManager): UserCRUD{
     val client = OkHttpClient()
     var ip = ""
     init {
@@ -17,7 +18,7 @@ class HttpUser(val sessionManager: SessionManager) {
         ip = jsonObject.getString("url")
 
     }
-    fun authenticate(username: String, password: String) : Boolean {
+    override fun authenticate(username: String, password: String) : Boolean {
 
 
         val requestBody = FormBody.Builder()
@@ -50,7 +51,7 @@ class HttpUser(val sessionManager: SessionManager) {
 
 
 
-    fun getById(id: ObjectId): User? {
+    override fun getById(id: ObjectId): User? {
         val url = "${ip}/users/$id"
         val request = Request.Builder()
             .url(url)
@@ -70,7 +71,7 @@ class HttpUser(val sessionManager: SessionManager) {
         }
     }
 
-    fun getAll(): List<User> {
+    override fun getAll(): List<User> {
         val url = "$ip/users"
         println(sessionManager.token)
         val request = Request.Builder()
@@ -102,7 +103,7 @@ class HttpUser(val sessionManager: SessionManager) {
         }
     }
 
-    fun insert(obj: User) : Boolean{
+    override fun insert(obj: User) : Boolean{
         val client = OkHttpClient()
 
         val requestBody = FormBody.Builder()
@@ -123,7 +124,7 @@ class HttpUser(val sessionManager: SessionManager) {
         }
     }
 
-    fun update(obj: User): Boolean {
+    override fun update(obj: User): Boolean {
         val url = "$ip/users/${obj.id}"
         val requestBody = FormBody.Builder()
             .add("username", obj.username)
@@ -142,7 +143,7 @@ class HttpUser(val sessionManager: SessionManager) {
         }
     }
 
-    fun delete(obj: User): Boolean {
+    override fun delete(obj: User): Boolean {
         val url = "$ip/users/${obj.id}"
         val request = Request.Builder()
             .url(url)

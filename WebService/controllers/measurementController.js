@@ -129,8 +129,8 @@ module.exports = {
                 ];
             });
             
-            const center = [46.555163, 15.641621]; // Središčna točka
-            const radius = 1; // Radij v kilometrih
+            const center = [req.params.lat, req.params.lon]; // Središčna točka
+            const radius = req.params.radius; // Radij v kilometrih
     
             // Najdi koordinate znotraj določenega radija
             const pointsWithinRadius = findPointsWithinRadius(center, coordinates, radius);
@@ -158,9 +158,11 @@ module.exports = {
                 ];
             });
             
-            const topLeftKoordinate = [46.572, 15.64]; // Levo zgoraj
-            const bottomRightKoordinate = [46.562, 15.65]; // Desno spodaj
+            //const topLeftKoordinate = [46.572, 15.64]; // Levo zgoraj
+            //const bottomRightKoordinate = [46.562, 15.65]; // Desno spodaj
           
+            const topLeftKoordinate = [req.params.lat1, req.params.lon1]
+            const bottomRightKoordinate = [req.params.lat2, req.params.lon2]
             const pointsWithinRectangle = isWithinRectangle(topLeftKoordinate, bottomRightKoordinate, coordinates);
     
             return res.status(200).json({ pointsWithinRectangle });

@@ -1,3 +1,4 @@
+const mobileTowerModel = require('../models/mobileTowerModel.js');
 var MobiletowerModel = require('../models/mobileTowerModel.js');
 
 /**
@@ -83,6 +84,27 @@ module.exports = {
             }
 
             return res.status(201).json(mobileTower);
+        });
+    },
+
+    createMany: function(req, res) {
+        var towers = req.body.towers;
+
+        if (!Array.isArray(towers)) {
+            return res.status(400).json({
+                message: 'Invalid request format. Expected an array of measurements.'
+            });
+        }
+
+        MobiletowerModel.insertMany(towers, function(err, createdTowers) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when creating measurements',
+                    error: err
+                });
+            }
+    
+            return res.status(201).json(createdTowers);
         });
     },
 

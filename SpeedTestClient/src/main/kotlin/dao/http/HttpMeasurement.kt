@@ -2,6 +2,7 @@ package dao.http
 
 import Location
 import Measurment
+import SessionManager
 import User
 import dao.MeasurementCrud
 import okhttp3.MediaType.Companion.toMediaType
@@ -14,10 +15,9 @@ import org.json.JSONObject
 import speedTest.Type
 import java.io.File
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class HttpMeasurement {
+class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
     val client = OkHttpClient()
     var ip = ""
     init {
@@ -27,7 +27,7 @@ class HttpMeasurement {
         ip = jsonObject.getString("url")
 
     }
-    fun getByUser(user: User): List<Measurment> {
+    override fun getByUser(user: User): List<Measurment> {
         val url = "${ip}/measurements/user/${user.id}"
         val request = Request.Builder()
             .url(url)
@@ -59,7 +59,7 @@ class HttpMeasurement {
 
     }
 
-    fun getByTimeFrame(start: LocalDateTime, end: LocalDateTime): List<Measurment> {
+    override fun getByTimeFrame(start: LocalDateTime, end: LocalDateTime): List<Measurment> {
         val startTime = start.format(DateTimeFormatter.ISO_DATE_TIME)
         val endTime = end.format(DateTimeFormatter.ISO_DATE_TIME)
         val url = "${ip}/measurements/timeframe/${startTime}/${endTime}"
@@ -92,14 +92,8 @@ class HttpMeasurement {
         }
     }
 
-    fun insertMany(list: List<Measurment>) : Boolean{
 
-
-
-        TODO("Not yet implemented")
-    }
-
-    fun getById(id: ObjectId): Measurment? {
+    override fun getById(id: ObjectId): Measurment? {
         val url = "${ip}/measurements/${id}"
         val request = Request.Builder()
             .url(url)
@@ -126,7 +120,7 @@ class HttpMeasurement {
 
     }
 
-    fun getAll(): List<Measurment>  {
+    override fun getAll(): List<Measurment>  {
         val url = "${ip}/measurements"
         val request = Request.Builder()
             .url(url)
@@ -160,7 +154,7 @@ class HttpMeasurement {
         }
 
     }
-    fun insert(obj: Measurment): Boolean {
+    override fun insert(obj: Measurment): Boolean {
         println(obj.user)
         val requestBody = JSONObject().apply {
             put("speed", obj.speed)
@@ -184,7 +178,39 @@ class HttpMeasurement {
         }
     }
 
-    fun update(obj: Measurment): Boolean {
+    override fun insertMany(list: List<Measurment>): Boolean {
+        val jsonArray = JSONArray()
+        list.forEach { measurement ->
+            val jsonObject = JSONObject().apply {
+                put("speed", measurement.speed)
+                put("type", measurement.type.name)
+                put("provider", measurement.provider)
+                put("time", measurement.time.format(DateTimeFormatter.ISO_DATE_TIME))
+                put("location", JSONObject().apply {
+                    put("type", "Point")
+                    put("coordinates", measurement.location.coordinates)
+                })
+                measurement.user?.let { put("measuredBy", it.id) }
+            }
+            jsonArray.put(jsonObject)
+        }
+
+        val jsonMeasurements = JSONObject().apply {
+            put("measurements", jsonArray)
+        }
+        val requestBody = jsonMeasurements.toString().toRequestBody("application/json".toMediaType())
+        val request = Request.Builder()
+            .url("${ip}/measurements/createMany")
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            return response.isSuccessful
+        }
+    }
+
+    override fun update(obj: Measurment): Boolean {
         val url = "${ip}/measurements/${obj.id}"
         val requestBody = JSONObject().apply {
             put("speed", obj.speed)
@@ -199,6 +225,7 @@ class HttpMeasurement {
         }
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .put(requestBody.toString().toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -211,10 +238,11 @@ class HttpMeasurement {
         }
     }
 
-    fun delete(obj: Measurment): Boolean {
+    override fun delete(obj: Measurment): Boolean {
         val url = "${ip}/measurements/${obj.id}"
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .delete()
             .build()
 

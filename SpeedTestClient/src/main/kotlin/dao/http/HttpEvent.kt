@@ -2,6 +2,7 @@ package dao.http
 
 import Event
 import Location
+import SessionManager
 import dao.EventCRUD
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -14,7 +15,7 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class HttpEvent {
+class HttpEvent(val sessionManager: SessionManager): EventCRUD{
     var ip = ""
     init {
         val jsonString = File("src/main/kotlin/conf/ipconfig.json").readText()
@@ -24,7 +25,7 @@ class HttpEvent {
 
     }
     val client = OkHttpClient()
-     fun getById(id: ObjectId): Event? {
+     override fun getById(id: ObjectId): Event? {
          val url = "${ip}/event/$id"
          val request = Request.Builder()
              .url(url)
@@ -43,7 +44,7 @@ class HttpEvent {
          }
     }
 
-    fun getAll(): List<Event> {
+    override fun getAll(): List<Event> {
         val client = OkHttpClient()
         val url = "${ip}/event"
         val request = Request.Builder()
@@ -78,11 +79,12 @@ class HttpEvent {
         }
     }
 
-    fun insert(obj: Event): Boolean {
+    override fun insert(obj: Event): Boolean {
         val url = "$ip/event"
         val requestBody = createRequestBody(obj)
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .post(requestBody)
             .build()
 
@@ -91,11 +93,12 @@ class HttpEvent {
         }
     }
     //TODO fix update
-    fun update(obj: Event): Boolean {
+    override fun update(obj: Event): Boolean {
         val url = "$ip/event/${obj.id}"
         val requestBody = createRequestBody(obj)
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .put(requestBody)
             .build()
 
@@ -105,10 +108,11 @@ class HttpEvent {
     }
 
     //TODO fix delete
-    fun delete(obj: Event): Boolean {
+    override fun delete(obj: Event): Boolean {
         val url = "$ip/event/${obj.id}"
         val request = Request.Builder()
             .url(url)
+            .addHeader("authorization", "Bearer ${sessionManager.token}")
             .delete()
             .build()
 
