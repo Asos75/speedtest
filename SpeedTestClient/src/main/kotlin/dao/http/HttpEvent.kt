@@ -157,8 +157,9 @@ class HttpEvent(val sessionManager: SessionManager): EventCRUD{
                 }
             )
         } else null
+        val id =ObjectId(jsonObject.getString("_id"))
 
-        return Event(name, type, time, online, location)
+        return Event(name, type, time, online, location, id)
 
     }
 

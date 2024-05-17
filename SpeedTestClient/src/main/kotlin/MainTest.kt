@@ -2,6 +2,7 @@ import dao.http.HttpEvent
 import dao.http.HttpMeasurement
 import dao.http.HttpMobileTower
 import dao.http.HttpUser
+import org.bson.types.ObjectId
 import speedTest.Type
 import util.GeneratorUtil
 import java.time.LocalDateTime
@@ -98,6 +99,10 @@ fun main(){
         )
     }
 */
+    val eventToMod = httpEvent.getById(ObjectId("664387b5d3e028a44e6191fc"))
+    if (eventToMod != null) {
+        eventToMod.name =  "Test Event3"
+        httpEvent.update(eventToMod)
 
-
+    }
 }
