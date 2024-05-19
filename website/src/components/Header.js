@@ -1,7 +1,7 @@
 // Dependencies
 import React from 'react';
 
-const Header = ({ title }) => {
+const Header = ({ title, username, onLogout }) => {
   return (
     <header className="header">
       <h1 className="header-title">
@@ -15,10 +15,17 @@ const Header = ({ title }) => {
         <a href="/geolocation" className="header-Geolocations">🌍Geolocations</a>
         <a href="/mobile-tower" className="header-MobileTowers">🗼Mobile Towers</a>
       </div>
-      <div className="header-right">
-        <a href="/login" className="header-Login">Log in</a>
-        <a href="/register" className="header-Register">Register</a>
-      </div>
+      {username ? (
+        <div className="header-right-loggedIn">
+          <span>Hello, <b>{username}</b></span>
+          <button onClick={onLogout}>Logout</button>
+        </div>
+      ) : (
+        <div className="header-right">
+          <a href="/login" className="header-Login">Log in</a>
+          <a href="/register" className="header-Register">Register</a>
+        </div>
+      )}
     </header>
   );
 };

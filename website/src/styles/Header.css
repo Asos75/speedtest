@@ -26,7 +26,7 @@
     cursor: pointer;
 }
 
-.header-left, .header-right{
+.header-left, .header-right, .header-right-loggedIn{
     position: absolute;
     display: flex;
     align-items: center;
@@ -35,7 +35,7 @@
 
 .header-left{left: 20px;}
 
-.header-right {right: 20px;}
+.header-right, .header-right-loggedIn {right: 20px;}
 
 .header-left > *, .header-right > *{
     color: var(--color-white);
@@ -45,7 +45,7 @@
     padding: 8px 16px;
     border-radius: 20px;
     text-decoration: none;
-    font-weight: bold;;
+    font-weight: bold;
     transition: var(--hover-duration) ease;
 }
 
@@ -60,6 +60,41 @@
 .header-left > *{
     margin-right: 15px;
 }
+
+.header-right-loggedIn{
+    /* border: 1px solid var(--color-lightBlue);  */
+    color: var(--color-white);
+    font-size: 1.2em;
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+.header-right-loggedIn span b{
+    color: var(--color-lightBlue);
+    margin-right: 15px;
+    cursor: pointer;
+    transition: var(--hover-duration) ease;
+}
+
+.header-right-loggedIn span b:hover{
+    color: var(--color-white);
+}
+
+.header-right-loggedIn button{
+    background-color: var(--color-lightBlue-light);
+    color: var(--color-white);
+    font-size: 0.8em;
+    border: 1px solid var(--color-lightBlue);
+    padding: 8px 16px;
+    border-radius: 10px;
+    transition: var(--hover-duration) ease;
+    cursor: pointer;
+}
+
+.header-right-loggedIn button:hover{
+    border: 1px solid var(--color-white);
+}
+
 
 .header-Login{
     margin-right: 15px;

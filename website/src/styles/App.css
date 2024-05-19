@@ -3,6 +3,10 @@
   --color-lightBlue: #7ea0b7;
   --color-uraniunBlue: #a9cef4;
   --color-darkerBlue: #253544;
+  /* Creator colors */
+  --color-lightGreen: #b4f2b4;
+  --color-lightOrange: #ebd4b8;
+  --color-lightPurple: #dac0f1;
   /* Filler colors */
   --color-white: white;
   --color-white-dark: rgb(240, 240, 240);
@@ -18,7 +22,7 @@
 .blueBackground {
   /* BACKGROUND BRAKES */
   position: absolute;
-  background-color: var(--color-lightBlue);
+  background-color: var(--color-uraniunBlue);
   width: 100%;
   height: 100vh;
   z-index: -1;
