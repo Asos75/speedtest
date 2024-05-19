@@ -4,10 +4,10 @@ const Home = () => {
         //BACKEND URL -> process.env.REACT_APP_BACKEND_URL
 return (
     <>
-    <div className="backgroundImage"></div>
-    <div className="homePage">
-        <h1 className="homePageTitle">Welcome to <a href="/">Speedtest Reader</a></h1>
-        <div className="homePageDescription">
+        <div className="backgroundImage"></div>
+        <div className="homePage">
+            <h1 className="homePageTitle">Welcome to <a href="/">Speedtest Reader</a></h1>
+            <div className="homePageDescription">
             <p>This is a website for reading internet speed test results, 
                 data from various internet speed test sites, 
                 and for creating your own speed test results, 
@@ -44,7 +44,7 @@ return (
                 </div>
             </div>
         </div>
-    </div>
+        </div>
     </>
 );
 };
