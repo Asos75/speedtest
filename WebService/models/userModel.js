@@ -6,11 +6,6 @@ var userSchema = new Schema({
 	'username' : String,
 	'password' : String,
 	'email': String,
-	'measurements' : {
-	 	type: Schema.Types.ObjectId,
-	 	ref: 'measurement'
-	},
-	'token': String,
 	'admin' : Boolean
 });
 

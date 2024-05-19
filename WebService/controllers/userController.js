@@ -138,18 +138,6 @@ module.exports = {
     showLogin: function(req, res){
         res.render('user/login');
     },
-
-    login: function(req, res, next){
-        UserModel.authenticate(req.body.username, req.body.password, function(err, user){
-            if(err || !user){
-                var err = new Error('Wrong username or paassword');
-                err.status = 401;
-                return next(err);
-            }
-            req.session.userId = user._id;
-            res.json(user);
-        });
-    },
      
     login: function(req, res, next){
         UserModel.authenticate(req.body.username, req.body.password, function(err, user){

@@ -1,27 +1,50 @@
-import React from 'react';
+// Dependency
+import React, { useState } from 'react';
+
+// Styles
+import '../styles/RegisterLogin.css';
 
 const Login = () => {
+  // States for form fields
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  // Function to handle form submission
-  const handleSubmit = (e) => {
+  // Login user to the website
+  async function Login(e){
     e.preventDefault();
-    const username = e.target.username.value;
-    const password = e.target.password.value;
-    console.log(`Username: ${username}\nPassword: ${password}`);
+    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    });
+    const data = await res.json();
+    if(data.token){
+      // Save the token and username to localStorage or to a cookie
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', username);
+      window.location.href="/";
+    }
+    else{
+        setUsername("");
+        setPassword("");
+    }
   }
 
   return (
     <>
       <div className="backgroundImage"></div>
       <h2 className="loginTitle">Login Page</h2>
-      <form onSubmit={handleSubmit} className="registerLoginContainer">
+      <form onSubmit={Login} className="registerLoginContainer">
         <h3>Username</h3>
         <div>
-          <input type="text" name="username" placeholder="Your username" required/>
+          <input type="text" name="username" placeholder="Your username" value={username} onChange={(e)=>(setUsername(e.target.value))} required/>
         </div>
         <h3>Password</h3>
         <div>
-          <input type="password" name="password" placeholder="Your password" required/>
+          <input type="password" name="password" placeholder="Your password" value={password} onChange={(e)=>(setPassword(e.target.value))} required/>
         </div>
         <button type="submit">Login</button>
       </form>
