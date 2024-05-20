@@ -1,30 +1,47 @@
+// Dependencies
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
         //BACKEND URL -> process.env.REACT_APP_BACKEND_URL
 return (
-    <>
-        <div className="backgroundImage"></div>
-        <div className="homePage">
-            <h1 className="homePageTitle">Welcome to <a href="/">Speedtest Reader</a></h1>
-            <div className="homePageDescription">
-            <p>This is a website for reading internet speed test results, 
-                data from various internet speed test sites, 
-                and for creating your own speed test results, 
-                based on your geopgrahic location. <br/>
-                Below you can explore the different tools available on this website.
-            </p>
-            <h4 className="homePageSubtitle">Features on this website</h4>
-            <ul className="homePageFeatures">
-                <li>Explore, create and edit <a href="/event">events</a></li>
-                <li>Read, mesaure, and create <a href="/geolocation">geolocations</a> on the map</li>
-                <li>Pinpoint exact <a href="/mobile-tower">mobile tower</a> location and explore their data</li>
-                <li>And more</li>
-            </ul>
-            <p className="homePageCredits">Project created by Andraž, David and Domen.</p>
-           
+    <div className="homeContainer">
+    <div className="homePage">
+        <div className="oneColumnContainer imageBackground">
+                <div className="homePageDescription shadingBackground">
+                    <p><b>Speedtest Reader</b> allows you to read internet speed test results, 
+                            data from various internet speed test sites, 
+                             creating your own speed test results based on your geographic location and more.
+                    </p>
+                </div>
+        <div className="oneColumnContainer shadingBackground">
+                <h4 className="homePageSubtitle">Below you can explore the different tools available on this website.</h4>
+                <div className="homePageFeatures">
+                    <div>
+                            <h3>🔍 Explore</h3>
+                            <p>Explore, create and edit <Link to="/event">events</Link></p>
+                            <Link to="/event" className="button">Go to Events</Link>
+                    </div>
+                    <div>
+                            <h3>🌍 Geolocations</h3>
+                            <p>Read, measure, and create <Link to="/geolocation">geolocations</Link> on the map</p>
+                        <Link to="/geolocation" className="button">Go to Geolocations</Link>
+                    </div>
+                    <div>
+                        <h3>🗼 Mobile Tower</h3>
+                        <p>Pinpoint exact <Link to="/mobile-tower">mobile tower</Link> location and explore their data</p>
+                        <Link to="/mobile-tower" className="button">Go to Mobile Towers</Link>
+                    </div>
+                    <div>
+                        <h3>⚙️ And more</h3>
+                        <p>And more</p>
+                        <Link to="/more" className="button">Learn More</Link>
+                    </div>
+                </div>
+            </div>
+            <p className="homePageCredits blackBackground">Project created by Andraž, David and Domen. <Link to="/about-us" className="button">More about us</Link></p>
         </div>
-        <div className="homePageSubLayout">
+        {/* <div className="homePageSubLayout">
             <h3 className="homePageSubtitle">Tools that are available on mobile</h3>
             <div className="mainContentLayout">
                 <div className="mainContentElement">
@@ -43,9 +60,9 @@ return (
                         <a href="/generator" className="mainContentLink">⚙️Generator</a>
                 </div>
             </div>
+        </div> */}
         </div>
-        </div>
-    </>
+    </div>
 );
 };
 

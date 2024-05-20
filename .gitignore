@@ -4,3 +4,6 @@
 # Dependency directories (WebService/node_modules )
 /WebService/node_modules/
 /website/node_modules/
+
+# Added for ideas
+/ideas.txt
