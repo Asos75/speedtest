@@ -11,9 +11,9 @@ const Header = ({ title, username, onLogout }) => {
     </h1>
     {/* Events will be implemented into user's page */}
       <div className="header-left">
-        <a href="/tools" className="header-Tools">⚙️Tools</a>
-        <a href="/geolocation" className="header-Geolocations">🌍Geolocations</a>
-        <a href="/mobile-tower" className="header-MobileTowers">🗼Mobile Towers</a>
+        <a href="/measure">⚡Measure</a>
+        <a href="/geolocation">🌍Geolocations</a>
+        <a href="/mobile-tower">🗼Mobile Towers</a>
       </div>
       {username ? (
         <div className="header-right-loggedIn">

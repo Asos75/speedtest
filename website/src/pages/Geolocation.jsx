@@ -1,27 +1,33 @@
+// Dependencies
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import '../styles/Components/Geolocation.css';
-import pinIcon from '../assets/Icons/pin.png';
 
-const createIcon = (url) => new Icon({
-  iconUrl: url,
+// Styles
+import 'leaflet/dist/leaflet.css';
+import '../styles/Components/Geolocation.css'; 
+
+// Assets
+import { Icon } from 'leaflet';
+import pinIcon from '../assets/Icons/pin.png';
+const customIcon = new Icon({
+  iconUrl: pinIcon,
   iconSize: [30, 30],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
 
-const customIcon = createIcon(pinIcon);
-
 const MeasurementMarker = ({ measurement, index }) => {
+  // Address state
   const [address, setAddress] = useState('');
+  // Coordinates are stored in reverse order
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const coordinates = [
     measurement.location.coordinates[1],
     measurement.location.coordinates[0]
   ];
 
+  // FIX ADDRESS FETCHING LATER
   useEffect(() => {
     const fetchAddress = async () => {
       try {
@@ -34,8 +40,9 @@ const MeasurementMarker = ({ measurement, index }) => {
     };
 
     fetchAddress();
-  }, [coordinates]);
+  });
 
+  // Check if coordinates are valid
   if (coordinates.some(isNaN)) {
     console.error(`Invalid coordinates for measurement at index ${index}:`, coordinates);
     return null;
@@ -55,12 +62,15 @@ const MeasurementMarker = ({ measurement, index }) => {
 };
 
 const Measurement = ({ measurement, index }) => {
+  // Show details for each measurement
   const [showDetails, setShowDetails] = useState(false);
+  // Coordinates are stored in reverse order
   const coordinates = [
     measurement.location.coordinates[1],
     measurement.location.coordinates[0]
   ];
 
+  // Check if coordinates are valid
   if (coordinates.some(isNaN)) {
     console.error(`Invalid coordinates for measurement at index ${index}:`, coordinates);
     return null;
@@ -74,36 +84,56 @@ const Measurement = ({ measurement, index }) => {
           <p>Speed: <b>{measurement.speed.$numberInt ? measurement.speed.$numberInt : 'Currently unvailable'}</b> | Provider: <b>{measurement.provider}</b></p>
         </>
       )}
-      <button onClick={() => setShowDetails(!showDetails)}>Show More</button>
+      <button onClick={() => setShowDetails(!showDetails)}>{!showDetails ? "Show More" : "Show less"}</button>
     </div>
   );
 };
 
 const Geolocation = () => {
+  // Measurements
   const [measurements, setMeasurements] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [mapCenter, setMapCenter] = useState([46.5546, 15.6467]);
+  const [preloadedMeasurements, setPreloadedMeasurements] = useState([]);
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL + '/measurements';
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const fetchMeasurements = async (endpoint) => {
+  // Centering map view
+  // const [mapCenter, setMapCenter] = useState([46.5546, 15.6467]);
+  const mapCenter = [46.5546, 15.6467];
+
+  // Backend URL
+  const backendUrl = process.env.REACT_APP_BACKEND_URL + '/measurements';
+
+  // Fetching measurements
+  const fetchMeasurements = async (page) => {
     try {
-      const response = await fetch(`${backendUrl}/${endpoint}`);
+      const response = await fetch(`${backendUrl}?page=${page}`);
       const data = await response.json();
-      const paginatedData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-      setMeasurements(paginatedData);
+      const paginatedData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+      return paginatedData;
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
-  const nextPage = () => setCurrentPage(currentPage + 1);
-  
+  // Pagination functions
   const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+  const nextPage = () => {
+    setCurrentPage(currentPage + 1);
+    setMeasurements(preloadedMeasurements);
+  };
 
+  // Fetching measurements on page load
   useEffect(() => {
-    fetchMeasurements('');
+    const loadMeasurements = async () => {
+      const currentMeasurements = await fetchMeasurements(currentPage);
+      setMeasurements(currentMeasurements);
+      const nextMeasurements = await fetchMeasurements(currentPage + 1);
+      setPreloadedMeasurements(nextMeasurements);
+    };
+    loadMeasurements();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   return (

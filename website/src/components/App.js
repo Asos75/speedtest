@@ -9,7 +9,8 @@ import Home from '../pages/Home';
 import Register from '../pages/Register';
 import Login from '../pages/Login';
 import MobileTower from '../pages/MobileTower';
-import Tools from '../pages/Tools';
+// import Tools from '../pages/Tools';
+import Measure from '../pages/Measure';
 import Geolocation from '../pages/Geolocation';
 
 // Styles
@@ -37,7 +38,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           {/* <Route path="/" element={<AboutUs />} /> */}
           {/* Left side */}
-          <Route path="/tools" element={<Tools />} />
+          <Route path="/measure" element={<Measure />} />
           <Route path="/geolocation" element={<Geolocation />} />
           <Route path="/mobile-tower" element={<MobileTower />} />
           {/* Right side */}
