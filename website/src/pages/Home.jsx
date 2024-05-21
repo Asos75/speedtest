@@ -7,14 +7,14 @@ const Home = () => {
 return (
     <div className="homeContainer">
     <div className="homePage">
-        <div className="oneColumnContainer imageBackground">
-                <div className="homePageDescription shadingBackground">
+        <div className="oneColumnContainer blueBackground">
+                <div className="homePageDescription">
                     <p><b>Speedtest Reader</b> allows you to read internet speed test results, 
                             data from various internet speed test sites, 
                              creating your own speed test results based on your geographic location and more.
                     </p>
                 </div>
-        <div className="oneColumnContainer shadingBackground">
+        <div className="oneColumnContainer ">
                 <h4 className="homePageSubtitle">Below you can explore the different tools available on this website.</h4>
                 <div className="homePageFeatures">
                     <div>

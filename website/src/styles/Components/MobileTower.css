@@ -1,6 +1,6 @@
 .mobileTowerTitle {
     font-size: 4rem;
-    color: var(--color-black);
+    color: var(--color-white);
     background-color: var(--color-uraniunBlue);
     text-align: center;
     margin: 0;
@@ -26,7 +26,7 @@
 
 .mobileTowerList h2{
     font-size: 2rem;
-    color: var(--color-black);
+    color: var(--color-white);
     margin: 0 auto;
     padding: 0 25px;
 }
