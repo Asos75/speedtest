@@ -1,0 +1,51 @@
+.measureTitle {
+    font-size: 4rem;
+    color: var(--color-white);
+    background-color: var(--color-uraniunBlue);
+    text-align: center;
+    margin: 0;
+    padding: 25px 0 0 0;
+}
+
+.measureLayout {
+    display: flex;
+    justify-content: space-between;
+    padding: 25px;
+    background-color: var(--color-uraniunBlue);
+}
+
+.measureList {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-items: center;
+    align-items: start;
+    padding: 0 50px;
+}
+
+.measureList h2{
+    font-size: 2rem;
+    color: var(--color-white);
+    margin: 0 auto;
+    padding: 0 25px;
+}
+
+.measure {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 25px;
+    width: 100%;
+    box-shadow: 0px 5px 10px var(--color-darkerBlue);
+    margin: 0;
+    transition: background-color var(--hover-duration);
+}
+
+.measure:hover{
+    background-color: var(--color-lightgray);
+}
+
+.measure p {
+    margin: 0.5rem 0;
+    color: var(--color-black);
+}
