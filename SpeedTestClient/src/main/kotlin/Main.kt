@@ -330,7 +330,7 @@ fun Data(){
 
     Column {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = { isSelectorOpen = true }) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
@@ -349,6 +349,19 @@ fun Data(){
                     }
                 }
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(Color.White),
+                ) {
+                    Text("+")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
         }
         when(selectedOption){
             "Users" -> { ListUsers() }

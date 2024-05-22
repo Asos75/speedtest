@@ -5,16 +5,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dao.http.HttpEvent
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 @Composable
 fun ListEvents(){
@@ -107,14 +111,155 @@ fun EditEvent(
     event: Event,
     cancelEdit: () -> Unit
 ){
+    var status by remember { mutableStateOf("") }
+    var name by remember{ mutableStateOf(event.name) }
+    var type by remember { mutableStateOf(event.type) }
+
+    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+    val timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME
+
+    var dateInput by remember { mutableStateOf(event.time.format(dateFormatter)) }
+    var timeInput by remember { mutableStateOf(event.time.format(timeFormatter)) }
+    var dateError by remember { mutableStateOf(false) }
+    var timeError by remember { mutableStateOf(false) }
+
+    var online by remember{ mutableStateOf(event.online) }
+
+    var lat by remember { mutableStateOf(if (!online) event.location!!.coordinates[1].toString() else "0.0") }
+    var lon by remember { mutableStateOf(if (!online) event.location!!.coordinates[0].toString() else "0.0") }
+    var latConverted by remember { mutableStateOf(if (!online) event.location!!.coordinates[1] else 0.0) }
+    var lonConverted by remember { mutableStateOf(if (!online) event.location!!.coordinates[0] else 0.0) }
+
+    var latError by remember { mutableStateOf(false) }
+    var lonError by remember { mutableStateOf(false) }
 
     Column {
-        //TODO add textfields
-        Row(){
+        Text(
+            text = status,
+            color = Color.Red
+        )
+        OutlinedTextFieldWithLabel(
+            value = name,
+            onValueChange = { name = it },
+            label = "Email",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextFieldWithLabel(
+            value = type,
+            onValueChange = { type = it },
+            label = "Email",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row {
+            OutlinedTextFieldWithLabel(
+                value = dateInput,
+                onValueChange = {
+                    dateInput = it
+                    dateError = try {
+                        LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE)
+                        status = ""
+                        false
+                    } catch (e: DateTimeParseException) {
+                        status = "Invalid Date"
+                        true
+                    }
+                },
+                label = "Date (YYYY-MM-DD)",
+                modifier = Modifier.fillMaxWidth(0.5f),
+            )
+
+            OutlinedTextFieldWithLabel(
+                value = timeInput,
+                onValueChange = {
+                    timeInput = it
+                    timeError = try {
+                        LocalTime.parse(it, DateTimeFormatter.ISO_LOCAL_TIME)
+                        status = ""
+                        false
+                    } catch (e: DateTimeParseException) {
+                        status = "Invalid Time"
+                        true
+                    }
+                },
+                label = "Time (HH:MM:SS)",
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Online: "
+            )
+            Switch(
+                checked = online,
+                onCheckedChange = {
+                    online = it
+                }
+            )
+
+
+        }
+        if(!online) {
+            Row {
+                OutlinedTextFieldWithLabel(
+                    value = lat,
+                    onValueChange = {
+                        lat = it
+                        latError = try {
+                            latConverted = lat.toDouble()
+                            status = ""
+                            false
+                        } catch (e: NumberFormatException){
+                            status = "Invalid Lat"
+                            true
+                        }
+                    },
+                    label = "latitude",
+                    modifier = Modifier.fillMaxWidth(0.5f)
+                )
+                OutlinedTextFieldWithLabel(
+                    value = lon,
+                    onValueChange = {
+                        lon = it
+                        lonError = try {
+                            lonConverted = lon.toDouble()
+                            status = ""
+                            false
+                        } catch (e: NumberFormatException){
+                            status = "Invalid Lon"
+                            true
+                        }
+                    },
+                    label = "lontitude",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        Row{
             Button(
                 onClick = {
-                    //TODO add cal to update
-                    cancelEdit()
+                    if(
+                        !latError &&
+                        !lonError &&
+                        !dateError &&
+                        !timeError
+                    ) {
+                        val date = LocalDate.parse(dateInput, dateFormatter)
+                        val time = LocalTime.parse(timeInput, timeFormatter)
+                        val updatedEvent = Event(
+                            name,
+                            type,
+                            LocalDateTime.of(date, time),
+                            online,
+                            if(!online) Location(coordinates = listOf(lonConverted, latConverted)) else null,
+                            event.id
+                        )
+                        HttpEvent(sessionManager).update(updatedEvent)
+                        cancelEdit()
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(Color.White)
             ){

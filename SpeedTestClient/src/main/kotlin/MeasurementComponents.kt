@@ -145,7 +145,6 @@ fun EditMeasurement(
     var timeInput by remember { mutableStateOf(measurment.time.format(timeFormatter)) }
     var dateError by remember { mutableStateOf(false) }
     var timeError by remember { mutableStateOf(false) }
-    var dateTime by remember { mutableStateOf<LocalDateTime?>(null) }
 
     var user by remember { mutableStateOf(measurment.user != null) }
     val userOptions = HttpUser(sessionManager).getAll().map {
