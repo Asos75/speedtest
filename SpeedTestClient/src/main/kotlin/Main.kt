@@ -3,6 +3,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -337,26 +338,32 @@ fun Data(){
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
             }
             Text(selectedOption)
-        }
-        DropdownMenu(
-            expanded = isSelectorOpen,
-            onDismissRequest = { isSelectorOpen = false },
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(onClick = {
-                    selectedOption = option
-                    isSelectorOpen = false
-                }) {
-                    Text(option)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option)
+                    }
                 }
             }
         }
+        when(selectedOption){
+            "Users" -> { ListUsers() }
+            "Measurements" -> { ListMeasurements() }
+            "Mobile Towers" -> { ListTowers() }
+            "Events" -> { ListEvents() }
+        }
     }
-    Text(
-        text = "You are viewing data tab.",
-        modifier = Modifier.fillMaxSize().wrapContentSize()
-    )
+
+
 }
+
+
 
 @Composable
 fun EditorNavbar(
