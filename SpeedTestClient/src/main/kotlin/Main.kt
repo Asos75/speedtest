@@ -275,7 +275,7 @@ fun Measure(
 @Composable
 fun Towers() {
     val towers = HttpMobileTower(sessionManager).getByConfirmed(false)
-    val stateVertical = rememberScrollState(0)
+    val stateVertical = rememberLazyListState(0)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -283,19 +283,17 @@ fun Towers() {
     ) {
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            state = stateVertical
         ) {
             items(towers) { tower ->
                 TowerRow(tower)
             }
         }
-        /*
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd),
             adapter = rememberScrollbarAdapter(scrollState = rememberScrollState())
         )
-
-         */
     }
 }
 

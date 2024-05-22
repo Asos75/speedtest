@@ -99,10 +99,10 @@ fun main(){
         )
     }
 */
-    val eventToMod = httpEvent.getById(ObjectId("664387b5d3e028a44e6191fc"))
-    if (eventToMod != null) {
-        eventToMod.name =  "Test Event3"
-        httpEvent.update(eventToMod)
-
+    val tower = HttpMobileTower(sessionManager).getById(ObjectId("664244da9e0d9045b6f4fe0d"))
+    println("$tower")
+    if (tower != null) {
+        tower.provider = "telemach"
+        HttpMobileTower(sessionManager).update(tower)
     }
 }
