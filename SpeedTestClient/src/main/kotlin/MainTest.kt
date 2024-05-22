@@ -99,10 +99,10 @@ fun main(){
         )
     }
 */
-    val tower = HttpMobileTower(sessionManager).getById(ObjectId("664244da9e0d9045b6f4fe0d"))
+    val tower = HttpMobileTower(sessionManager).getById(ObjectId("664244edce52a37eab981b63"))
     println("$tower")
     if (tower != null) {
-        tower.provider = "telemach"
+        tower.confirmed = false
         HttpMobileTower(sessionManager).update(tower)
     }
 }

@@ -195,12 +195,13 @@ fun EditTower(
             verticalAlignment = Alignment.CenterVertically
         ){
             Text(
-                text = "Admin: "
+                text = "Conifrmed: "
             )
             Switch(
                 checked = confirmed,
                 onCheckedChange = {
                     confirmed = it
+                    println(confirmed)
                 }
             )
         }
@@ -225,7 +226,7 @@ fun EditTower(
                 }
             }
         }
-        Row() {
+        Row {
             Button(
                 onClick = {
                     if(!flagged) {
