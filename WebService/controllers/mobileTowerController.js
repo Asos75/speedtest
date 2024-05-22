@@ -116,7 +116,7 @@ module.exports = {
 
         MobiletowerModel.findOne({_id: id}, function (err, mobileTower) {
             if (err) {
-                return res.status(500).json({
+                return res.status(501).json({
                     message: 'Error when getting mobileTower',
                     error: err
                 });
@@ -136,7 +136,7 @@ module.exports = {
 			
             mobileTower.save(function (err, mobileTower) {
                 if (err) {
-                    return res.status(500).json({
+                    return res.status(502).json({
                         message: 'Error when updating mobileTower.',
                         error: err
                     });

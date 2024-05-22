@@ -94,7 +94,7 @@ fun ShowEvent(event: Event){
         Text(
             text = "Online: ${event.online}"
         )
-        if(event.location != null){
+        if(!event.online){
             Text(
                 text = "Location: ${event.location!!.coordinates[1]} ${event.location!!.coordinates[0]}"
             )
