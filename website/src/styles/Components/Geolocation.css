@@ -72,6 +72,10 @@
   color: var(--color-uraniunBlue);
 }
 
+.measurement p{
+  margin: 0.5rem 0 0 0;
+}
+
 .measurementButtonContainer button{
   font-size: 1.2rem;
   font-weight: 700;
