@@ -6,7 +6,6 @@ class User (
     val email: String,
     val admin: Boolean = false,
     val id: ObjectId = ObjectId(),
-    //TODO add mail
 ) {
 
     override fun toString(): String {
