@@ -1,8 +1,11 @@
 // Dependencies
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer} from 'react-leaflet';
-import { HeatmapLayer } from 'leaflet-heatmap';
 import { calculateDistance } from '../helpers/helperFunction';
+import { useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet.heat';
+import { Select, MenuItem, InputLabel } from '@material-ui/core';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
@@ -11,6 +14,21 @@ import '../styles/Components/Geolocation.css';
 // SubComponents
 import Measurement from './subComponents/Measurement';
 import MeasurementMarker from './subComponents/MeasurementMarker';
+
+const HeatmapLayer = ({ points, ...props }) => {
+  const layerRef = useRef(null);
+  const map = useMap();
+
+  useEffect(() => {
+    if (layerRef.current) {
+      map.removeLayer(layerRef.current);
+    }
+
+    layerRef.current = L.heatLayer(points, props).addTo(map);
+  }, [map, points, props]);
+
+  return null;
+};
 
 const Geolocation = () => {
   // Measurements
@@ -60,6 +78,10 @@ const Geolocation = () => {
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    } else if (page < 1) {
+      setCurrentPage(1);
+    } else if (page > totalPages) {
+      setCurrentPage(totalPages);
     }
   };
 
@@ -113,32 +135,51 @@ const Geolocation = () => {
         ))}
         {layout === 'grid' && (
           <HeatmapLayer
-            fitBoundsOnLoad
-            fitBoundsOnUpdate
-            points={measurements}
-            longitudeExtractor={m => m.location.coordinates[0]}
-            latitudeExtractor={m => m.location.coordinates[1]}
-            intensityExtractor={m => parseFloat(m.value)}
+            points={measurements.map(measurement => [measurement.location.coordinates[1], measurement.location.coordinates[0]])}
+            radius={20}
+            blur={15}
+            max={0.5}
           />
         )}
       </MapContainer>
       <div className="measurementContainer">
-        <div className="layoutButtons">
-          <button onClick={() => setLayout('points')}>Points</button>
-          <button onClick={() => setLayout('grid')}>Grid</button>
+        <div className="measurementHeaderContainer">
+          <h2 className="measurementTitle">Measurement List</h2>
+          <div className="measurementButtonsContainer">
+            <button onClick={() => setLayout('points')}>
+              <span role="img" aria-label="pin">📌</span>
+            </button>
+            <button onClick={() => setLayout('grid')}>
+              <span role="img" aria-label="grid">🔳</span>
+            </button>
+          </div>
         </div>
-        <h2 className="measurementTitle">Measurement List</h2>
-          <div className="measurementButtonContainer">
-            <button onClick={() => prevPage()} disabled={currentPage === 1}>Previous Page</button>
-            <p>Showing page {currentPage} out of {totalPages}</p>
-            <button onClick={() => nextPage()}>Next Page</button>
-            <input type="number" min="1" max={totalPages} onChange={(e) => goToPage(Number(e.target.value))} />
-            <select onChange={(e) => setFilterType(e.target.value)}>
-              <option value="dateAsc">Date Ascending</option>
-              <option value="dateDesc">Date Descending</option>
-              <option value="coordinatesAsc">Coordinates Ascending</option>
-              <option value="coordinatesDesc">Coordinates Descending</option>
-            </select>
+        <hr className="measurementDivider" />
+          <div className="measurementSettingsContainer">
+            <div className="measurementPageContainer">
+              <p className="measurementCurrentPage">Showing page {currentPage} out of {totalPages}</p>
+              <Select
+                labelId="filter-label"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="measurementPageSelect"
+                style={{ fontSize: '20px' }}
+              >
+                <MenuItem value="dateAsc">Date Ascending</MenuItem>
+                <MenuItem value="dateDesc">Date Descending</MenuItem>
+                <MenuItem value="coordinatesAsc">Coordinates Ascending</MenuItem>
+                <MenuItem value="coordinatesDesc">Coordinates Descending</MenuItem>
+              </Select>
+            </div>
+            <div className="measurementPageSelection">
+              <button onClick={() => prevPage()} disabled={currentPage === 1}>Previous Page</button>
+              <div className="measurementPageInput">
+                <p>Choose page</p>
+                <input type="number" min="1" max={totalPages} 
+                  value={currentPage} onChange={(e) => goToPage(Number(e.target.value))} />
+              </div>
+              <button onClick={() => nextPage()}>Next Page</button>
+            </div>
           </div>
           <div className="measurementList">
             {measurements.map((measurement, index) => (
