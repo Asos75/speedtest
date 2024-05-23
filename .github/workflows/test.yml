@@ -1,0 +1,17 @@
+name: Example Workflow
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  print-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Print a message
+        run: echo "Hello, this test works"
