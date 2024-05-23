@@ -255,3 +255,162 @@ fun EditTower(
         }
     }
 }
+
+@Composable
+fun CreateTower(){
+    var status by remember {  mutableStateOf("") }
+    var flagged by remember { mutableStateOf(false) }
+    var statusLat by remember { mutableStateOf("") }
+    var statusLon by remember { mutableStateOf("") }
+
+    var lat by remember { mutableStateOf("0.0") }
+    var lon by remember { mutableStateOf("0.0") }
+    var latConverted by remember { mutableStateOf(0.0) }
+    var lonConverted by remember { mutableStateOf(0.0) }
+
+    var provider by remember { mutableStateOf("") }
+    var type by remember { mutableStateOf("") }
+    var confirmed by remember { mutableStateOf(false) }
+
+    val options = HttpUser(sessionManager).getAll().map {
+            user: User ->
+        Pair<String, User> (user.username, user)
+    }
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    Column {
+        Row {
+            Text(
+                text = statusLat,
+                modifier = Modifier.fillMaxWidth(0.5f),
+                color = Color.Red
+            )
+            Text(
+                text = statusLon,
+                modifier = Modifier.fillMaxWidth(0.5f),
+                color = Color.Red
+            )
+        }
+
+        Row {
+            OutlinedTextFieldWithLabel(
+                value = lat,
+                onValueChange = {
+                    lat = it
+                    try {
+                        latConverted = lat.toDouble()
+                        statusLat = ""
+                        flagged = false
+                    } catch (e: NumberFormatException){
+                        statusLat = "Invalid Lat"
+                        flagged = true
+                    }
+                    status = ""
+                },
+                label = "latitude",
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            OutlinedTextFieldWithLabel(
+                value = lon,
+                onValueChange = {
+                    lon = it
+                    try {
+                        lonConverted = lon.toDouble()
+                        statusLon = ""
+                        flagged = false
+                    } catch (e: NumberFormatException){
+                        statusLon = "Invalid Lon"
+                        flagged = true
+                    }
+                },
+                label = "lontitude",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextFieldWithLabel(
+            value = provider,
+            onValueChange = { provider = it; status = "" },
+            label = "provider",
+            modifier = Modifier.fillMaxWidth(0.5f)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextFieldWithLabel(
+            value = type,
+            onValueChange = { type = it; status = "" },
+            label = "type",
+            modifier = Modifier.fillMaxWidth(0.5f)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Text(
+                text = "Conifrmed: "
+            )
+            Switch(
+                checked = confirmed,
+                onCheckedChange = {
+                    confirmed = it
+                    println(confirmed)
+                }
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(selectedOption.first)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option.first)
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = status
+        )
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    if(!flagged) {
+                        val updatedTower = MobileTower(
+                            Location(coordinates = listOf(lonConverted, latConverted)),
+                            provider,
+                            type,
+                            confirmed,
+                            selectedOption.second,
+                        )
+                        if(HttpMobileTower(sessionManager).insert(updatedTower)){
+                            status = "Success"
+                        } else {
+                            status = "fail"
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            ) {
+                Text("✓")
+            }
+
+            Text(
+                text = status
+            )
+        }
+    }
+}

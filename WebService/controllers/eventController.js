@@ -94,7 +94,7 @@ module.exports = {
             event.name = req.body.name ? req.body.name : event.name;
 			event.type = req.body.type ? req.body.type : event.type;
             event.time = req.body.time ? req.body.time : event.time;
-			event.online = req.body.online ? req.body.online : event.online;
+			event.online = req.body.hasOwnProperty('online') ? req.body.online : event.online;
 			event.location  = req.body.location  ? req.body.location  : event.location ;
 			
             event.save(function (err, event) {

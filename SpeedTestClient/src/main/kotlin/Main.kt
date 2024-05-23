@@ -49,6 +49,7 @@ val sessionManager = SessionManager()
 @Composable
 fun Navigation(
     onDataClicked: () -> Unit,
+    onAddClicked: () -> Unit,
     onMeasureClicked: () -> Unit,
     onTowerClicked: () -> Unit,
     onAboutAppClicked: () -> Unit,
@@ -105,6 +106,16 @@ fun Navigation(
                         modifier = Modifier
                             .padding(7.dp),
                         text = "\uD83D\uDDC4Data",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
+                    modifier = Modifier.clickable(onClick = onAddClicked).fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(7.dp),
+                        text = "+Add",
                         textAlign = TextAlign.Center
                     )
                 }
@@ -354,7 +365,9 @@ fun Data(){
                 horizontalArrangement = Arrangement.End
             ) {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        //Open Create user
+                    },
                     colors = ButtonDefaults.buttonColors(Color.White),
                 ) {
                     Text("+")
@@ -374,6 +387,45 @@ fun Data(){
 
 }
 
+@Composable
+fun Add(){
+    val options = listOf("Users", "Measurements", "Mobile Towers", "Events")
+
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(selectedOption)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+        }
+        when(selectedOption){
+            "Users" -> { CreateUser() }
+            "Measurements" -> { CreateMeasurement() }
+            "Mobile Towers" -> { CreateTower() }
+            "Events" -> { CreateEvent() }
+        }
+    }
+
+
+}
 
 
 @Composable
@@ -1106,6 +1158,7 @@ fun App() {
         ) {
             Navigation(
                 onDataClicked = { currentContent.value = { Data() } },
+                onAddClicked = {currentContent.value = { Add() }},
                 onMeasureClicked = { currentContent.value = { Measure() } },
                 onTowerClicked = { currentContent.value = { Towers() } },
                 onAboutAppClicked = { currentContent.value = { AboutApp() } },

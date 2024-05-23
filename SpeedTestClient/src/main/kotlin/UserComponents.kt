@@ -152,3 +152,78 @@ fun EditUser(
         }
     }
 }
+
+@Composable
+fun CreateUser(){
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var admin by remember { mutableStateOf(false) }
+
+    var status by remember { mutableStateOf("") }
+    Column {
+        OutlinedTextFieldWithLabel(
+            value = username,
+            onValueChange = { username = it; status = "" },
+            label = "Username",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextFieldWithLabel(
+            value = password,
+            onValueChange = { password = it; status = "" },
+            label = "Password",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextFieldWithLabel(
+            value = email,
+            onValueChange = { email = it; status = "" },
+            label = "Email",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Text(
+                text = "Admin: "
+            )
+            Switch(
+                checked = admin,
+                onCheckedChange = {
+                    admin = it
+                    status = ""
+                }
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Button(
+                onClick = {
+                    val user = User(
+                        username,
+                        password,
+                        email,
+                        admin
+                    )
+                    if(HttpUser(sessionManager).insert(user)){
+                        status = "Success"
+                    } else {
+                        status = "Fail"
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            ){
+                Text("✓")
+            }
+            Text(
+                text = status
+            )
+        }
+    }
+}
