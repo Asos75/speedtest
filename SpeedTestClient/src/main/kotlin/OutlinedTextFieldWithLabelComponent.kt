@@ -18,7 +18,7 @@ fun OutlinedTextFieldWithLabel(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier) {
         TextField(
