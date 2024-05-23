@@ -23,6 +23,7 @@ const Register = () => {
   // Regsiter user to the website
   async function Register(e){
     e.preventDefault();
+    // console.log("Fetching" + process.env.REACT_APP_BACKEND_URL);
     const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
