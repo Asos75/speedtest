@@ -41,5 +41,8 @@ enum class Symbol {
     LSQUARE,
     RSQUARE,
     DOT,
-    TERM
+    TERM,
+    HIGHLIGHT,
+    OUTPUT,
+    RIVER
 }
