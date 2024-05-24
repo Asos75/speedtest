@@ -51,9 +51,4 @@ class Scanner(private val automaton: DFA, private val stream: InputStream) {
     }
 }
 
-fun name(value: Symbol): String {
-    return when (value) {
 
-        else -> throw Error("INVALID")
-    }
-}

@@ -1175,7 +1175,7 @@ fun App() {
 
 fun main() = application {
     HttpUser(sessionManager).authenticate("KotlinTester", "1234")
-    Window(onCloseRequest = ::exitApplication) {
+    Window(onCloseRequest = ::exitApplication, undecorated = true) {
         App()
     }
 }
