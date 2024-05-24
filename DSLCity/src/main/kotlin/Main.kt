@@ -17,5 +17,5 @@ fun printTokens(scanner: Scanner, output: OutputStream) {
 
 fun main(args: Array<String>) {
 
-    printTokens(Scanner(ForForeachFFFAutomaton, File(args[0]).inputStream()), System.out)
+    println(Parser((Scanner(ForForeachFFFAutomaton, File(args[0]).inputStream()))).parse().toString())
 }
