@@ -179,7 +179,7 @@ fun EditMeasurement(
                     true
                 }
                             },
-            label = "Email",
+            label = "Speed",
             modifier = Modifier.fillMaxWidth()
         )
         Row(
@@ -242,7 +242,7 @@ fun EditMeasurement(
         OutlinedTextFieldWithLabel(
             value = provider,
             onValueChange = { provider = it },
-            label = "Email",
+            label = "Provider",
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -357,5 +357,241 @@ fun EditMeasurement(
 
 @Composable
 fun CreateMeasurement(){
+    var status by remember { mutableStateOf("") }
+    var insertStatus by remember { mutableStateOf("") }
 
+    var speedError by remember { mutableStateOf(false) }
+    var speed by remember { mutableStateOf("") }
+    var speedConverted by remember { mutableStateOf(0L) }
+
+    val options = listOf("data", "wifi")
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    var provider by remember { mutableStateOf("") }
+
+    var lat by remember { mutableStateOf("0.0") }
+    var lon by remember { mutableStateOf("0.0") }
+    var latConverted by remember { mutableStateOf(0.0) }
+    var lonConverted by remember { mutableStateOf(0.0) }
+    var latError by remember { mutableStateOf(false) }
+    var lonError by remember { mutableStateOf(false) }
+
+    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+    val timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME
+    val currentTime = LocalDateTime.now()
+
+    var dateInput by remember { mutableStateOf(currentTime.format(dateFormatter)) }
+    var timeInput by remember { mutableStateOf(currentTime.format(timeFormatter)) }
+    var dateError by remember { mutableStateOf(false) }
+    var timeError by remember { mutableStateOf(false) }
+
+    var user by remember { mutableStateOf(false) }
+    val userOptions = HttpUser(sessionManager).getAll().map {
+            user: User ->
+        Pair<String, User> (user.username, user)
+    }
+
+    var userSelectedOption by remember { mutableStateOf(userOptions.first()) }
+    var isUserSelectorOpen by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = status,
+            color = Color.Red
+        )
+        OutlinedTextFieldWithLabel(
+            value = speed,
+            onValueChange = {
+                speed = it
+                speedError = try {
+                    speedConverted = speed.toLong()
+                    status = ""
+                    false
+                } catch (e: NumberFormatException){
+                    status = "Invalid speed"
+                    true
+                }
+                insertStatus = ""
+            },
+            label = "Speed",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(text = selectedOption)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+        }
+        Row {
+            OutlinedTextFieldWithLabel(
+                value = lat,
+                onValueChange = {
+                    lat = it
+                    latError = try {
+                        latConverted = lat.toDouble()
+                        status = ""
+                        false
+                    } catch (e: NumberFormatException){
+                        status = "Invalid Lat"
+                        true
+                    }
+                    insertStatus = ""
+                },
+                label = "latitude",
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            OutlinedTextFieldWithLabel(
+                value = lon,
+                onValueChange = {
+                    lon = it
+                    lonError = try {
+                        lonConverted = lon.toDouble()
+                        status = ""
+                        false
+                    } catch (e: NumberFormatException){
+                        status = "Invalid Lon"
+                        true
+                    }
+                    insertStatus = ""
+                },
+                label = "lontitude",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextFieldWithLabel(
+            value = provider,
+            onValueChange = {
+                provider = it
+                insertStatus = ""
+            },
+            label = "Provider",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row {
+            OutlinedTextFieldWithLabel(
+                value = dateInput,
+                onValueChange = {
+                    dateInput = it
+                    dateError = try {
+                        LocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE)
+                        status = ""
+                        false
+                    } catch (e: DateTimeParseException) {
+                        status = "Invalid Date"
+                        true
+                    }
+                    insertStatus = ""
+                },
+                label = "Date (YYYY-MM-DD)",
+                modifier = Modifier.fillMaxWidth(0.5f),
+            )
+
+            OutlinedTextFieldWithLabel(
+                value = timeInput,
+                onValueChange = {
+                    timeInput = it
+                    timeError = try {
+                        LocalTime.parse(it, DateTimeFormatter.ISO_LOCAL_TIME)
+                        status = ""
+                        false
+                    } catch (e: DateTimeParseException) {
+                        status = "Invalid Time"
+                        true
+                    }
+                    insertStatus = ""
+                },
+                label = "Time (HH:MM:SS)",
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "User: "
+            )
+            Switch(
+                checked = user,
+                onCheckedChange = {
+                    user = it
+                }
+            )
+            if(user) {
+                IconButton(onClick = { isUserSelectorOpen = true }) {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+                }
+                Text(userSelectedOption.first)
+                DropdownMenu(
+                    expanded = isUserSelectorOpen,
+                    onDismissRequest = { isUserSelectorOpen = false },
+                ) {
+                    userOptions.forEach { option ->
+                        DropdownMenuItem(onClick = {
+                            userSelectedOption = option
+                            isUserSelectorOpen = false
+                        }) {
+                            Text(option.first)
+                        }
+                    }
+                }
+            }
+
+        }
+        Row{
+            Button(
+                onClick = {
+                    if(
+                        !latError &&
+                        !lonError &&
+                        !speedError &&
+                        !dateError &&
+                        !timeError
+                    ) {
+                        val date = LocalDate.parse(dateInput, dateFormatter)
+                        val time = LocalTime.parse(timeInput, timeFormatter)
+                        val newMeasurement = Measurment(
+                            speedConverted,
+                            Type.valueOf(selectedOption),
+                            provider,
+                            Location(coordinates = listOf(lonConverted, latConverted)),
+                            LocalDateTime.of(date, time),
+                            if(!user) null else userSelectedOption.second,
+                        )
+                        if(HttpMeasurement(sessionManager).insert(newMeasurement)){
+                            insertStatus = "Success"
+                        } else {
+                            insertStatus = "Fail"
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(Color.White)
+            ){
+                Text("✓")
+            }
+            Text(
+                text = insertStatus,
+            )
+        }
+    }
 }
