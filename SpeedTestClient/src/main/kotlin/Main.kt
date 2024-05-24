@@ -3,6 +3,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -48,6 +49,7 @@ val sessionManager = SessionManager()
 @Composable
 fun Navigation(
     onDataClicked: () -> Unit,
+    onAddClicked: () -> Unit,
     onMeasureClicked: () -> Unit,
     onTowerClicked: () -> Unit,
     onAboutAppClicked: () -> Unit,
@@ -104,6 +106,16 @@ fun Navigation(
                         modifier = Modifier
                             .padding(7.dp),
                         text = "\uD83D\uDDC4Data",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
+                    modifier = Modifier.clickable(onClick = onAddClicked).fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(7.dp),
+                        text = "+Add",
                         textAlign = TextAlign.Center
                     )
                 }
@@ -274,7 +286,7 @@ fun Measure(
 @Composable
 fun Towers() {
     val towers = HttpMobileTower(sessionManager).getByConfirmed(false)
-    val stateVertical = rememberScrollState(0)
+    val stateVertical = rememberLazyListState(0)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -282,19 +294,17 @@ fun Towers() {
     ) {
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            state = stateVertical
         ) {
             items(towers) { tower ->
                 TowerRow(tower)
             }
         }
-        /*
         VerticalScrollbar(
             modifier = Modifier.align(Alignment.CenterEnd),
             adapter = rememberScrollbarAdapter(scrollState = rememberScrollState())
         )
-
-         */
     }
 }
 
@@ -331,32 +341,92 @@ fun Data(){
 
     Column {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = { isSelectorOpen = true }) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
             }
             Text(selectedOption)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = {
+                        //Open Create user
+                    },
+                    colors = ButtonDefaults.buttonColors(Color.White),
+                ) {
+                    Text("+")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
         }
-        DropdownMenu(
-            expanded = isSelectorOpen,
-            onDismissRequest = { isSelectorOpen = false },
+        when(selectedOption){
+            "Users" -> { ListUsers() }
+            "Measurements" -> { ListMeasurements() }
+            "Mobile Towers" -> { ListTowers() }
+            "Events" -> { ListEvents() }
+        }
+    }
+
+
+}
+
+@Composable
+fun Add(){
+    val options = listOf("Users", "Measurements", "Mobile Towers", "Events")
+
+    var selectedOption by remember { mutableStateOf(options.first()) }
+    var isSelectorOpen by remember { mutableStateOf(false) }
+
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            options.forEach { option ->
-                DropdownMenuItem(onClick = {
-                    selectedOption = option
-                    isSelectorOpen = false
-                }) {
-                    Text(option)
+            IconButton(onClick = { isSelectorOpen = true }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand")
+            }
+            Text(selectedOption)
+            DropdownMenu(
+                expanded = isSelectorOpen,
+                onDismissRequest = { isSelectorOpen = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        isSelectorOpen = false
+                    }) {
+                        Text(option)
+                    }
                 }
             }
         }
+        when(selectedOption){
+            "Users" -> { CreateUser() }
+            "Measurements" -> { CreateMeasurement() }
+            "Mobile Towers" -> { CreateTower() }
+            "Events" -> { CreateEvent() }
+        }
     }
-    Text(
-        text = "You are viewing data tab.",
-        modifier = Modifier.fillMaxSize().wrapContentSize()
-    )
+
+
 }
+
 
 @Composable
 fun EditorNavbar(
@@ -1088,6 +1158,7 @@ fun App() {
         ) {
             Navigation(
                 onDataClicked = { currentContent.value = { Data() } },
+                onAddClicked = {currentContent.value = { Add() }},
                 onMeasureClicked = { currentContent.value = { Measure() } },
                 onTowerClicked = { currentContent.value = { Towers() } },
                 onAboutAppClicked = { currentContent.value = { AboutApp() } },
