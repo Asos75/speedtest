@@ -1,7 +1,7 @@
 package org.example
 
 object ForForeachFFFAutomaton : DFA {
-    override val states = (1..64).toSet()
+    override val states = (1..128).toSet()
     override val alphabet = 0..255
     override val startState = 1
     override val finalStates = setOf(
@@ -57,7 +57,61 @@ object ForForeachFFFAutomaton : DFA {
         54,
         55,
         56,
-        57
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111
     )
 
     private val numberOfStates = states.max() + 1 // plus the ERROR_STATE
@@ -188,114 +242,38 @@ object ForForeachFFFAutomaton : DFA {
 //region RESERVED WORDS
     //bend
         setTransition(startState, 'b', 30)
-        setTransition(30, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(30, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(30, CharTypes.NUMBERS, 5)
-        setTransition(30, '_', 5)
-        setTransition(30, 'e', 31)
-        setTransition(31, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(31, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(31, CharTypes.NUMBERS, 5)
-        setTransition(31, '_', 5)
-        setTransition(31, 'n', 32)
-        setTransition(32, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(32, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(32, CharTypes.NUMBERS, 5)
-        setTransition(32, '_', 5)
-        setTransition(32, 'd', 33)
-        setTransition(33, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(33, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(33, CharTypes.NUMBERS, 5)
-        setTransition(33, '_', 5)
+        setTransition(30, 'e', 31,5)
+        setTransition(31, 'n', 32,5)
+        setTransition(32, 'd', 33,5)
+        closeLine(33,5)
+
     //box
         setTransition(30, 'o', 34)
-        setTransition(34, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(34, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(34, CharTypes.NUMBERS, 5)
-        setTransition(34, '_', 5)
-        setTransition(34, 'x', 35)
-        setTransition(35, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(35, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(35, CharTypes.NUMBERS, 5)
-        setTransition(35, '_', 5)
+        setTransition(34, 'x', 35,5)
+        closeLine(35, 5)
+
     //building
         setTransition(30, 'u', 36)
-        setTransition(36, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(36, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(36, CharTypes.NUMBERS, 5)
-        setTransition(36, '_', 5)
-        setTransition(36, 'i', 37)
-        setTransition(37, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(37, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(37, CharTypes.NUMBERS, 5)
-        setTransition(37, '_', 5)
-        setTransition(37, 'l', 38)
-        setTransition(38, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(38, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(38, CharTypes.NUMBERS, 5)
-        setTransition(38, '_', 5)
-        setTransition(38, 'd', 39)
-        setTransition(39, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(39, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(39, CharTypes.NUMBERS, 5)
-        setTransition(39, '_', 5)
-        setTransition(39, 'i', 40)
-        setTransition(40, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(40, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(40, CharTypes.NUMBERS, 5)
-        setTransition(40, '_', 5)
-        setTransition(40, 'n', 41)
-        setTransition(41, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(41, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(41, CharTypes.NUMBERS, 5)
-        setTransition(41, '_', 5)
-        setTransition(41, 'g', 42)
-        setTransition(42, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(42, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(42, CharTypes.NUMBERS, 5)
-        setTransition(42, '_', 5)
+        setTransition(36, 'i', 37,5)
+        setTransition(37, 'l', 38,5)
+        setTransition(38, 'd', 39,5)
+        setTransition(39, 'i', 40,5)
+        setTransition(40, 'n', 41,5)
+        setTransition(41, 'g', 42,5)
+        closeLine(42, 5)
+
     //circle
         setTransition(startState, 'c', 43)
-        setTransition(43, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(43, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(43, CharTypes.NUMBERS, 5)
-        setTransition(43, '_', 5)
-        setTransition(43, 'i', 44)
-        setTransition(44, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(44, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(44, CharTypes.NUMBERS, 5)
-        setTransition(44, '_', 5)
-        setTransition(44, 'r', 45)
-        setTransition(45, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(45, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(45, CharTypes.NUMBERS, 5)
-        setTransition(45, '_', 5)
-        setTransition(45, 'c', 46)
-        setTransition(46, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(46, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(46, CharTypes.NUMBERS, 5)
-        setTransition(46, '_', 5)
-        setTransition(46, 'l', 47)
-        setTransition(47, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(47, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(47, CharTypes.NUMBERS, 5)
-        setTransition(47, '_', 5)
-        setTransition(47, 'e', 48)
-        setTransition(48, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(48, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(48, CharTypes.NUMBERS, 5)
-        setTransition(48, '_', 5)
+        setTransition(43, 'i', 44,5)
+        setTransition(44, 'r', 45,5)
+        setTransition(45, 'c', 46,5)
+        setTransition(46, 'l', 47,5)
+        setTransition(47, 'e', 48,5)
+        closeLine(48, 5)
     //city
         setTransition(44, 't', 49)
-        setTransition(49, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(49, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(49, CharTypes.NUMBERS, 5)
-        setTransition(49, '_', 5)
-        setTransition(49, 'y', 50)
-        setTransition(50, CharTypes.LETTERSUPERCASE, 5)
-        setTransition(50, CharTypes.LETTERSLOWERCASE, 5)
-        setTransition(50, CharTypes.NUMBERS, 5)
-        setTransition(50, '_', 5)
+        setTransition(49, 'y', 50, 5)
+        closeLine(50, 5)
     //for
         setTransition(startState, 'f', 51)
         setTransition(51, 'o', 52, 5)
@@ -306,6 +284,85 @@ object ForForeachFFFAutomaton : DFA {
         setTransition(55, 'c', 56,5)
         setTransition(56, 'h', 57,5)
         closeLine(57,5)
+    //highlight
+        setTransition(startState, 'h', 58)
+        setTransition(58, 'i', 59,5)
+        setTransition(59, 'g', 60,5)
+        setTransition(60, 'h', 61,5)
+        setTransition(61, 'l', 62,5)
+        setTransition(62, 'i', 63,5)
+        setTransition(63, 'g', 64,5)
+        setTransition(64, 'h', 65,5)
+        setTransition(65, 't', 66,5)
+        closeLine(66,5)
+    //if
+        setTransition(startState, 'i', 67)
+        setTransition(67, 'f', 68, 5)
+        closeLine(68,5)
+    //in
+        setTransition(67, 'n', 69)
+        closeLine(69, 5)
+    //let
+        setTransition(startState, 'l', 70)
+        setTransition(70, 'e', 71, 5)
+        setTransition(71, 't', 72, 5)
+        closeLine(72, 5)
+    //line
+        setTransition(70, 'i', 73)
+        setTransition(73, 'n', 74, 5)
+        setTransition(74, 'e', 75, 5)
+        closeLine(75, 5)
+    //link
+        setTransition(74, 'k', 76)
+        closeLine(76, 5)
+    //marker
+        setTransition(startState, 'm', 77)
+        setTransition(77, 'a', 78, 5)
+        setTransition(78, 'r', 79, 5)
+        setTransition(79, 'k', 80, 5)
+        setTransition(80, 'e', 81, 5)
+        setTransition(81, 'r', 82, 5)
+        closeLine(82, 5)
+    //measurement
+        setTransition(77, 'e', 83)
+        setTransition(83, 'a', 84, 5)
+        setTransition(84, 's', 85, 5)
+        setTransition(85, 'u', 86, 5)
+        setTransition(86, 'r', 87, 5)
+        setTransition(87, 'e', 88, 5)
+        setTransition(88, 'm', 89, 5)
+        setTransition(89, 'e', 90, 5)
+        setTransition(90, 'n', 91, 5)
+        setTransition(91, 't', 92, 5)
+        closeLine(92,5)
+    //out
+        setTransition(startState, 'o', 93)
+        setTransition(93, 'u', 94,5)
+        setTransition(94, 't', 95,5)
+    //output
+        setTransition(95, 'p', 96,5)
+        setTransition(96, 'u', 97,5)
+        setTransition(97, 't', 98,5)
+        closeLine(98,5)
+    //road
+        setTransition(startState, 'r', 99)
+        setTransition(99, 'o', 100,5)
+        setTransition(100, 'a', 101,5)
+        setTransition(101, 'd', 102,5)
+        closeLine(102,5)
+    //river
+        setTransition(99, 'i', 103)
+        setTransition(103, 'v', 104,5)
+        setTransition(104, 'e', 105,5)
+        setTransition(105, 'r', 106,5)
+        closeLine(106,5)
+    //tower
+        setTransition(startState, 't', 107)
+        setTransition(107, 'o', 108,5)
+        setTransition(108, 'w', 109,5)
+        setTransition(109, 'e', 110,5)
+        setTransition(110, 'r', 111,5)
+        closeLine(111, 5)
 
 //endregion
 //region SYMBOLS
@@ -362,6 +419,60 @@ object ForForeachFFFAutomaton : DFA {
         setSymbol(55, Symbol.VARIABLE)
         setSymbol(56, Symbol.VARIABLE)
         setSymbol(57, Symbol.FOREACH)
+        setSymbol(58, Symbol.VARIABLE)
+        setSymbol(59, Symbol.VARIABLE)
+        setSymbol(60, Symbol.VARIABLE)
+        setSymbol(61, Symbol.VARIABLE)
+        setSymbol(62, Symbol.VARIABLE)
+        setSymbol(63, Symbol.VARIABLE)
+        setSymbol(64, Symbol.VARIABLE)
+        setSymbol(65, Symbol.VARIABLE)
+        setSymbol(66, Symbol.HIGHLIGHT)
+        setSymbol(67, Symbol.VARIABLE)
+        setSymbol(68, Symbol.IF)
+        setSymbol(69, Symbol.IN)
+        setSymbol(70, Symbol.VARIABLE)
+        setSymbol(71, Symbol.VARIABLE)
+        setSymbol(72, Symbol.LET)
+        setSymbol(73, Symbol.VARIABLE)
+        setSymbol(74, Symbol.VARIABLE)
+        setSymbol(75, Symbol.LINE)
+        setSymbol(76, Symbol.LINK)
+        setSymbol(77, Symbol.VARIABLE)
+        setSymbol(78, Symbol.VARIABLE)
+        setSymbol(79, Symbol.VARIABLE)
+        setSymbol(80, Symbol.VARIABLE)
+        setSymbol(81, Symbol.VARIABLE)
+        setSymbol(82, Symbol.MARKER)
+        setSymbol(83, Symbol.VARIABLE)
+        setSymbol(84, Symbol.VARIABLE)
+        setSymbol(85, Symbol.VARIABLE)
+        setSymbol(86, Symbol.VARIABLE)
+        setSymbol(87, Symbol.VARIABLE)
+        setSymbol(88, Symbol.VARIABLE)
+        setSymbol(89, Symbol.VARIABLE)
+        setSymbol(90, Symbol.VARIABLE)
+        setSymbol(91, Symbol.VARIABLE)
+        setSymbol(92, Symbol.MEASUREMENT)
+        setSymbol(93, Symbol.VARIABLE)
+        setSymbol(94, Symbol.VARIABLE)
+        setSymbol(95, Symbol.OUT)
+        setSymbol(96, Symbol.VARIABLE)
+        setSymbol(97, Symbol.VARIABLE)
+        setSymbol(98, Symbol.OUTPUT)
+        setSymbol(99, Symbol.VARIABLE)
+        setSymbol(100, Symbol.VARIABLE)
+        setSymbol(101, Symbol.VARIABLE)
+        setSymbol(102, Symbol.ROAD)
+        setSymbol(103, Symbol.VARIABLE)
+        setSymbol(104, Symbol.VARIABLE)
+        setSymbol(105, Symbol.VARIABLE)
+        setSymbol(106, Symbol.RIVER)
+        setSymbol(107, Symbol.VARIABLE)
+        setSymbol(108, Symbol.VARIABLE)
+        setSymbol(109, Symbol.VARIABLE)
+        setSymbol(110, Symbol.VARIABLE)
+        setSymbol(111, Symbol.TOWER)
 //endregion
 
 
@@ -402,6 +513,19 @@ fun name(value: Symbol): String {
         Symbol.CITY -> "city"
         Symbol.FOR -> "for"
         Symbol.FOREACH -> "foreach"
+        Symbol.HIGHLIGHT -> "highlight"
+        Symbol.IF -> "if"
+        Symbol.IN -> "in"
+        Symbol.LET -> "let"
+        Symbol.LINE -> "line"
+        Symbol.LINK -> "link"
+        Symbol.MARKER -> "marker"
+        Symbol.MEASUREMENT -> "measurement"
+        Symbol.OUT -> "out"
+        Symbol.OUTPUT -> "output"
+        Symbol.ROAD -> "road"
+        Symbol.RIVER -> "river"
+        Symbol.TOWER -> "tower"
         else -> throw Error("INVALID")
     }
 }
