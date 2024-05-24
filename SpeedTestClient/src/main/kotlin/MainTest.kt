@@ -99,10 +99,10 @@ fun main(){
         )
     }
 */
-    val eventToMod = httpEvent.getById(ObjectId("664387b5d3e028a44e6191fc"))
-    if (eventToMod != null) {
-        eventToMod.name =  "Test Event3"
-        httpEvent.update(eventToMod)
-
+    val tower = HttpMobileTower(sessionManager).getById(ObjectId("664244edce52a37eab981b63"))
+    println("$tower")
+    if (tower != null) {
+        tower.confirmed = false
+        HttpMobileTower(sessionManager).update(tower)
     }
 }
