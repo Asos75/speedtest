@@ -1,10 +1,11 @@
 // Dependencies
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer} from 'react-leaflet';
 import { calculateDistance } from '../helpers/helperFunction';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.heat';
+import HeatmapOverlay from 'leaflet-heatmap';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
@@ -15,16 +16,24 @@ import MeasurementMarker from './subComponents/Geolocation/MeasurementMarker';
 import HeatmapSettings from './subComponents/Geolocation/HeatmapSettings';
 import PointsSettings from './subComponents/Geolocation/PointsSettings';
 
-const HeatmapLayer = ({ points, ...props }) => {
+
+const HeatmapLayer = ({ allMeasurements, heatmapType, ...props }) => {
   const layerRef = useRef(null);
   const map = useMap();
 
   useEffect(() => {
     // Remove the previous layer before adding the new one
     if (layerRef.current) map.removeLayer(layerRef.current);
+
+    const points = allMeasurements.map(measurement => [
+      measurement.location.coordinates[1],
+      measurement.location.coordinates[0],
+      heatmapType === 'speed' ? measurement.speed : new Date(measurement.time).getTime()
+    ]);
+
     layerRef.current = L.heatLayer(points, props).addTo(map);
     return () => layerRef.current && map.removeLayer(layerRef.current);
-  }, [map, points, props]);
+  }, [map, allMeasurements, heatmapType, props]);
 
   return null;
 };
@@ -40,7 +49,6 @@ const Geolocation = () => {
 
   // Heatmap
   const [heatmapType, setHeatmapType] = useState('speed'); // 'speed' or 'time'
-  const [heatmapData, setHeatmapData] = useState([]);
   const [maxIntensity, setMaxIntensity] = useState(0.01);
   const [radius, setRadius] = useState(20);
   const [blur, setBlur] = useState(15);
@@ -60,7 +68,7 @@ const Geolocation = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL + '/measurements';
 
   // Fetching measurements
-  const fetchMeasurements = async () => {
+  const fetchMeasurements = useCallback(async () => {
     try {
       const response = await fetch(backendUrl);
       const data = await response.json();
@@ -69,17 +77,15 @@ const Geolocation = () => {
     } catch (error) {
       console.error('Error:', error);
     }
-  };
+  }, [backendUrl, itemsPerPage]);
 
-  // Heatmap data generation
-  const generateHeatmapData = () => {
+  const generateHeatmapData = useCallback(() => {
     const data = allMeasurements.map(measurement => [
       measurement.location.coordinates[1],
       measurement.location.coordinates[0],
       heatmapType === 'speed' ? measurement.speed : new Date(measurement.time).getTime()
     ]);
-    setHeatmapData(data);
-  };
+  }, [allMeasurements, heatmapType]);
 
   // Pagination functions
   const prevPage = () => {
@@ -103,7 +109,6 @@ const Geolocation = () => {
   };
 
   // Filter function
-  // Filter function
 const handleFilter = () => {
   if (layout === 'points') {
     const filteredMeasurements = [...allMeasurements].sort((a, b) => {
@@ -124,15 +129,25 @@ const handleFilter = () => {
   }
 };
 
-  // Fetching measurements on page load
+  // Fetching measurements on page load (so only once)
   useEffect(() => {
     fetchMeasurements();
-  }, [itemsPerPage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+    // Handle filter changes
+    useEffect(() => {
+      handleFilter();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterType, currentPage, itemsPerPage, allMeasurements]);
+
+  // Handle layout changes
   useEffect(() => {
-    handleFilter();
-    generateHeatmapData();
-  }, [filterType, allMeasurements, currentPage, heatmapType, layout, itemsPerPage]);
+    if (layout === 'grid') {
+      generateHeatmapData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layout, heatmapType, allMeasurements]);
 
   return (
     <div className="blueBackground">
@@ -152,7 +167,8 @@ const handleFilter = () => {
         ))}
         {layout === 'grid' && (
           <HeatmapLayer
-            points={heatmapData}
+            allMeasurements={allMeasurements}
+            heatmapType={heatmapType}
             radius={radius}
             blur={blur}
             max={maxIntensity}
@@ -168,7 +184,7 @@ const handleFilter = () => {
       {layout === 'grid' && (
           <HeatmapSettings setLayout={setLayout} heatmapType={heatmapType} setHeatmapType={setHeatmapType}
           maxIntensity={maxIntensity} setMaxIntensity={setMaxIntensity} radius={radius}
-          setRadius={setRadius} blur={blur} setBlur={setBlur} />
+          setRadius={setRadius} blur={blur} setBlur={setBlur} measurements={allMeasurements} /> 
       )}
       </div>
     </div>
