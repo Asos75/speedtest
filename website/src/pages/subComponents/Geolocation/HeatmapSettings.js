@@ -1,7 +1,35 @@
-import React from 'react';
+// Dependencies
+import React, { useState, useEffect} from 'react';
+
+// UI
 import { Select, MenuItem, Slider } from '@material-ui/core';
 
-const HeatmapSettings = ({ setLayout, heatmapType, setHeatmapType, maxIntensity, setMaxIntensity, radius, setRadius, blur, setBlur }) => {
+const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType, maxIntensity, setMaxIntensity, radius, setRadius, blur, setBlur}) => {
+  // States of values / results
+  const [minValue, setMinValue] = useState(0);
+  const [avgValue, setAvgValue] = useState(0);
+  const [maxValue, setMaxValue] = useState(0);
+  const [totalResults, setTotalResults] = useState(0);
+
+  // Extract time, speed, and coordinates from measurements
+  const speeds = measurements.map(measurement => measurement.speed);
+
+  useEffect(() => {
+    setMinValue(Math.min(...speeds));
+    setAvgValue(speeds.reduce((a, b) => a + b, 0) / speeds.length);
+    setMaxValue(Math.max(...speeds));
+    setTotalResults(speeds.length);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [heatmapType, measurements]);
+
+  const legendItems = [
+    { range: '>20000', label: 'Really low', color: '#f0f0f0' },
+    { range: '20000-45000', label: 'Low', color: '#bdbdbd' },
+    { range: '45000-75000', label: 'Medium', color: '#636363' },
+    { range: '75000-100000', label: 'High', color: '#252525' },
+    { range: '>100000', label: 'Really high', color: '#000000' },
+  ];
+  
   return (
     <div className="measurementContainer">
       <div className="measurementHeaderContainer">
@@ -46,6 +74,12 @@ const HeatmapSettings = ({ setLayout, heatmapType, setHeatmapType, maxIntensity,
           min={1}
           max={50}
           step={1} />
+      </div>
+      <div>
+        <p>Min {heatmapType}: {minValue}</p>
+        <p>Avg {heatmapType}: {avgValue}</p>
+        <p>Max {heatmapType}: {maxValue}</p>
+        <p>Total results: {totalResults}</p>
       </div>
     </div>
   );
