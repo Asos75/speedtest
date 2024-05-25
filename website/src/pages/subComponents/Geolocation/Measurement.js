@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 
 // Helpers
-import { formatTime } from '../../helpers/helperFunction';
+import { formatTime } from '../../../helpers/helperFunction';
 
 const Measurement = ({ measurement, index }) => {
   // Show details for each measurement

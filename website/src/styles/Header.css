@@ -109,6 +109,12 @@
     text-align: center;
 }
 
+.header-logo{
+    width: 275px;
+    align-items: center;
+    margin-top: 3%;
+}
+
 .header-title-link{
     color: var(--color-white);
     text-decoration: none;

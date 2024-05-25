@@ -1,11 +1,13 @@
 // Dependencies
 import React, { useEffect, useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
-import { formatTime } from '../../helpers/helperFunction';
+import { formatTime } from '../../../helpers/helperFunction';
 
 // Assets
 import { Icon } from 'leaflet';
-import pinIcon from '../../assets/Icons/pin.png';
+import pinIcon from '../../../assets/Icons/pin.png';
+
+
 const customIcon = new Icon({
   iconUrl: pinIcon,
   iconSize: [30, 30],
