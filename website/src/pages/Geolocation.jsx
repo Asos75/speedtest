@@ -5,26 +5,25 @@ import { calculateDistance } from '../helpers/helperFunction';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.heat';
-import { Select, MenuItem, InputLabel } from '@material-ui/core';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
 import '../styles/Components/Geolocation.css'; 
 
 // SubComponents
-import Measurement from './subComponents/Measurement';
-import MeasurementMarker from './subComponents/MeasurementMarker';
+import MeasurementMarker from './subComponents/Geolocation/MeasurementMarker';
+import HeatmapSettings from './subComponents/Geolocation/HeatmapSettings';
+import PointsSettings from './subComponents/Geolocation/PointsSettings';
 
 const HeatmapLayer = ({ points, ...props }) => {
   const layerRef = useRef(null);
   const map = useMap();
 
   useEffect(() => {
-    if (layerRef.current) {
-      map.removeLayer(layerRef.current);
-    }
-
+    // Remove the previous layer before adding the new one
+    if (layerRef.current) map.removeLayer(layerRef.current);
     layerRef.current = L.heatLayer(points, props).addTo(map);
+    return () => layerRef.current && map.removeLayer(layerRef.current);
   }, [map, points, props]);
 
   return null;
@@ -39,12 +38,20 @@ const Geolocation = () => {
   const [filterType, setFilterType] = useState('dateAsc');
   const [totalPages, setTotalPages] = useState(1);
 
+  // Heatmap
+  const [heatmapType, setHeatmapType] = useState('speed'); // 'speed' or 'time'
+  const [heatmapData, setHeatmapData] = useState([]);
+  const [maxIntensity, setMaxIntensity] = useState(0.01);
+  const [radius, setRadius] = useState(20);
+  const [blur, setBlur] = useState(15);
+
   // Layout
   const [layout, setLayout] = useState('points');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const itemsPerPageOptions = [10, 20, 50];
 
   // Centering map view
   const mapCenter = [46.5546, 15.6467];
@@ -57,11 +64,21 @@ const Geolocation = () => {
     try {
       const response = await fetch(backendUrl);
       const data = await response.json();
-      setAllMeasurements(data); // store all measurements
+      setAllMeasurements(data);
       setTotalPages(Math.ceil(data.length / itemsPerPage));
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  // Heatmap data generation
+  const generateHeatmapData = () => {
+    const data = allMeasurements.map(measurement => [
+      measurement.location.coordinates[1],
+      measurement.location.coordinates[0],
+      heatmapType === 'speed' ? measurement.speed : new Date(measurement.time).getTime()
+    ]);
+    setHeatmapData(data);
   };
 
   // Pagination functions
@@ -86,36 +103,36 @@ const Geolocation = () => {
   };
 
   // Filter function
-  const handleFilter = () => {
-    let filteredMeasurements;
-    switch (filterType) {
-      case 'dateAsc':
-        filteredMeasurements = [...allMeasurements].sort((a, b) => new Date(a.time) - new Date(b.time));
-        break;
-      case 'dateDesc':
-        filteredMeasurements = [...allMeasurements].sort((a, b) => new Date(b.time) - new Date(a.time));
-        break;
-      case 'coordinatesAsc':
-        filteredMeasurements = [...allMeasurements].sort((a, b) => calculateDistance(mapCenter, a.location.coordinates) - calculateDistance(mapCenter, b.location.coordinates));
-        break;
-      case 'coordinatesDesc':
-        filteredMeasurements = [...allMeasurements].sort((a, b) => calculateDistance(mapCenter, b.location.coordinates) - calculateDistance(mapCenter, a.location.coordinates));
-        break;
-      default:
-        filteredMeasurements = allMeasurements;
-    }
+  // Filter function
+const handleFilter = () => {
+  if (layout === 'points') {
+    const filteredMeasurements = [...allMeasurements].sort((a, b) => {
+      switch (filterType) {
+        case 'dateAsc':
+          return new Date(a.time) - new Date(b.time);
+        case 'dateDesc':
+          return new Date(b.time) - new Date(a.time);
+        case 'coordinatesAsc':
+          return calculateDistance(mapCenter, a.location.coordinates) - calculateDistance(mapCenter, b.location.coordinates);
+        case 'coordinatesDesc':
+          return calculateDistance(mapCenter, b.location.coordinates) - calculateDistance(mapCenter, a.location.coordinates);
+        default:
+          return 0;
+      }
+    });
     setMeasurements(filteredMeasurements.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-  };
+  }
+};
 
   // Fetching measurements on page load
   useEffect(() => {
     fetchMeasurements();
-  }, []);
+  }, [itemsPerPage]);
 
-  // Apply filter whenever filterType, allMeasurements or currentPage changes
   useEffect(() => {
     handleFilter();
-  }, [filterType, allMeasurements, currentPage]);
+    generateHeatmapData();
+  }, [filterType, allMeasurements, currentPage, heatmapType, layout, itemsPerPage]);
 
   return (
     <div className="blueBackground">
@@ -135,68 +152,25 @@ const Geolocation = () => {
         ))}
         {layout === 'grid' && (
           <HeatmapLayer
-            points={measurements.map(measurement => [measurement.location.coordinates[1], measurement.location.coordinates[0]])}
-            radius={20}
-            blur={15}
-            max={0.5}
+            points={heatmapData}
+            radius={radius}
+            blur={blur}
+            max={maxIntensity}
           />
         )}
       </MapContainer>
-      <div className="measurementContainer">
-        <div className="measurementHeaderContainer">
-          <h2 className="measurementTitle">Measurement List</h2>
-          <div className="measurementButtonsContainer">
-            <button onClick={() => setLayout('points')}>
-              <span role="img" aria-label="pin">📌</span>
-            </button>
-            <button onClick={() => setLayout('grid')}>
-              <span role="img" aria-label="grid">🔳</span>
-            </button>
-          </div>
-        </div>
-        <hr className="measurementDivider" />
-          <div className="measurementSettingsContainer">
-            <div className="measurementPageContainer">
-              <p className="measurementCurrentPage">Showing page {currentPage} out of {totalPages}</p>
-              <Select
-                labelId="filter-label"
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="measurementPageSelect"
-                style={{ fontSize: '20px' }}
-              >
-                <MenuItem value="dateAsc">Date Ascending</MenuItem>
-                <MenuItem value="dateDesc">Date Descending</MenuItem>
-                <MenuItem value="coordinatesAsc">Coordinates Ascending</MenuItem>
-                <MenuItem value="coordinatesDesc">Coordinates Descending</MenuItem>
-              </Select>
-            </div>
-            <div className="measurementPageSelection">
-              <button onClick={() => prevPage()} disabled={currentPage === 1}>Previous Page</button>
-              <div className="measurementPageInput">
-                <p>Choose page</p>
-                <input type="number" min="1" max={totalPages} 
-                  value={currentPage} onChange={(e) => goToPage(Number(e.target.value))} />
-              </div>
-              <button onClick={() => nextPage()}>Next Page</button>
-            </div>
-          </div>
-          <div className="measurementList">
-            {measurements.map((measurement, index) => (
-              <Measurement
-                key={index}
-                measurement={measurement}
-                index={index}
-              />
-            ))}
-          </div>
-          <div className="measurementButtonContainer">
-            <button onClick={prevPage} disabled={currentPage === 1}>Previous Page</button>
-            <button onClick={nextPage}>Next Page</button>
-          </div>
-        </div>
+      {layout === 'points' && (
+          <PointsSettings setLayout={setLayout} filterType={filterType} setFilterType={setFilterType}
+          itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage}
+          totalPages={totalPages} prevPage={prevPage} nextPage={nextPage} goToPage={goToPage}
+          itemsPerPageOptions={itemsPerPageOptions} measurements={measurements} />
+        )}
+      {layout === 'grid' && (
+          <HeatmapSettings setLayout={setLayout} heatmapType={heatmapType} setHeatmapType={setHeatmapType}
+          maxIntensity={maxIntensity} setMaxIntensity={setMaxIntensity} radius={radius}
+          setRadius={setRadius} blur={blur} setBlur={setBlur} />
+      )}
       </div>
-      <div className="geolocationBackground"></div>
     </div>
   );
 };
