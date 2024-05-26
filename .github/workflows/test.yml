@@ -1,4 +1,4 @@
-name: Build and Push Docker Image  #test agai
+name: Build and Push Docker Image
 
 on:
   push:
@@ -37,7 +37,6 @@ jobs:
     steps:
       - name: Send webhook notification
         run: |
-          curl -X POST http://52.178.15.171:5000/webhook \
+          curl -X POST ${{ secrets.WEBHOOK_URL }} \
             -H "Content-Type: application/json" \
             -d '{"message": "New Docker image is deployed"}'
-
