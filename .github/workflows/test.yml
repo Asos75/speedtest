@@ -26,6 +26,19 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile # Tukaj navedete pot do vašega Dockerfile
+          file: ./Dockerfile # Pot do vašega Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/speedtest:latest
+
+  notify-server:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send webhook notification
+        uses: distributhor/workflow-webhook@v1
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          method: POST
+          payload: '{"message": "New Docker image is deployed"}'
+
