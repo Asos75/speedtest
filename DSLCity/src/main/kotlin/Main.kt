@@ -19,9 +19,6 @@ fun printTokens(scanner: Scanner, output: OutputStream) {
     writer.flush()
 }
 
-fun<T: Any> T.getClass(): KClass<T> {
-    return javaClass.kotlin
-}
 fun main(args: Array<String>) {
 
 

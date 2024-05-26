@@ -1,7 +1,7 @@
 package org.example
 
 object ForForeachFFFAutomaton : DFA {
-    override val states = (1..128).toSet()
+    override val states = (1..130).toSet()
     override val alphabet = 0..255
     override val startState = 1
     override val finalStates = setOf(
@@ -125,7 +125,12 @@ object ForForeachFFFAutomaton : DFA {
         122,
         123,
         124,
-        125
+        125,
+        126,
+        127,
+        128,
+        129,
+        130
     )
 
     private val numberOfStates = states.max() + 1 // plus the ERROR_STATE
@@ -399,6 +404,13 @@ object ForForeachFFFAutomaton : DFA {
         setTransition(112, 'e', 113, 5)
         setTransition(113, 't', 114, 5)
         closeLine(114, 5)
+    //point
+        setTransition(startState, 'P', 126)
+        setTransition(126, 'o', 127, 5)
+        setTransition(127, 'i', 128, 5)
+        setTransition(128, 'n', 129, 5)
+        setTransition(129, 't', 130, 5)
+        closeLine(130, 5)
 //endregion
 //region SYMBOLS
         setSymbol(2, Symbol.REAL)
@@ -522,6 +534,12 @@ object ForForeachFFFAutomaton : DFA {
         setSymbol(123, Symbol.VARIABLE)
         setSymbol(124, Symbol.VARIABLE)
         setSymbol(125, Symbol.FETCH)
+        setSymbol(126, Symbol.VARIABLE)
+        setSymbol(127, Symbol.VARIABLE)
+        setSymbol(128, Symbol.VARIABLE)
+        setSymbol(129, Symbol.VARIABLE)
+        setSymbol(130, Symbol.POINT)
+
 //endregion
 
 
@@ -577,7 +595,8 @@ fun name(value: Symbol): String {
         Symbol.TOWER -> "tower"
         Symbol.FALSE -> "false"
         Symbol.TRUE -> "true"
-        Symbol.FETCH -> "fethc"
+        Symbol.FETCH -> "fetch"
+        Symbol.POINT -> "point"
         else -> throw Error("INVALID")
     }
 }

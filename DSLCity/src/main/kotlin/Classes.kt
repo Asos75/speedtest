@@ -142,7 +142,9 @@ class Point(
     val c1: Expr,
     val c2: Expr
 ) : PointType{
+
     override fun toString(): String{
+        println("$c1, $c2")
         return "Point(${c1.eval()}, ${c2.eval()})"
     }
 }
@@ -378,7 +380,7 @@ class Marker(
             pt as Point
         }
         d.write("\"type\": \"Point\",".toByteArray())
-        d.write("\"coordinates\": [ ${p.c1},${p.c2} ]".toByteArray())
+        d.write("\"coordinates\": [ ${p.c1.eval()},${p.c2.eval()} ]".toByteArray())
     }
 
 }
@@ -414,13 +416,15 @@ class BlockList(
 }
 class Road(
     private val name: String,
-    private val comms: CommandList? = null
+    private val comms: CommandList? = null,
+    val out: Boolean = true
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
     override fun toGEOJson(d: OutputStream) {
+        if(!out) return
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
@@ -429,6 +433,7 @@ class Road(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
+        comms?.propertiesToGEOJson(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         comms?.commandsToGeoJson(d)
@@ -441,13 +446,15 @@ class Road(
 
 class Building(
     private val name: String,
-    private val comms: CommandList? = null
+    private val comms: CommandList? = null,
+    val out: Boolean = true
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
     override fun toGEOJson(d: OutputStream) {
+        if(!out) return
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
@@ -468,13 +475,15 @@ class Building(
 
 class River(
     private val name: String,
-    private val comms: CommandList? = null
+    private val comms: CommandList? = null,
+    val out: Boolean = true
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
     override fun toGEOJson(d: OutputStream) {
+        if(!out) return
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
@@ -495,13 +504,15 @@ class River(
 
 class Tower(
     private val name: String,
-    private val comms: CommandList? = null
+    private val comms: CommandList? = null,
+    val out: Boolean = true
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
     override fun toGEOJson(d: OutputStream) {
+        if(!out) return
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
@@ -522,13 +533,15 @@ class Tower(
 
 class Measurment(
     private val name: String,
-    private val comms: CommandList? = null
+    private val comms: CommandList? = null,
+    val out: Boolean = true
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
     override fun toGEOJson(d: OutputStream) {
+        if(!out) return
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
@@ -553,7 +566,7 @@ interface Property {
 }
 class SetString(
     private val name: String,
-    private val value: String
+    private val value: String,
 ) : Block, Command, Property {
     override fun toString(): String {
         return "$name { $value }"
@@ -644,6 +657,12 @@ class Assign(
         else if(e is Point){
             vars[v.toString()] = e
         }
+        else if(e is Block){
+            vars[v.toString()] = e
+        }
+        else if(e is Command){
+            vars[v.toString()] = e
+        }
     }
 }
 
@@ -666,6 +685,12 @@ class Reassign(
         else if(e is Point){
             vars[v.toString()] = e
         }
+        else if(e is Block){
+            vars[v.toString()] = e
+        }
+        else if(e is Command){
+            vars[v.toString()] = e
+        }
 
     }
 }
@@ -684,3 +709,16 @@ class Variable(
         throw Error("Unknown Type")
     }
 }
+
+class Variable2(
+    private val s: String
+) : Expr {
+    override fun toString(): String {
+        return s
+    }
+    override fun eval(): Double{
+        return vars[s] as Double
+
+    }
+}
+
