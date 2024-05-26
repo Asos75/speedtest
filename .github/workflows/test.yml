@@ -1,4 +1,4 @@
-name: CI/CD Workflow
+name: Build and Push Docker Image
 
 on:
   push:
@@ -19,18 +19,13 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{secrets.DOCKER_USERNAME}}
-          password: ${{secrets.DOCKER_PASSWORD}}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-
-  notify-server:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Send webhook notification
-        uses: distributhor/workflow-webhook@v1
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
         with:
-          url: ${{secrets.WEBHOOK_URL}}
-          method: POST
-          payload: '{"message": "New version deployed"}'
+          context: .
+          file: ./Dockerfile # Tukaj navedete pot do vašega Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/speedtest:latest
