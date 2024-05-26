@@ -2,16 +2,26 @@
 
 city "Fiesa" {
 
+        let rad = building "within" {
+            circle ( point, 20);
+        };
+
+        let circ = circle ( point, 20);
+
 
        set("active", false);
+       let b = 2;
+       let point = Point(b, b);
+       let point2 = Point(2, 2);
        road "line" {
-          let point = (1, 2);
+        output false;
+            set("owner", "City");
           marker point;
+
        };
         building "radius" {
-            let point2 = (2, 2);
             set("owner", "City");
-            line( point, point2);
+            circle ( point, 20);
         };
 
  }

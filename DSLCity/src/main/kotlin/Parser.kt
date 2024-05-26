@@ -79,7 +79,7 @@ class Parser(
         else if(currentToken.symbol == Symbol.VARIABLE){
             val lexeme = currentToken.lexeme
             currentToken = lex.getToken()
-            return Variable(lexeme) as Expr
+            return Variable2(lexeme) as Expr
         }
         else if(currentToken.symbol == Symbol.TRUE){
             currentToken = lex.getToken()
@@ -105,9 +105,11 @@ class Parser(
         if (currentToken.symbol == Symbol.LPAREN) {
             currentToken = lex.getToken()
             val resultC1 = additive()
+            println(resultC1)
             if (currentToken.symbol == Symbol.TO) {
                 currentToken = lex.getToken()
                 val resultC2 = additive()
+                println(resultC2)
                 if (currentToken.symbol == Symbol.RPAREN) {
                     currentToken = lex.getToken()
                     return Point(resultC1, resultC2)
@@ -154,17 +156,26 @@ class Parser(
             if(currentToken.symbol == Symbol.ASSIGN){
                 currentToken = lex.getToken()
                 when(currentToken.symbol){
-                    Symbol.LPAREN -> {
+                    Symbol.POINT -> {
                         currentToken = lex.getToken()
-                        val resultC1 = additive()
-                        if (currentToken.symbol == Symbol.TO) {
+                        if(currentToken.symbol == Symbol.LPAREN){
                             currentToken = lex.getToken()
-                            val resultC2 = additive()
-                            if (currentToken.symbol == Symbol.RPAREN) {
+                            val resultC1 = additive()
+                            if (currentToken.symbol == Symbol.TO) {
                                 currentToken = lex.getToken()
-                                return Assign(variable, Point(resultC1, resultC2))
+                                val resultC2 = additive()
+                                if (currentToken.symbol == Symbol.RPAREN) {
+                                    currentToken = lex.getToken()
+                                    return Assign(variable, Point(resultC1, resultC2))
+                                }
                             }
                         }
+                    }
+                    Symbol.ROAD, Symbol.BUILDING, Symbol.RIVER, Symbol.TOWER, Symbol.MEASUREMENT -> {
+                        return Assign(variable, block())
+                    }
+                    Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
+                        return Assign(variable, command())
                     }
                     else -> {
                         return Assign(variable, additive())
@@ -190,6 +201,12 @@ class Parser(
                             return Reassign(inVal, Point(resultC1, resultC2))
                         }
                     }
+                }
+                Symbol.ROAD, Symbol.BUILDING, Symbol.RIVER, Symbol.TOWER, Symbol.MEASUREMENT -> {
+                    return Reassign(inVal, block())
+                }
+                Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
+                    return Reassign(inVal, command())
                 }
                 else -> {
                     return Reassign(inVal, additive())
@@ -520,6 +537,30 @@ class Parser(
                 val variable = Variable(currentToken.lexeme)
                 currentToken = lex.getToken()
                 return reassignment(variable)
+            }
+            Symbol.HIGHLIGHT -> {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.TRUE){
+                    currentToken = lex.getToken()
+                    return SetString("\"highlighted\"", "true")
+                }
+                else if(currentToken.symbol == Symbol.FALSE){
+                    currentToken = lex.getToken()
+                    return SetString("\"highlighted\"", "false")
+                }
+                throw Error("Invalid")
+            }
+            Symbol.OUTPUT -> {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.TRUE){
+                    currentToken = lex.getToken()
+                    return SetString("\"output\"", "true")
+                }
+                else if(currentToken.symbol == Symbol.FALSE){
+                    currentToken = lex.getToken()
+                    return SetString("\"output\"", "false")
+                }
+                throw Error("Invalid")
             }
             else -> throw Error("Invalid")
         }
