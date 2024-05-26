@@ -111,7 +111,21 @@ object ForForeachFFFAutomaton : DFA {
         108,
         109,
         110,
-        111
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125
     )
 
     private val numberOfStates = states.max() + 1 // plus the ERROR_STATE
@@ -150,7 +164,7 @@ object ForForeachFFFAutomaton : DFA {
         setTransition(from, chr, to)
     }
 
-    fun closeLine(from: Int, redirect: Int){
+    private fun closeLine(from: Int, redirect: Int){
         setTransition(from, CharTypes.LETTERSUPERCASE, redirect)
         setTransition(from, CharTypes.LETTERSLOWERCASE, redirect)
         setTransition(from, CharTypes.NUMBERS, redirect)
@@ -284,6 +298,18 @@ object ForForeachFFFAutomaton : DFA {
         setTransition(55, 'c', 56,5)
         setTransition(56, 'h', 57,5)
         closeLine(57,5)
+    //false
+        setTransition(51, 'a', 115)
+        setTransition(115, 'l', 116, 5)
+        setTransition(116, 's', 117, 5)
+        setTransition(117, 'e', 118, 5)
+        closeLine(118,5)
+    //fetch
+        setTransition(51, 'e', 122)
+        setTransition(122, 't', 123, 5)
+        setTransition(123, 'c', 124, 5)
+        setTransition(124, 'h', 125, 5)
+        closeLine(125, 5)
     //highlight
         setTransition(startState, 'h', 58)
         setTransition(58, 'i', 59,5)
@@ -363,7 +389,16 @@ object ForForeachFFFAutomaton : DFA {
         setTransition(109, 'e', 110,5)
         setTransition(110, 'r', 111,5)
         closeLine(111, 5)
-
+    //true
+        setTransition(107, 'r', 119)
+        setTransition(119, 'u', 120, 5)
+        setTransition(120, 'e', 121, 5)
+        closeLine(121, 5)
+    //set
+        setTransition(startState, 's', 112)
+        setTransition(112, 'e', 113, 5)
+        setTransition(113, 't', 114, 5)
+        closeLine(114, 5)
 //endregion
 //region SYMBOLS
         setSymbol(2, Symbol.REAL)
@@ -473,6 +508,20 @@ object ForForeachFFFAutomaton : DFA {
         setSymbol(109, Symbol.VARIABLE)
         setSymbol(110, Symbol.VARIABLE)
         setSymbol(111, Symbol.TOWER)
+        setSymbol(112, Symbol.VARIABLE)
+        setSymbol(113, Symbol.VARIABLE)
+        setSymbol(114, Symbol.SET)
+        setSymbol(115, Symbol.VARIABLE)
+        setSymbol(116, Symbol.VARIABLE)
+        setSymbol(117, Symbol.VARIABLE)
+        setSymbol(118, Symbol.FALSE)
+        setSymbol(119, Symbol.VARIABLE)
+        setSymbol(120, Symbol.VARIABLE)
+        setSymbol(121, Symbol.TRUE)
+        setSymbol(122, Symbol.VARIABLE)
+        setSymbol(123, Symbol.VARIABLE)
+        setSymbol(124, Symbol.VARIABLE)
+        setSymbol(125, Symbol.FETCH)
 //endregion
 
 
@@ -526,6 +575,9 @@ fun name(value: Symbol): String {
         Symbol.ROAD -> "road"
         Symbol.RIVER -> "river"
         Symbol.TOWER -> "tower"
+        Symbol.FALSE -> "false"
+        Symbol.TRUE -> "true"
+        Symbol.FETCH -> "fethc"
         else -> throw Error("INVALID")
     }
 }

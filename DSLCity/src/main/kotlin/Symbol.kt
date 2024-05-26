@@ -44,5 +44,9 @@ enum class Symbol {
     TERM,
     HIGHLIGHT,
     OUTPUT,
-    RIVER
+    RIVER,
+    SET,
+    TRUE,
+    FALSE,
+    FETCH
 }
