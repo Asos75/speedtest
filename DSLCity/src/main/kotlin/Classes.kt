@@ -1,14 +1,20 @@
 package org.example
 
 import java.io.OutputStream
+import kotlin.Boolean
+import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.pow
+import kotlin.math.sin
 
-val vars = HashMap<String, Double>()
-interface Expr{
+val vars = HashMap<String, Any>()
+
+interface Element {
+    fun eval(): Any
+}
+interface Expr : Element{
     override fun toString(): String
-    fun toXML(d: OutputStream)
-    fun eval(): Double
+    override fun eval(): Double
 }
 
 class Plus(
@@ -17,12 +23,6 @@ class Plus(
 ) : Expr {
     override fun toString(): String {
         return "($e1+$e2)"
-    }
-    override fun toXML(d: OutputStream) {
-        d.write("<plus>".toByteArray())
-        e1.toXML(d)
-        e2.toXML(d)
-        d.write("</plus>".toByteArray())
     }
     override fun eval(): Double{
         return e1.eval() + e2.eval()
@@ -35,12 +35,6 @@ class Minus(
     override fun toString(): String {
         return "($e1-$e2)"
     }
-    override fun toXML(d: OutputStream) {
-        d.write("<minus>".toByteArray())
-        e1.toXML(d)
-        e2.toXML(d)
-        d.write("</minus>".toByteArray())
-    }
     override fun eval(): Double{
         return e1.eval() - e2.eval()
     }
@@ -51,12 +45,6 @@ class Times(
 ) : Expr {
     override fun toString(): String {
         return "($e1*$e2)"
-    }
-    override fun toXML(d: OutputStream) {
-        d.write("<times>".toByteArray())
-        e1.toXML(d)
-        e2.toXML(d)
-        d.write("</times>".toByteArray())
     }
     override fun eval(): Double{
         return e1.eval() * e2.eval()
@@ -69,12 +57,6 @@ class Divides(
     override fun toString(): String {
         return "($e1/$e2)"
     }
-    override fun toXML(d: OutputStream) {
-        d.write("<divides>".toByteArray())
-        e1.toXML(d)
-        e2.toXML(d)
-        d.write("</divides>".toByteArray())
-    }
     override fun eval(): Double{
         return e1.eval() / e2.eval()
     }
@@ -86,12 +68,6 @@ class IntegerDivides(
     override fun toString(): String {
         return "($e1//$e2)"
     }
-    override fun toXML(d: OutputStream) {
-        d.write("<integer-divides>".toByteArray())
-        e1.toXML(d)
-        e2.toXML(d)
-        d.write("</integer-divides>".toByteArray())
-    }
     override fun eval(): Double{
         return floor(e1.eval() / e2.eval())
     }
@@ -102,11 +78,6 @@ class UnaryPlus(
     override fun toString(): String {
         return "(+$e)"
     }
-    override fun toXML(d: OutputStream) {
-        d.write("<unary-plus>".toByteArray())
-        e.toXML(d)
-        d.write("</unary-plus>".toByteArray())
-    }
     override fun eval(): Double{
         return e.eval()
     }
@@ -116,11 +87,6 @@ class UnaryMinus(
 ) : Expr {
     override fun toString(): String {
         return "(-$e)"
-    }
-    override fun toXML(d: OutputStream) {
-        d.write("<unary-minus>".toByteArray())
-        e.toXML(d)
-        d.write("</unary-minus>".toByteArray())
     }
     override fun eval(): Double{
         return -e.eval()
@@ -133,12 +99,6 @@ class Pow(
     override fun toString(): String {
         return "($e1^$e2)"
     }
-    override fun toXML(d: OutputStream) {
-        d.write("<pow>".toByteArray())
-        e1.toXML(d)
-        e2.toXML(d)
-        d.write("</pow>".toByteArray())
-    }
     override fun eval(): Double{
         return e1.eval().pow(e2.eval())
     }
@@ -149,44 +109,39 @@ class Real(
     override fun toString(): String {
         return d1.toString()
     }
-    override fun toXML(d: OutputStream) {
-        d.write("<real>$d1</real>".toByteArray())
-    }
     override fun eval(): Double{
         return d1
     }
 
 }
-class Variable(
-    private val s: String
+
+class Boolean(
+    private val s: Boolean
 ) : Expr {
     override fun toString(): String {
-        return s
-    }
-    override fun toXML(d: OutputStream) {
-        d.write("<variable>$s</variable>".toByteArray())
+        return s.toString()
     }
     override fun eval(): Double{
-        return vars[s] ?: throw Error("Uninitialized variable")
+        return if(s) 1.0 else 0.0
     }
 }
+
+
 class Program(
     private val e: Expr
 ){
-    fun toXML(d: OutputStream) {
-        d.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><program>".toByteArray())
-        e.toXML(d)
-        d.write("</program>".toByteArray())
-    }
     fun eval(): Double{
         return e.eval()
     }
 
 }
+
+
+interface PointType
 class Point(
-    private val c1: Expr,
-    private val c2: Expr
-){
+    val c1: Expr,
+    val c2: Expr
+) : PointType{
     override fun toString(): String{
         return "Point(${c1.eval()}, ${c2.eval()})"
     }
@@ -194,6 +149,7 @@ class Point(
 
 interface Command{
     override fun toString(): String
+    fun toGEOJson(d: OutputStream)
 }
 
 class CommandList(
@@ -203,67 +159,257 @@ class CommandList(
     override fun toString(): String {
         return "$comm ${comms ?: ""}"
     }
+    fun propertiesToGEOJson(d: OutputStream) {
+        if(comm is Property) {
+            comm.toGEOJson(d)
+        }
+        comms?.propertiesToGEOJson(d)
+    }
+    fun commandsToGeoJson(d: OutputStream) {
+        if(comm !is Property) {
+            comm.toGEOJson(d)
+        }
+
+        comms?.commandsToGeoJson(d)
+
+
+    }
 }
 
 class Bend(
-    private val p1: Point,
-    private val p2: Point,
-    private val a: Expr
+    private val pt1: PointType,
+    private val pt2: PointType,
+    private val angle: Expr
 ): Command{
     override fun toString(): String {
-        return "Bend(${p1},${p2},${a.eval()})"
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        return "Bend(${p1},${p2},${angle.eval()})"
     }
 
+
+    override fun toGEOJson(d: OutputStream) {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        val numSegments = 128
+        val an = angle.eval()
+        val p1c1 = p1.c1.eval()
+        val p1c2 = p1.c2.eval()
+        val p2c1 = p2.c1.eval()
+        val p2c2 = p2.c2.eval()
+
+
+        d.write("\"type\": \"LineString\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
+        
+
+        d.write("]".toByteArray())
+    }
 }
 
 class Line(
-    private val p1: Point,
-    private val p2: Point,
+    private val pt1: PointType,
+    private val pt2: PointType,
 ): Command{
     override fun toString(): String {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
         return "Line(${p1},${p2})"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        d.write("\"type\": \"LineString\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
+
+        d.write("[${p1.c1.eval()}, ${p1.c2.eval()}],".toByteArray())
+        d.write("[${p2.c1.eval()}, ${p2.c2.eval()}]".toByteArray())
+
+        d.write("]".toByteArray())
     }
 
 }
 
 class Box(
-    private val p1: Point,
-    private val p2: Point,
+    private val pt1: PointType,
+    private val pt2: PointType,
 ): Command{
     override fun toString(): String {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
         return "Box(${p1},${p2})"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        val coordinates = listOf(
+            listOf(p1.c1, p1.c2),
+            listOf(p2.c1, p1.c2),
+            listOf(p2.c1, p2.c2),
+            listOf(p1.c1, p2.c2),
+            listOf(p1.c1, p1.c2) // Closing the polygon
+        )
+        d.write("\"type\": \"Polygon\",".toByteArray())
+        d.write("\"coordinates\": [ [".toByteArray())
+
+        coordinates.forEachIndexed { index, point ->
+            d.write("[${point[0]}, ${point[1]}]".toByteArray())
+            if (index < coordinates.size - 1) {
+                d.write(",".toByteArray())
+            }
+        }
+
+        d.write("] ]".toByteArray())
     }
 
 }
 
 class Circle(
-    private val p: Point,
+    private val pt: PointType,
     private val r: Expr
 ): Command{
     override fun toString(): String {
+        val p : Point = if(pt is Variable) {
+            (pt as Variable).eval() as Point
+        } else {
+            pt as Point
+        }
         return "Circle(${p},${r.eval()})"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        val p : Point = if(pt is Variable) {
+            (pt as Variable).eval() as Point
+        } else {
+            pt as Point
+        }
+        val numPoints = 64
+        val radius = r.eval()
+        val centerX = p.c1.eval()
+        val centerY = p.c2.eval()
+
+        val coordinates = (0 until numPoints).map { i ->
+            val angle = 2 * Math.PI * i / numPoints
+            val x = centerX + radius * cos(angle)
+            val y = centerY + radius * sin(angle)
+            listOf(x, y)
+        } + listOf(listOf(centerX + radius, centerY))
+        d.write("\"type\": \"Polygon\",".toByteArray())
+        d.write("\"coordinates\": [ [".toByteArray())
+
+        coordinates.forEachIndexed { index, point ->
+            d.write("[${point[0]}, ${point[1]}]".toByteArray())
+            if (index < coordinates.size - 1) {
+                d.write(",".toByteArray())
+            }
+        }
+
+        d.write("] ]".toByteArray())
     }
 
 }
 
 class Marker(
-    private val p: Point,
+    private var pt: PointType,
 ): Command{
     override fun toString(): String {
+        val p : Point = if(pt is Variable) {
+            (pt as Variable).eval() as Point
+        } else {
+            pt as Point
+        }
         return "Marker(${p})"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        val p : Point = if(pt is Variable) {
+            (pt as Variable).eval() as Point
+        } else {
+            pt as Point
+        }
+        d.write("\"type\": \"Point\",".toByteArray())
+        d.write("\"coordinates\": [ ${p.c1},${p.c2} ]".toByteArray())
     }
 
 }
 
 interface Block{
     override fun toString(): String
+    fun toGEOJson(d: OutputStream)
 }
+var firstBlock = false
 class BlockList(
     private val block: Block,
     private val blockList: BlockList?
 ) {
     override fun toString(): String {
         return "$block ${blockList ?: ""}"
+    }
+
+    fun propertiesToGEOJson(d: OutputStream) {
+        if(block is Property) {
+            block.toGEOJson(d)
+        }
+        blockList?.propertiesToGEOJson(d)
+    }
+    fun blocksToGEOJSON(d: OutputStream) {
+        if(block !is Property) {
+            block.toGEOJson(d)
+        }
+
+        blockList?.blocksToGEOJSON(d)
+
+
     }
 }
 class Road(
@@ -273,6 +419,23 @@ class Road(
     override fun toString(): String {
         return "$name { $comms }"
     }
+
+    override fun toGEOJson(d: OutputStream) {
+        if(!firstBlock){
+            d.write(",".toByteArray())
+        } else firstBlock = false
+
+        d.write("{".toByteArray())
+        d.write("\"type\": \"Feature\",".toByteArray())
+        d.write("\"properties\": {".toByteArray())
+        d.write("\"name\": $name".toByteArray())
+        d.write("},".toByteArray())
+        d.write("\"geometry\": {".toByteArray())
+        comms?.commandsToGeoJson(d)
+        d.write("}".toByteArray())
+        d.write("}".toByteArray())
+    }
+
 
 }
 
@@ -284,6 +447,23 @@ class Building(
         return "$name { $comms }"
     }
 
+    override fun toGEOJson(d: OutputStream) {
+        if(!firstBlock){
+            d.write(",".toByteArray())
+        } else firstBlock = false
+        d.write("{".toByteArray())
+        d.write("\"type\": \"Feature\",".toByteArray())
+        d.write("\"properties\": {".toByteArray())
+        d.write("\"name\": $name".toByteArray())
+        comms?.propertiesToGEOJson(d)
+        d.write("},".toByteArray())
+        d.write("\"geometry\": {".toByteArray())
+        comms?.commandsToGeoJson(d)
+        d.write("}".toByteArray())
+        d.write("}".toByteArray())
+    }
+
+
 }
 
 class River(
@@ -293,6 +473,23 @@ class River(
     override fun toString(): String {
         return "$name { $comms }"
     }
+
+    override fun toGEOJson(d: OutputStream) {
+        if(!firstBlock){
+            d.write(",".toByteArray())
+        } else firstBlock = false
+        d.write("{".toByteArray())
+        d.write("\"type\": \"Feature\",".toByteArray())
+        d.write("\"properties\": {".toByteArray())
+        d.write("\"name\": $name".toByteArray())
+        comms?.propertiesToGEOJson(d)
+        d.write("},".toByteArray())
+        d.write("\"geometry\": {".toByteArray())
+        comms?.commandsToGeoJson(d)
+        d.write("}".toByteArray())
+        d.write("}".toByteArray())
+    }
+
 
 }
 
@@ -304,6 +501,23 @@ class Tower(
         return "$name { $comms }"
     }
 
+    override fun toGEOJson(d: OutputStream) {
+        if(!firstBlock){
+            d.write(",".toByteArray())
+        } else firstBlock = false
+        d.write("{".toByteArray())
+        d.write("\"type\": \"Feature\",".toByteArray())
+        d.write("\"properties\": {".toByteArray())
+        d.write("\"name\": $name".toByteArray())
+        comms?.propertiesToGEOJson(d)
+        d.write("},".toByteArray())
+        d.write("\"geometry\": {".toByteArray())
+        comms?.commandsToGeoJson(d)
+        d.write("}".toByteArray())
+        d.write("}".toByteArray())
+    }
+
+
 }
 
 class Measurment(
@@ -314,11 +528,62 @@ class Measurment(
         return "$name { $comms }"
     }
 
+    override fun toGEOJson(d: OutputStream) {
+        if(!firstBlock){
+            d.write(",".toByteArray())
+        } else firstBlock = false
+        d.write("{".toByteArray())
+        d.write("\"type\": \"Feature\",".toByteArray())
+        d.write("\"properties\": {".toByteArray())
+        d.write("\"name\": $name".toByteArray())
+        comms?.propertiesToGEOJson(d)
+        d.write("},".toByteArray())
+        d.write("\"geometry\": {".toByteArray())
+        comms?.commandsToGeoJson(d)
+        d.write("}".toByteArray())
+        d.write("}".toByteArray())
+    }
+
+
+
+}
+
+interface Property {
+
+}
+class SetString(
+    private val name: String,
+    private val value: String
+) : Block, Command, Property {
+    override fun toString(): String {
+        return "$name { $value }"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        d.write(", $name: $value".toByteArray())
+    }
+
+
+}
+
+class SetReal(
+    private val name: String,
+    private val value: Expr
+) : Block, Command, Property{
+    override fun toString(): String {
+        return "$name { ${value.eval()} }"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        d.write(", $name: ${value.eval()}".toByteArray())
+    }
 }
 
 
 interface Construct{
     override fun toString(): String
+
+    fun toGEOJson(d: OutputStream)
 }
 
 class City(
@@ -328,13 +593,94 @@ class City(
     override fun toString(): String {
         return "$name { $blocks }"
     }
+
+    override fun toGEOJson(d: OutputStream) {
+        firstBlock = true;
+        d.write("{".toByteArray())
+        d.write("\"type\": \"FeatureCollection\",".toByteArray())
+        d.write("\"properties\": {".toByteArray())
+        d.write("\"name\": $name".toByteArray())
+        blocks?.propertiesToGEOJson(d)
+        d.write("},".toByteArray())
+        d.write("\"features\": [".toByteArray())
+        blocks?.blocksToGEOJSON(d)
+        d.write("]".toByteArray())
+        d.write("}".toByteArray())
+    }
 }
 
 class ConstructList(
     private val construct: Construct,
     private val constructList: ConstructList?
-) {
+) : Construct{
     override fun toString(): String {
         return "$construct ${constructList ?: ""}"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        construct.toGEOJson(d)
+        constructList?.toGEOJson(d)
+    }
+
+
+}
+
+class Assign(
+    private val v: Variable,
+    private val e: Any
+) : Construct, Block, Command {
+    override fun toString(): String {
+        return "var $v = ($e);"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        if(vars.containsKey(v.toString())){
+            throw Error("Variable already defined")
+        }
+        if(e is Expr) {
+            val result = e.eval()
+            vars[v.toString()] = result
+        }
+        else if(e is Point){
+            vars[v.toString()] = e
+        }
+    }
+}
+
+class Reassign(
+    private val v: Variable,
+    private val e: Any
+) : Construct, Block, Command {
+    override fun toString(): String {
+        return "var $v = ($e);"
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        if(!vars.containsKey(v.toString())){
+            throw Error("Variable not defined")
+        }
+        if(e is Expr){
+            val result = e.eval()
+            vars[v.toString()] = result
+        }
+        else if(e is Point){
+            vars[v.toString()] = e
+        }
+
+    }
+}
+
+class Variable(
+    private val s: String
+) : Element, PointType {
+    override fun toString(): String {
+        return s
+    }
+    override fun eval(): Any{
+        if(vars[s] is Double)
+            return vars[s] as Double
+        if(vars[s] is Point)
+            return vars[s] as Point
+        throw Error("Unknown Type")
     }
 }

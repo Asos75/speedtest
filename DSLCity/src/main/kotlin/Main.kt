@@ -1,7 +1,11 @@
 package org.example
 
+import org.json.JSONObject
 import java.io.File
 import java.io.OutputStream
+import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
+
 
 fun printTokens(scanner: Scanner, output: OutputStream) {
     val writer = output.writer(Charsets.UTF_8)
@@ -15,7 +19,16 @@ fun printTokens(scanner: Scanner, output: OutputStream) {
     writer.flush()
 }
 
+fun<T: Any> T.getClass(): KClass<T> {
+    return javaClass.kotlin
+}
 fun main(args: Array<String>) {
 
-    println(Parser((Scanner(ForForeachFFFAutomaton, File(args[0]).inputStream()))).parse().toString())
+
+    //File(args[1]).outputStream().write(Parser((Scanner(ForForeachFFFAutomaton, File(args[0]).inputStream()))).parse().toString().toByteArray())
+    Parser((Scanner(ForForeachFFFAutomaton, File(args[0]).inputStream()))).parse()?.toGEOJson(File(args[1]).outputStream())
+    println(vars)
+
+//val json: JSONObject = JSONObject(File(args[1]).readText(Charsets.UTF_8)) // Convert text to object
+    //File(args[1]).writeText(json.toString(4))
 }

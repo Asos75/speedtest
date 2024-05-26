@@ -1,0 +1,1 @@
+{"type": "FeatureCollection","properties": {"name": "Fiesa", "active": false},"features": [{"type": "Feature","properties": {"name": "line"},"geometry": {"type": "Point","coordinates": [ 1.0,2.0 ]}},{"type": "Feature","properties": {"name": "radius", "owner": "City"},"geometry": {"type": "LineString","coordinates": [[1.0, 2.0],[2.0, 2.0]]}}]}
