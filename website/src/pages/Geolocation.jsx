@@ -1,11 +1,7 @@
 // Dependencies
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer} from 'react-leaflet';
 import { calculateDistance } from '../helpers/helperFunction';
-import { useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet.heat';
-import HeatmapOverlay from 'leaflet-heatmap';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
@@ -15,59 +11,34 @@ import '../styles/Components/Geolocation.css';
 import MeasurementMarker from './subComponents/Geolocation/MeasurementMarker';
 import HeatmapSettings from './subComponents/Geolocation/HeatmapSettings';
 import PointsSettings from './subComponents/Geolocation/PointsSettings';
-
-
-const HeatmapLayer = ({ allMeasurements, heatmapType, ...props }) => {
-  const layerRef = useRef(null);
-  const map = useMap();
-
-  useEffect(() => {
-    // Remove the previous layer before adding the new one
-    if (layerRef.current) map.removeLayer(layerRef.current);
-
-    const points = allMeasurements.map(measurement => [
-      measurement.location.coordinates[1],
-      measurement.location.coordinates[0],
-      heatmapType === 'speed' ? measurement.speed : new Date(measurement.time).getTime()
-    ]);
-
-    layerRef.current = L.heatLayer(points, props).addTo(map);
-    return () => layerRef.current && map.removeLayer(layerRef.current);
-  }, [map, allMeasurements, heatmapType, props]);
-
-  return null;
-};
+import GridHeatmapLayer from './subComponents/Geolocation/GridHeatmapLayer'; // New Grid Heatmap Layer
 
 const Geolocation = () => {
-  // Measurements
+  // Measurements state
   const [measurements, setMeasurements] = useState([]);
-  const [allMeasurements, setAllMeasurements] = useState([]); // new state for all measurements
+  const [allMeasurements, setAllMeasurements] = useState([]);
 
-  // Filter
+  // Filter state
   const [filterType, setFilterType] = useState('dateAsc');
   const [totalPages, setTotalPages] = useState(1);
+  const [heatmapType, setHeatmapType] = useState('speed');
+  const [selectedArea, setSelectedArea] = useState(0.0025);
 
-  // Heatmap
-  const [heatmapType, setHeatmapType] = useState('speed'); // 'speed' or 'time'
-  const [maxIntensity, setMaxIntensity] = useState(0.01);
-  const [radius, setRadius] = useState(20);
-  const [blur, setBlur] = useState(15);
-
-  // Layout
+  // Pagination state
   const [layout, setLayout] = useState('points');
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const itemsPerPageOptions = [10, 20, 50];
 
-  // Centering map view
-  const mapCenter = [46.5546, 15.6467];
+  // Loading state
+  const [loading, setLoading] = useState(false);
 
-  // Backend URL
+  // Map center coordinates
+  const mapCenter = [46.5546, 15.6467];
+  // Backend URL for fetching measurements
   const backendUrl = process.env.REACT_APP_BACKEND_URL + '/measurements';
 
-  // Fetching measurements
+  // Fetch measurements from the backend
   const fetchMeasurements = useCallback(async () => {
     try {
       const response = await fetch(backendUrl);
@@ -79,113 +50,84 @@ const Geolocation = () => {
     }
   }, [backendUrl, itemsPerPage]);
 
-  const generateHeatmapData = useCallback(() => {
-    const data = allMeasurements.map(measurement => [
-      measurement.location.coordinates[1],
-      measurement.location.coordinates[0],
-      heatmapType === 'speed' ? measurement.speed : new Date(measurement.time).getTime()
-    ]);
-  }, [allMeasurements, heatmapType]);
-
-  // Pagination functions
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const nextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    } else if (page < 1) {
-      setCurrentPage(1);
-    } else if (page > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  };
-
-  // Filter function
-const handleFilter = () => {
-  if (layout === 'points') {
-    const filteredMeasurements = [...allMeasurements].sort((a, b) => {
-      switch (filterType) {
-        case 'dateAsc':
-          return new Date(a.time) - new Date(b.time);
-        case 'dateDesc':
-          return new Date(b.time) - new Date(a.time);
-        case 'coordinatesAsc':
-          return calculateDistance(mapCenter, a.location.coordinates) - calculateDistance(mapCenter, b.location.coordinates);
-        case 'coordinatesDesc':
-          return calculateDistance(mapCenter, b.location.coordinates) - calculateDistance(mapCenter, a.location.coordinates);
-        default:
-          return 0;
-      }
-    });
-    setMeasurements(filteredMeasurements.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-  }
-};
-
-  // Fetching measurements on page load (so only once)
+  // Fetch measurements on component mount
   useEffect(() => {
     fetchMeasurements();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMeasurements]);
 
-    // Handle filter changes
-    useEffect(() => {
-      handleFilter();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filterType, currentPage, itemsPerPage, allMeasurements]);
-
-  // Handle layout changes
-  useEffect(() => {
-    if (layout === 'grid') {
-      generateHeatmapData();
+  // Filter and paginate measurements
+  const handleFilter = () => {
+    if (layout === 'points') {
+      const filteredMeasurements = [...allMeasurements].sort((a, b) => {
+        switch (filterType) {
+          case 'dateAsc':
+            return new Date(a.time) - new Date(b.time);
+          case 'dateDesc':
+            return new Date(b.time) - new Date(a.time);
+          case 'coordinatesAsc':
+            return calculateDistance(mapCenter, a.location.coordinates) - calculateDistance(mapCenter, b.location.coordinates);
+          case 'coordinatesDesc':
+            return calculateDistance(mapCenter, b.location.coordinates) - calculateDistance(mapCenter, a.location.coordinates);
+          default:
+            return 0;
+        }
+      });
+      setMeasurements(filteredMeasurements.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout, heatmapType, allMeasurements]);
+  };
+
+  // Re-filter measurements when dependencies change
+  useEffect(() => {
+    handleFilter();
+  }, [filterType, currentPage, itemsPerPage, allMeasurements]);
 
   return (
     <div className="blueBackground">
       <h2 className="geolocationTitle">Geolocation Page</h2>
       <div className="geolocationLayout">
-      <MapContainer center={mapCenter} zoom={13} className="measurementMap">
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {layout === 'points' && measurements.map((measurement, index) => (
-          <MeasurementMarker
-            key={index}
-            measurement={measurement}
-            index={index}
+        <MapContainer center={mapCenter} zoom={13} className="measurementMap">
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
-        ))}
+          {layout === 'points' && measurements.map((measurement, index) => (
+            <MeasurementMarker
+              key={index}
+              measurement={measurement}
+              index={index}
+            />
+          ))}
+          {layout === 'grid' && (
+            <GridHeatmapLayer measurements={allMeasurements} heatmapType={heatmapType} setLoading={setLoading} selectedArea={selectedArea}/>
+          )}
+        </MapContainer>
+        {loading && <div>Loading...</div>}
+        {layout === 'points' && (
+          <PointsSettings
+            setLayout={setLayout}
+            filterType={filterType}
+            setFilterType={setFilterType}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            prevPage={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)}
+            nextPage={() => setCurrentPage(currentPage < totalPages ? currentPage + 1 : totalPages)}
+            goToPage={page => setCurrentPage(page >= 1 && page <= totalPages ? page : currentPage)}
+            itemsPerPageOptions={itemsPerPageOptions}
+            measurements={measurements}
+          />
+        )}
         {layout === 'grid' && (
-          <HeatmapLayer
-            allMeasurements={allMeasurements}
+          <HeatmapSettings
+            setLayout={setLayout}
             heatmapType={heatmapType}
-            radius={radius}
-            blur={blur}
-            max={maxIntensity}
+            setHeatmapType={setHeatmapType}
+            measurements={allMeasurements}
+            selectedArea={selectedArea}
+            setSelectedArea={setSelectedArea}
           />
         )}
-      </MapContainer>
-      {layout === 'points' && (
-          <PointsSettings setLayout={setLayout} filterType={filterType} setFilterType={setFilterType}
-          itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage}
-          totalPages={totalPages} prevPage={prevPage} nextPage={nextPage} goToPage={goToPage}
-          itemsPerPageOptions={itemsPerPageOptions} measurements={measurements} />
-        )}
-      {layout === 'grid' && (
-          <HeatmapSettings setLayout={setLayout} heatmapType={heatmapType} setHeatmapType={setHeatmapType}
-          maxIntensity={maxIntensity} setMaxIntensity={setMaxIntensity} radius={radius}
-          setRadius={setRadius} blur={blur} setBlur={setBlur} measurements={allMeasurements} /> 
-      )}
       </div>
     </div>
   );
