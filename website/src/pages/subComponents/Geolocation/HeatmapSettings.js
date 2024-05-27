@@ -1,35 +1,36 @@
 // Dependencies
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
-// UI
-import { Select, MenuItem, Slider } from '@material-ui/core';
+// Material UI
+import { Select, MenuItem } from '@material-ui/core';
 
-const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType, maxIntensity, setMaxIntensity, radius, setRadius, blur, setBlur}) => {
-  // States of values / results
-  const [minValue, setMinValue] = useState(0);
-  const [avgValue, setAvgValue] = useState(0);
-  const [maxValue, setMaxValue] = useState(0);
-  const [totalResults, setTotalResults] = useState(0);
+// Helpers
+import { formatTime } from '../../../helpers/helperFunction';
 
-  // Extract time, speed, and coordinates from measurements
+const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType, selectedArea, setSelectedArea}) => {
   const speeds = measurements.map(measurement => measurement.speed);
+  const times = measurements.map(measurement => Date.parse(measurement.time));
 
-  useEffect(() => {
-    setMinValue(Math.min(...speeds));
-    setAvgValue(speeds.reduce((a, b) => a + b, 0) / speeds.length);
-    setMaxValue(Math.max(...speeds));
-    setTotalResults(speeds.length);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const {minSpeed, avgSpeed, maxSpeed, minTime, avgTime, maxTime, totalResults } = useMemo(() => {
+    const minSpeed = Math.min(...speeds);
+    const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+    const maxSpeed = Math.max(...speeds);
+    const minTime = formatTime(new Date(Math.min(...times)));
+    const avgTime = formatTime(new Date(times.reduce((a, b) => a + b, 0) / times.length));
+    const maxTime = formatTime(new Date(Math.max(...times)));
+    const totalResults = speeds.length;
+
+    return {
+      minSpeed,
+      avgSpeed,
+      maxSpeed,
+      minTime,
+      avgTime,
+      maxTime,
+      totalResults
+    };
   }, [heatmapType, measurements]);
 
-  const legendItems = [
-    { range: '>20000', label: 'Really low', color: '#f0f0f0' },
-    { range: '20000-45000', label: 'Low', color: '#bdbdbd' },
-    { range: '45000-75000', label: 'Medium', color: '#636363' },
-    { range: '75000-100000', label: 'High', color: '#252525' },
-    { range: '>100000', label: 'Really high', color: '#000000' },
-  ];
-  
   return (
     <div className="measurementContainer">
       <div className="measurementHeaderContainer">
@@ -45,40 +46,34 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
       </div>
       <hr className="measurementDivider" />
       <Select
-          labelId="heatmap-type-label"
-          value={heatmapType}
-          onChange={(e) => setHeatmapType(e.target.value)}
-          className="heatmapTypeSelect"
-          style={{ fontSize: '20px' }}
-        >
-          <MenuItem value="speed">Speed</MenuItem>
-          <MenuItem value="time">Time</MenuItem>
+        labelId="heatmap-type-label"
+        value={heatmapType}
+        onChange={(e) => setHeatmapType(e.target.value)}
+        className="heatmapTypeSelect"
+        style={{ fontSize: '20px' }}
+      >
+        <MenuItem value="speed">Speed</MenuItem>
+        <MenuItem value="time">Time</MenuItem>
       </Select>
-      <div className="heatmapIntensitySlider" style={{ width: '50%' }}>
-        <Slider
-          value={maxIntensity}
-          onChange={(e, newValue) => setMaxIntensity(newValue)}
-          min={1}
-          max={100}
-          step={1}
-        />
-        <Slider
-          value={radius}
-          onChange={(e, newValue) => setRadius(newValue)}
-          min={1}
-          max={50}
-          step={1} />
-        <Slider
-          value={blur}
-          onChange={(e, newValue) => setBlur(newValue)}
-          min={1}
-          max={50}
-          step={1} />
-      </div>
+      <Select
+        labelId="area-size-label"
+        value={selectedArea}
+        onChange={(e) => setSelectedArea(e.target.value)}
+        className="areaSizeSelect"
+        style={{ fontSize: '20px' }}
+      >
+        <MenuItem value="0.0025">25m2</MenuItem>
+        <MenuItem value="0.0050">50m2</MenuItem>
+        <MenuItem value="0.0100">100m2</MenuItem>
+        <MenuItem value="0.0250">250m2</MenuItem>
+      </Select>
       <div>
-        <p>Min {heatmapType}: {minValue}</p>
-        <p>Avg {heatmapType}: {avgValue}</p>
-        <p>Max {heatmapType}: {maxValue}</p>
+        <p>Min speed: {minSpeed}</p>
+        <p>Avg speed: {avgSpeed}</p>
+        <p>Max speed: {maxSpeed}</p>
+        <p>Min time: {minTime}</p>
+        <p>Avg time: {avgTime}</p>
+        <p>Max time: {maxTime}</p>
         <p>Total results: {totalResults}</p>
       </div>
     </div>
