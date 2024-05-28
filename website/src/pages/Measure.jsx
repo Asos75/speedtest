@@ -113,14 +113,14 @@ const MeasureList = () => {
           ) : (
             userSpeed ? <p>Your speed: <b>{userSpeed} Mbps</b></p> : <p><b>No speed currently available</b></p>
           )}
-          <h2>Your Location</h2>
+          <h2>Your GPS Location</h2>
           {loading.location ? (
             <div className="measureLoadingContainer">
             <p>Loading location...</p>
             <ThreeDots color="#00BFFF" height={80} width={80} />
           </div>
           ) : (
-            userLocation ? <p>Your location: <b>{userLocation}</b></p> : <p><b>No location currently available</b></p>
+            userLocation ? <p>Your GPS location: <b>{userLocation}</b></p> : <p><b>No location currently available</b></p>
           )}
            {loading.isp ? (
             <div className="measureLoadingContainer">

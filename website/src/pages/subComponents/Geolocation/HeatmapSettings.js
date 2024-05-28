@@ -75,7 +75,7 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
       </div>
       <div className="heatmapStatisticsLayout">
         <h3 className="heatmapStatisticsTitle">Statistics</h3>
-        <p>Minimun speed: <b>{parseInt(minSpeed)}</b></p>
+        <p>Minimum speed: <b>{parseInt(minSpeed)}</b></p>
         <p>Avarage speed: <b>{parseInt(avgSpeed)}</b></p>
         <p>Maximum speed: <b>{parseInt(maxSpeed)}</b></p>
         <p>Earliest time: <b>{minTime}</b></p>

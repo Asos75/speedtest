@@ -17,6 +17,8 @@ const Geolocation = () => {
   // Measurements state
   const [measurements, setMeasurements] = useState([]);
   const [allMeasurements, setAllMeasurements] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Filter state
   const [filterType, setFilterType] = useState('dateAsc');
@@ -29,7 +31,6 @@ const Geolocation = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const itemsPerPageOptions = [10, 20, 50];
-
   // Loading state
   const [loading, setLoading] = useState(false);
 
@@ -40,15 +41,22 @@ const Geolocation = () => {
 
   // Fetch measurements from the backend
   const fetchMeasurements = useCallback(async () => {
+    setLoading(true);
+    let url = backendUrl;
+    if (startDate && endDate) {
+      url = `${backendUrl}/timeframe/${startDate}/${endDate}`;
+    }
+
     try {
-      const response = await fetch(backendUrl);
+      const response = await fetch(url);
       const data = await response.json();
       setAllMeasurements(data);
       setTotalPages(Math.ceil(data.length / itemsPerPage));
     } catch (error) {
       console.error('Error:', error);
     }
-  }, [backendUrl, itemsPerPage]);
+    setLoading(false);
+  }, [backendUrl, itemsPerPage, startDate, endDate]);
 
   // Fetch measurements on component mount
   useEffect(() => {
@@ -81,6 +89,12 @@ const Geolocation = () => {
     handleFilter();
   }, [filterType, currentPage, itemsPerPage, allMeasurements]);
 
+  const handleResetDates = () => {
+    setStartDate('');
+    setEndDate('');
+    fetchMeasurements();
+  };
+
   return (
     <div className="blueBackground">
       <h2 className="geolocationTitle">Geolocation Page</h2>
@@ -103,30 +117,66 @@ const Geolocation = () => {
         </MapContainer>
         {loading && <div>Loading...</div>}
         {layout === 'points' && (
-          <PointsSettings
-            setLayout={setLayout}
-            filterType={filterType}
-            setFilterType={setFilterType}
-            itemsPerPage={itemsPerPage}
-            setItemsPerPage={setItemsPerPage}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            prevPage={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)}
-            nextPage={() => setCurrentPage(currentPage < totalPages ? currentPage + 1 : totalPages)}
-            goToPage={page => setCurrentPage(page >= 1 && page <= totalPages ? page : currentPage)}
-            itemsPerPageOptions={itemsPerPageOptions}
-            measurements={measurements}
-          />
+          <div className="pointsLocationLayout">
+            <div className="geolocationDateSelect">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="dateInput"
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="dateInput"
+              />
+              <button onClick={fetchMeasurements} className="filterButton">Filter</button>
+              <button onClick={handleResetDates} className="resetButton">Reset Dates</button>
+            </div>
+            <PointsSettings
+              setLayout={setLayout}
+              filterType={filterType}
+              setFilterType={setFilterType}
+              itemsPerPage={itemsPerPage}
+              setItemsPerPage={setItemsPerPage}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              prevPage={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)}
+              nextPage={() => setCurrentPage(currentPage < totalPages ? currentPage + 1 : totalPages)}
+              goToPage={page => setCurrentPage(page >= 1 && page <= totalPages ? page : currentPage)}
+              itemsPerPageOptions={itemsPerPageOptions}
+              measurements={measurements}
+            />
+          </div>
         )}
         {layout === 'grid' && (
-          <HeatmapSettings
-            setLayout={setLayout}
-            heatmapType={heatmapType}
-            setHeatmapType={setHeatmapType}
-            measurements={allMeasurements}
-            selectedArea={selectedArea}
-            setSelectedArea={setSelectedArea}
-          />
+          <div className="pointsLocationLayout">
+          <div className="geolocationDateSelect">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="dateInput"
+            />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="dateInput"
+            />
+            <button onClick={fetchMeasurements} className="filterButton">Filter</button>
+            <button onClick={handleResetDates} className="resetButton">Reset Dates</button>
+          </div>
+            <HeatmapSettings
+              setLayout={setLayout}
+              heatmapType={heatmapType}
+              setHeatmapType={setHeatmapType}
+              measurements={allMeasurements}
+              selectedArea={selectedArea}
+              setSelectedArea={setSelectedArea}
+            />
+          </div>
         )}
       </div>
     </div>
