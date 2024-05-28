@@ -44,13 +44,13 @@ const PointsSettings = ({ measurements, setLayout, filterType, setFilterType, it
               </Select>
             </div>
             <div className="measurementPageSelection">
-              <button onClick={() => prevPage()} disabled={currentPage === 1}>Previous Page</button>
+              <button onClick={() => prevPage()} disabled={currentPage === 1}>Previous</button>
               <div className="measurementPageInput">
                 <p>Choose page</p>
                 <input type="number" min="1" max={totalPages} 
                   value={currentPage} onChange={(e) => goToPage(Number(e.target.value))} />
               </div>
-              <button onClick={() => nextPage()}>Next Page</button>
+              <button onClick={() => nextPage()}>Next</button>
             </div>
           </div>
           <div className="measurementList">

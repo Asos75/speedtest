@@ -18,9 +18,9 @@ return (
                 <h4 className="homePageSubtitle">Below you can explore the different tools available on this website.</h4>
                 <div className="homePageFeatures">
                     <div>
-                            <h3>🔍 Explore</h3>
-                            <p>Explore, create and edit <Link to="/event">events</Link></p>
-                            <Link to="/event" className="button">Go to Events</Link>
+                            <h3>⚡Measure</h3>
+                            <p>Check your internet speed, location and ISP info in <Link to="/measure">speedtest</Link></p>
+                            <Link to="/measure" className="button">Go to Speedtest</Link>
                     </div>
                     <div>
                             <h3>🌍 Geolocations</h3>

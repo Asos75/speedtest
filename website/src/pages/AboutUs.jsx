@@ -37,7 +37,8 @@ const AboutUs = () => {
         />
         <ProfileComponent
           name="David Rajlič"
-          role="Backend developer"
+          // role="Backend developer"
+          role="LGBT Supporter"
           profilePicture={placeholder}
           description="
           David is an overall programmer that uses Linux. <br />
