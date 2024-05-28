@@ -213,7 +213,7 @@ class Parser(
                 }
             }
         }
-        throw Error("Invalid Assignment")
+        throw Error("Invalid ReAssignment")
     }
 
 //region constructs
