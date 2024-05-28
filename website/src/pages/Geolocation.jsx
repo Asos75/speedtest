@@ -1,140 +1,85 @@
 // Dependencies
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useState, useCallback } from 'react';
+import { MapContainer, TileLayer} from 'react-leaflet';
+import { calculateDistance } from '../helpers/helperFunction';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
 import '../styles/Components/Geolocation.css'; 
 
-// Assets
-import { Icon } from 'leaflet';
-import pinIcon from '../assets/Icons/pin.png';
-const customIcon = new Icon({
-  iconUrl: pinIcon,
-  iconSize: [30, 30],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const MeasurementMarker = ({ measurement, index }) => {
-  // Address state
-  const [address, setAddress] = useState('');
-  // Coordinates are stored in reverse order
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const coordinates = [
-    measurement.location.coordinates[1],
-    measurement.location.coordinates[0]
-  ];
-
-  // FIX ADDRESS FETCHING LATER
-  useEffect(() => {
-    const fetchAddress = async () => {
-      try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates[0]}&lon=${coordinates[1]}`);
-        const data = await response.json();
-        setAddress(data.display_name);
-      } catch (error) {
-        // console.error('Error:', error);
-      }
-    };
-
-    fetchAddress();
-  });
-
-  // Check if coordinates are valid
-  if (coordinates.some(isNaN)) {
-    console.error(`Invalid coordinates for measurement at index ${index}:`, coordinates);
-    return null;
-  }
-
-  return (
-    <Marker key={index} position={coordinates} icon={customIcon}>
-      <Popup>
-        <p><b>{measurement.type}</b></p>
-        <p>Coordinates: <b>{coordinates.join(', ')}</b></p>
-        <p>Address: <b>{address}</b></p>
-        <p>Speed: <b>{measurement.speed.$numberInt ? measurement.speed.$numberInt : 'Currently unvailable'}</b></p>
-        <p>Provider: <b>{measurement.provider}</b></p>
-      </Popup>
-    </Marker>
-  );
-};
-
-const Measurement = ({ measurement, index }) => {
-  // Show details for each measurement
-  const [showDetails, setShowDetails] = useState(false);
-  // Coordinates are stored in reverse order
-  const coordinates = [
-    measurement.location.coordinates[1],
-    measurement.location.coordinates[0]
-  ];
-
-  // Check if coordinates are valid
-  if (coordinates.some(isNaN)) {
-    console.error(`Invalid coordinates for measurement at index ${index}:`, coordinates);
-    return null;
-  }
-
-  return (
-    <div key={index} className="measurement">
-      <p><b>{measurement.type}</b> | Coordinates: <b>{coordinates.join(', ')}</b></p>
-      {showDetails && (
-        <>
-          <p>Speed: <b>{measurement.speed.$numberInt ? measurement.speed.$numberInt : 'Currently unvailable'}</b> | Provider: <b>{measurement.provider}</b></p>
-        </>
-      )}
-      <button onClick={() => setShowDetails(!showDetails)}>{!showDetails ? "Show More" : "Show less"}</button>
-    </div>
-  );
-};
+// SubComponents
+import MeasurementMarker from './subComponents/Geolocation/MeasurementMarker';
+import HeatmapSettings from './subComponents/Geolocation/HeatmapSettings';
+import PointsSettings from './subComponents/Geolocation/PointsSettings';
+import GridHeatmapLayer from './subComponents/Geolocation/GridHeatmapLayer'; // New Grid Heatmap Layer
 
 const Geolocation = () => {
-  // Measurements
+  // Measurements state
   const [measurements, setMeasurements] = useState([]);
-  const [preloadedMeasurements, setPreloadedMeasurements] = useState([]);
+  const [allMeasurements, setAllMeasurements] = useState([]);
 
-  // Pagination
+  // Filter state
+  const [filterType, setFilterType] = useState('dateAsc');
+  const [totalPages, setTotalPages] = useState(1);
+  const [heatmapType, setHeatmapType] = useState('speed');
+  const [selectedArea, setSelectedArea] = useState(0.0025);
+
+  // Pagination state
+  const [layout, setLayout] = useState('points');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const itemsPerPageOptions = [10, 20, 50];
 
-  // Centering map view
-  // const [mapCenter, setMapCenter] = useState([46.5546, 15.6467]);
+  // Loading state
+  const [loading, setLoading] = useState(false);
+
+  // Map center coordinates
   const mapCenter = [46.5546, 15.6467];
-
-  // Backend URL
+  // Backend URL for fetching measurements
   const backendUrl = process.env.REACT_APP_BACKEND_URL + '/measurements';
 
-  // Fetching measurements
-  const fetchMeasurements = async (page) => {
+  // Fetch measurements from the backend
+  const fetchMeasurements = useCallback(async () => {
     try {
-      const response = await fetch(`${backendUrl}?page=${page}`);
+      const response = await fetch(backendUrl);
       const data = await response.json();
-      const paginatedData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-      return paginatedData;
+      setAllMeasurements(data);
+      setTotalPages(Math.ceil(data.length / itemsPerPage));
     } catch (error) {
       console.error('Error:', error);
     }
-  };
+  }, [backendUrl, itemsPerPage]);
 
-  // Pagination functions
-  const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
-  const nextPage = () => {
-    setCurrentPage(currentPage + 1);
-    setMeasurements(preloadedMeasurements);
-  };
-
-  // Fetching measurements on page load
+  // Fetch measurements on component mount
   useEffect(() => {
-    const loadMeasurements = async () => {
-      const currentMeasurements = await fetchMeasurements(currentPage);
-      setMeasurements(currentMeasurements);
-      const nextMeasurements = await fetchMeasurements(currentPage + 1);
-      setPreloadedMeasurements(nextMeasurements);
-    };
-    loadMeasurements();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+    fetchMeasurements();
+  }, [fetchMeasurements]);
+
+  // Filter and paginate measurements
+  const handleFilter = () => {
+    if (layout === 'points') {
+      const filteredMeasurements = [...allMeasurements].sort((a, b) => {
+        switch (filterType) {
+          case 'dateAsc':
+            return new Date(a.time) - new Date(b.time);
+          case 'dateDesc':
+            return new Date(b.time) - new Date(a.time);
+          case 'coordinatesAsc':
+            return calculateDistance(mapCenter, a.location.coordinates) - calculateDistance(mapCenter, b.location.coordinates);
+          case 'coordinatesDesc':
+            return calculateDistance(mapCenter, b.location.coordinates) - calculateDistance(mapCenter, a.location.coordinates);
+          default:
+            return 0;
+        }
+      });
+      setMeasurements(filteredMeasurements.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+    }
+  };
+
+  // Re-filter measurements when dependencies change
+  useEffect(() => {
+    handleFilter();
+  }, [filterType, currentPage, itemsPerPage, allMeasurements]);
 
   return (
     <div className="blueBackground">
@@ -145,37 +90,46 @@ const Geolocation = () => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
-          {measurements.map((measurement, index) => (
+          {layout === 'points' && measurements.map((measurement, index) => (
             <MeasurementMarker
               key={index}
               measurement={measurement}
               index={index}
             />
           ))}
+          {layout === 'grid' && (
+            <GridHeatmapLayer measurements={allMeasurements} heatmapType={heatmapType} setLoading={setLoading} selectedArea={selectedArea}/>
+          )}
         </MapContainer>
-        <div className="measurementContainer">
-        <h2 className="measurementTitle">Measurement list</h2>
-        <div className="measurementButtonContainer">
-            <button onClick={prevPage} disabled={currentPage === 1}>Previous Page</button>
-            <button onClick={nextPage}>Next Page</button>
-          </div>
-          <div className="measurementList">
-            {measurements.map((measurement, index) => (
-              <Measurement
-                key={index}
-                measurement={measurement}
-                index={index}
-              />
-            ))}
-          </div>
-          <div className="measurementButtonContainer">
-            <button onClick={prevPage} disabled={currentPage === 1}>Previous Page</button>
-            <button onClick={nextPage}>Next Page</button>
-          </div>
-        </div>
+        {loading && <div>Loading...</div>}
+        {layout === 'points' && (
+          <PointsSettings
+            setLayout={setLayout}
+            filterType={filterType}
+            setFilterType={setFilterType}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            prevPage={() => setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)}
+            nextPage={() => setCurrentPage(currentPage < totalPages ? currentPage + 1 : totalPages)}
+            goToPage={page => setCurrentPage(page >= 1 && page <= totalPages ? page : currentPage)}
+            itemsPerPageOptions={itemsPerPageOptions}
+            measurements={measurements}
+          />
+        )}
+        {layout === 'grid' && (
+          <HeatmapSettings
+            setLayout={setLayout}
+            heatmapType={heatmapType}
+            setHeatmapType={setHeatmapType}
+            measurements={allMeasurements}
+            selectedArea={selectedArea}
+            setSelectedArea={setSelectedArea}
+          />
+        )}
       </div>
-    <div className="geolocationBackground"></div>
-  </div>
+    </div>
   );
 };
 
