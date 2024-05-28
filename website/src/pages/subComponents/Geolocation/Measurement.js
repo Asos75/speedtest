@@ -24,7 +24,7 @@ const Measurement = ({ measurement, index }) => {
       <p><b>{measurement.type}</b> | Coordinates: <b>{coordinates.join(', ')}</b></p>
       {showDetails && (
         <>
-          <p>Speed: <b>{measurement.speed.$numberInt ? measurement.speed.$numberInt : 'Currently unvailable'}</b></p>
+          <p>Speed: <b>{measurement.speed ? measurement.speed : 'Currently unvailable'}</b></p>
           <p>Provider: <b>{measurement.provider}</b></p>
           <p>Time: <b>{formatTime(measurement.time)}</b></p>
         </>

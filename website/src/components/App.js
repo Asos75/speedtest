@@ -12,6 +12,7 @@ import MobileTower from '../pages/MobileTower';
 // import Tools from '../pages/Tools';
 import Measure from '../pages/Measure';
 import Geolocation from '../pages/Geolocation';
+import AboutUs from '../pages/AboutUs';
 
 // Styles
 import '../styles/App.css';
@@ -44,6 +45,8 @@ const App = () => {
           {/* Right side */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          {/* About us */}
+          { <Route path="/about-us" element={<AboutUs />} />}
         </Routes>
       </BrowserRouter>
     </>
