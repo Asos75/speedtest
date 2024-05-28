@@ -1,12 +1,16 @@
 // Dependencies
 import React from 'react';
 
+// Assets
+import Speedii from '../assets/Icons/speedii.png';
+
 const Header = ({ title, username, onLogout }) => {
   return (
     <header className="header">
       <h1 className="header-title">
         <a href="/" className="header-title-link">
-            {title}
+            {/* {title} */}
+            <img src={Speedii} alt="Speedii" className="header-logo" />
         </a>
     </h1>
     {/* Events will be implemented into user's page */}
