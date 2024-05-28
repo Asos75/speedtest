@@ -210,3 +210,36 @@
   text-align: left;
   color: var(--color-white);
 }
+
+/* HeatmapSettings.js */
+
+.heatmapFilterLayout, .heatmapSizeLayout{
+  display: flex;
+  align-items: center;
+}
+
+.heatmapFilterLayout p, .heatmapSizeLayout p{
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-black);
+  margin-right: 10px;
+}
+
+.heatmapStatisticsLayout p {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--color-black);
+  margin-right: 10px;
+}
+
+.heatmapStatisticsTitle{
+  text-align: center;
+  font-size: 2rem;
+  margin: 0.5rem 0;
+}
+
+/* GridHeatmapLayer.jsx */
+
+.popup-text {
+  font-size: 1rem; 
+}

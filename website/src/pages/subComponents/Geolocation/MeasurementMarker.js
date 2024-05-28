@@ -27,7 +27,7 @@ const MeasurementMarker = ({ measurement, index }) => {
   ];
 
   // FIX ADDRESS FETCHING LATER
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchAddress = async () => {
       try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates[0]}&lon=${coordinates[1]}`);
@@ -39,7 +39,7 @@ const MeasurementMarker = ({ measurement, index }) => {
     };
 
     fetchAddress();
-  });
+  });*/
 
   // Check if coordinates are valid
   if (coordinates.some(isNaN)) {
@@ -53,7 +53,7 @@ const MeasurementMarker = ({ measurement, index }) => {
         <p><b>{measurement.type}</b></p>
         <p>Coordinates: <b>{coordinates.join(', ')}</b></p>
         {address && <p>Address: <b>{address}</b></p>}
-        <p>Speed: <b>{measurement.speed.$numberInt ? measurement.speed.$numberInt : 'Currently unvailable'}</b></p>
+        <p>Speed: <b>{measurement.speed ? measurement.speed : 'Currently unvailable'}</b></p>
         <p>Provider: <b>{measurement.provider}</b></p>
         <p>Time: <b>{formatTime(measurement.time)}</b></p>
       </Popup>

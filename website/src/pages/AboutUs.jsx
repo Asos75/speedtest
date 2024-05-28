@@ -16,8 +16,7 @@ import discord from '../assets/Icons/discord.png';
 
 const AboutUs = () => {
   return (
-    <>
-      <div className="blueBackground"></div>
+    <div className="blueBackground">
       <h2 className="aboutUsTitle">Meet our team</h2>
       <div className="aboutUsLayout">
       <ProfileComponent
@@ -38,7 +37,7 @@ const AboutUs = () => {
         />
         <ProfileComponent
           name="David Rajlič"
-          role="LGBT supporter"
+          role="Backend developer"
           profilePicture={placeholder}
           description="
           David is an overall programmer that uses Linux. <br />
@@ -57,7 +56,7 @@ const AboutUs = () => {
           role="Frontend developer"
           profilePicture={placeholder}
           description="
-          The best word to describe him is are Frontend Wizard. <br />
+          The best words to describe him are Frontend Wizard. <br />
           His responsibilites are frontend development, UI/UX design, backend connectivity and optimization. <br /> <br />
           He manages React, CSS, HTML, JS, HTTP requests, color scheme and overall frontend structure. <br /> <br />
           He spends his time working out, sharpening his eye to detail and going to McDonalds.
@@ -69,7 +68,7 @@ const AboutUs = () => {
           ]}
         />
       </div>
-    </>
+    </div>
   );
 };
 

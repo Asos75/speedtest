@@ -1,5 +1,8 @@
+// Dependencies
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useMapEvents } from 'react-leaflet';
+
+// Utilities
 import L from 'leaflet';
 import { Rectangle, Popup } from 'react-leaflet';
 // import { debounce } from 'lodash';
@@ -98,7 +101,7 @@ useEffect(() => {
   }
 }, [heatmapType, measurements, map, cellSize, gridDataMemo, selectedArea]);
 
-  // If loading, return a loading spinner
+  // If loading, return that is is in fact, loading
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -110,21 +113,25 @@ useEffect(() => {
         const latitude = Number(lat);
         const longitude = Number(lng);
         const averageCreationDate = new Date(data.creationDateSum / data.count);
-        const daysDifference = Math.floor((new Date().getTime() - averageCreationDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysDifference = Math.floor((new Date().getTime() - averageCreationDate.getTime()) / (1000 * 60 * 60 * 24) + 1);
 
         return (
           <Rectangle
-            key={`${index}-${heatmapType}`} // Add heatmapType to the key
+            key={`${index}-${heatmapType}`}
             bounds={[
               [latitude, longitude],
               [latitude + cellSize, longitude + cellSize]
             ]}
             color={color}
+            pathOptions={{ weight: 1 }}
           >
             <Popup>
-              <span>Speed: {Math.floor(data.speedSum / data.count)}</span><br/>
-              <span>Average Creation Date: {averageCreationDate.toLocaleString()}</span><br/>
-              <span>Days since Average Creation Date: {daysDifference}</span>
+            <span className="popup-text">Speed: <b>{Math.floor(data.speedSum / data.count)}</b></span><br/>
+            <span className="popup-text">Average Creation Date: <b>{averageCreationDate.toLocaleString()}</b></span><br/>
+            <span className="popup-text">Days since creation: <b>{daysDifference}</b></span>
+            <div className="heatmapGraphLayout">
+              {/* I want histogram here to be based on the data inside each Popup element */}
+            </div>
             </Popup>
           </Rectangle>
         );

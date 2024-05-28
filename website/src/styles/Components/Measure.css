@@ -9,43 +9,65 @@
 
 .measureLayout {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    font-size: 1.4rem;
     padding: 25px;
     background-color: var(--color-uraniunBlue);
 }
 
-.measureList {
-    width: 40%;
+.userDetails {
+    width: 50%;
+    background-color:var(--color-darkerBlue);
+    border-radius:25px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
     justify-items: center;
     align-items: start;
-    padding: 0 50px;
+    padding: 20px 50px;
 }
 
-.measureList h2{
+.userDetails h2 {
     font-size: 2rem;
     color: var(--color-white);
     margin: 0 auto;
     padding: 0 25px;
 }
 
-.measure {
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    padding: 25px;
-    width: 100%;
-    box-shadow: 0px 5px 10px var(--color-darkerBlue);
-    margin: 0;
-    transition: background-color var(--hover-duration);
-}
-
-.measure:hover{
-    background-color: var(--color-lightgray);
-}
-
-.measure p {
+.userDetails p {
     margin: 0.5rem 0;
-    color: var(--color-black);
+    color: var(--color-white);
+}
+
+.measureButton{
+    background: none;
+    color: var(--color-white);
+    border: 1px solid var(--color-lightBlue);
+    border-radius: 15px;
+    padding: 8px 12px;
+    margin: 0 auto;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.5s border;
+}
+
+.measureButton:hover{
+    border-color: var(--color-white);
+}
+
+.measureLoadingContainer{
+    display:flex;
+    align-items: center;
+    padding-left: 25px;
+    width: 100%;
+}
+
+.measureLoadingContainer p{
+    margin-right: 50px
+}
+
+.measureLoadingText{
+    width: 100%;
+    font-size: 1.2rem;
+    text-align: center;
 }
