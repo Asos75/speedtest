@@ -1,27 +1,25 @@
 
-
 city "Fiesa" {
+    let a = 2;
+    let b = 3;
 
-        let rad = building "within" {
-            circle ( point, 20);
+    let c = "test";
+
+
+    let build = building "test" {
+        box((4, 4), (0, 0));
+    };
+
+    let point = measurement "m1" {
+        if (a < b){
+            marker (2, 2);
         };
+    };
 
-        let circ = circle ( point, 20);
+    let circ = circle ((4, 2), 3);
+    let square = box((4, 4), (0, 0));
 
-
-       set("active", false);
-       let b = 2;
-       let point = Point(b, b);
-       let point2 = Point(2, 2);
-       road "line" {
-        output false;
-            set("owner", "City");
-          marker point;
-
-       };
-        building "radius" {
-            set("owner", "City");
-            circle ( point, 20);
-        };
-
- }
+    if(point in square){
+        build;
+    };
+}

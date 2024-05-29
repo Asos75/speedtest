@@ -1,1 +1,1 @@
-{"type": "FeatureCollection","properties": {"name": "Fiesa", "active": false},"features": [{"type": "Feature","properties": {"name": "line", "output": false, "owner": "City"},"geometry": {"type": "Point","coordinates": [ 2.0,2.0 ]}},{"type": "Feature","properties": {"name": "radius", "owner": "City"},"geometry": {}}]}
+{"type": "FeatureCollection","properties": {"name": "Fiesa"},"features": [{"type": "Feature","properties": {"name": "test"},"geometry": {"type": "Polygon","coordinates": [ [[4.0, 4.0],[0.0, 4.0],[0.0, 0.0],[4.0, 0.0],[4.0, 4.0]] ]}}]}
