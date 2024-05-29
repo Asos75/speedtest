@@ -1,26 +1,10 @@
 
 city "Fiesa" {
-    let a = 2;
-    let b = 3;
 
-    let c = "test";
-
-
-    let build = building "test" {
-        box((4, 4), (0, 0));
-    };
-
-    let point = measurement "m1" {
-        if (a < b){
-            marker(2, 2);
+    measurement "m" {
+        for(let i = 0, 4) {
+            box((i, i), (i, i));
         };
     };
 
-    let circ = circle ((4, 2), 3);
-    let square = box((4, 4), (0, 0));
-
-
-    if(point in square){
-           point;
-    };
 }
