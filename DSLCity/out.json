@@ -1,1 +1,116 @@
-{"type": "FeatureCollection","properties": {"name": "Fiesa"},"features": [{"type": "Feature","properties": {"name": "m1"},"geometry": {"type": "Point","coordinates": [ 2.0,2.0 ]}}]}
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "name": "Fiesa"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "m"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ]
+        ],
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.0,
+              2.0
+            ],
+            [
+              2.0,
+              2.0
+            ],
+            [
+              2.0,
+              2.0
+            ],
+            [
+              2.0,
+              2.0
+            ],
+            [
+              2.0,
+              2.0
+            ]
+          ]
+        ],
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              3.0,
+              3.0
+            ],
+            [
+              3.0,
+              3.0
+            ],
+            [
+              3.0,
+              3.0
+            ],
+            [
+              3.0,
+              3.0
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
