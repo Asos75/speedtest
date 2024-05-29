@@ -105,11 +105,9 @@ class Parser(
         if (currentToken.symbol == Symbol.LPAREN) {
             currentToken = lex.getToken()
             val resultC1 = additive()
-            println(resultC1)
             if (currentToken.symbol == Symbol.TO) {
                 currentToken = lex.getToken()
                 val resultC2 = additive()
-                println(resultC2)
                 if (currentToken.symbol == Symbol.RPAREN) {
                     currentToken = lex.getToken()
                     return Point(resultC1, resultC2)
@@ -344,7 +342,6 @@ class Parser(
                 if(currentToken.symbol == Symbol.LPAREN){
                     currentToken = lex.getToken()
                     val compare = compare()
-                    println(currentToken.symbol)
                     if(currentToken.symbol == Symbol.RPAREN){
                         currentToken = lex.getToken()
                         if(currentToken.symbol == Symbol.BEGIN){
@@ -491,7 +488,6 @@ class Parser(
                 if(currentToken.symbol == Symbol.LPAREN){
                     currentToken = lex.getToken()
                     val compare = compare()
-                    println(currentToken.symbol)
                     if(currentToken.symbol == Symbol.RPAREN){
                         currentToken = lex.getToken()
                         if(currentToken.symbol == Symbol.BEGIN){
@@ -697,7 +693,6 @@ class Parser(
                 if(currentToken.symbol == Symbol.LPAREN){
                     currentToken = lex.getToken()
                     val compare = compare()
-                    println(currentToken.symbol)
                     if(currentToken.symbol == Symbol.RPAREN){
                         currentToken = lex.getToken()
                         if(currentToken.symbol == Symbol.BEGIN){
@@ -706,6 +701,32 @@ class Parser(
                             if(currentToken.symbol == Symbol.END){
                                 currentToken = lex.getToken()
                                 return If(compare, commandList)
+                            }
+                        }
+                    }
+                }
+                throw Error("Invalid")
+            }
+            Symbol.FOR ->  {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.LPAREN){
+                    currentToken = lex.getToken()
+                    if(currentToken.symbol == Symbol.LET) {
+                        currentToken = lex.getToken()
+                        val assign = assignment()
+                        if (currentToken.symbol == Symbol.TO) {
+                            currentToken = lex.getToken()
+                            val add = additive()
+                            if (currentToken.symbol == Symbol.RPAREN) {
+                                currentToken = lex.getToken()
+                                if (currentToken.symbol == Symbol.BEGIN) {
+                                    currentToken = lex.getToken()
+                                    val commands = commands()
+                                    if (currentToken.symbol == Symbol.END) {
+                                        currentToken = lex.getToken()
+                                        return ForLoop(assign, add, commands)
+                                    }
+                                }
                             }
                         }
                     }
