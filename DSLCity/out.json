@@ -1,1 +1,1 @@
-{"type": "FeatureCollection","properties": {"name": "Fiesa"},"features": [{"type": "Feature","properties": {"name": "test"},"geometry": {"type": "Polygon","coordinates": [ [[4.0, 4.0],[0.0, 4.0],[0.0, 0.0],[4.0, 0.0],[4.0, 4.0]] ]}}]}
+{"type": "FeatureCollection","properties": {"name": "Fiesa"},"features": [{"type": "Feature","properties": {"name": "m1"},"geometry": {"type": "Point","coordinates": [ 2.0,2.0 ]}}]}

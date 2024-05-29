@@ -13,6 +13,11 @@ fun<T: Any> T.getClass(): KClass<T> {
 }
 val vars = HashMap<String, Any>()
 
+interface Evaluable{
+    fun eval()
+}
+
+//region AdditiveClassess
 interface Element {
     fun eval(): Any
 }
@@ -142,7 +147,7 @@ class Program(
 
 }
 
-
+//endregion
 interface PointType
 class Point(
     val c1: Expr,
@@ -150,14 +155,11 @@ class Point(
 ) : PointType{
 
     override fun toString(): String{
-        println("$c1, $c2")
         return "Point(${c1.eval()}, ${c2.eval()})"
     }
 }
 
 interface ObjList {
-    fun propertiesToGEOJson(d: OutputStream)
-    fun objectsToGeoJson(d: OutputStream)
 }
 interface Command{
     override fun toString(): String
@@ -173,22 +175,7 @@ class CommandList(
     override fun toString(): String {
         return "$comm ${comms ?: ""}"
     }
-    override fun propertiesToGEOJson(d: OutputStream) {
-        if(comm is Property) {
-            comm.toGEOJson(d)
-        }
-        comms?.propertiesToGEOJson(d)
-    }
 
-    override fun objectsToGeoJson(d: OutputStream) {
-        if(comm !is Property) {
-            comm.toGEOJson(d)
-        }
-
-        comms?.objectsToGeoJson(d)
-
-
-    }
 }
 
 class Bend(
@@ -542,43 +529,56 @@ interface Block{
     fun toGEOJson(d: OutputStream)
     fun isContainedInCircle(pc: Point, r: Double): Boolean
     fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean
+
 }
+
+
+
 var firstBlock = false
 class BlockList(
-    private val block: Block,
-    private val blockList: BlockList?
+    val block: Block,
+    val blockList: BlockList?
 ): ObjList {
     override fun toString(): String {
         return "$block ${blockList ?: ""}"
-    }
-
-    override fun propertiesToGEOJson(d: OutputStream) {
-        if(block is Property) {
-            block.toGEOJson(d)
-        }
-        blockList?.propertiesToGEOJson(d)
-    }
-    override fun objectsToGeoJson(d: OutputStream) {
-        if(block !is Property) {
-            block.toGEOJson(d)
-        }
-
-        blockList?.objectsToGeoJson(d)
-
-
     }
 }
 class Road(
     private val name: String,
     private val comms: CommandList? = null,
-    val out: Boolean = true
+    val out: Boolean = true,
+    private val properties: MutableList<Property> = mutableListOf(),
+    private val commands: MutableList<Command> = mutableListOf()
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
+    fun eval(commandList: CommandList?){
+        var cl = commandList
+        var command = cl?.comm
+        while (command != null) {
+            if(command is Evaluable){
+                command.eval()
+            }
+            else if(command is If){
+                eval(command.eval() as CommandList?)
+            }
+            else if(command is Property){
+                properties.add(command)
+            } else {
+                commands.add(command)
+            }
+            cl = cl?.comms
+            command = cl?.comm
+        }
+
+    }
     override fun toGEOJson(d: OutputStream) {
         if(!out) return
+
+        eval(comms)
+
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
@@ -587,10 +587,10 @@ class Road(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        comms?.propertiesToGEOJson(d)
+        properties.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
-        comms?.objectsToGeoJson(d)
+        commands.forEach { it.toGEOJson(d) }
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -623,29 +623,55 @@ class Road(
 class Building(
     private val name: String,
     private val comms: CommandList? = null,
-    val out: Boolean = true
+    val out: Boolean = true,
+    private val properties: MutableList<Property> = mutableListOf(),
+    private val commands: MutableList<Command> = mutableListOf()
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
+    fun eval(commandList: CommandList?){
+        var cl = commandList
+        var command = cl?.comm
+        while (command != null) {
+            if(command is Evaluable){
+                command.eval()
+            }
+            else if(command is If){
+                eval(command.eval() as CommandList?)
+            }
+            else if(command is Property){
+                properties.add(command)
+            } else {
+                commands.add(command)
+            }
+            cl = cl?.comms
+            command = cl?.comm
+        }
+
+    }
     override fun toGEOJson(d: OutputStream) {
-        println("here")
         if(!out) return
+
+        eval(comms)
+
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
+
         d.write("{".toByteArray())
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        comms?.propertiesToGEOJson(d)
+        properties.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
-        comms?.objectsToGeoJson(d)
+        commands.forEach { it.toGEOJson(d) }
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
+
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
         var comm = comms?.comm
         while(comm != null){
@@ -673,28 +699,55 @@ class Building(
 class River(
     private val name: String,
     private val comms: CommandList? = null,
-    val out: Boolean = true
+    val out: Boolean = true,
+    private val properties: MutableList<Property> = mutableListOf(),
+    private val commands: MutableList<Command> = mutableListOf()
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
+    fun eval(commandList: CommandList?){
+        var cl = commandList
+        var command = cl?.comm
+        while (command != null) {
+            if(command is Evaluable){
+                command.eval()
+            }
+            else if(command is If){
+                eval(command.eval() as CommandList?)
+            }
+            else if(command is Property){
+                properties.add(command)
+            } else {
+                commands.add(command)
+            }
+            cl = cl?.comms
+            command = cl?.comm
+        }
+
+    }
     override fun toGEOJson(d: OutputStream) {
         if(!out) return
+
+        eval(comms)
+
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
+
         d.write("{".toByteArray())
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        comms?.propertiesToGEOJson(d)
+        properties.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
-        comms?.objectsToGeoJson(d)
+        commands.forEach { it.toGEOJson(d) }
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
+
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
         var comm = comms?.comm
@@ -722,28 +775,55 @@ class River(
 class Tower(
     private val name: String,
     private val comms: CommandList? = null,
-    val out: Boolean = true
+    val out: Boolean = true,
+    private val properties: MutableList<Property> = mutableListOf(),
+    private val commands: MutableList<Command> = mutableListOf()
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
+    fun eval(commandList: CommandList?){
+        var cl = commandList
+        var command = cl?.comm
+        while (command != null) {
+            if(command is Evaluable){
+                command.eval()
+            }
+            else if(command is If){
+                eval(command.eval() as CommandList?)
+            }
+            else if(command is Property){
+                properties.add(command)
+            } else {
+                commands.add(command)
+            }
+            cl = cl?.comms
+            command = cl?.comm
+        }
+
+    }
     override fun toGEOJson(d: OutputStream) {
         if(!out) return
+
+        eval(comms)
+
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
+
         d.write("{".toByteArray())
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        comms?.propertiesToGEOJson(d)
+        properties.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
-        comms?.objectsToGeoJson(d)
+        commands.forEach { it.toGEOJson(d) }
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
+
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
         var comm = comms?.comm
@@ -771,25 +851,51 @@ class Tower(
 class Measurment(
     private val name: String,
     private val comms: CommandList? = null,
-    val out: Boolean = true
+    val out: Boolean = true,
+    private val properties: MutableList<Property> = mutableListOf(),
+    private val commands: MutableList<Command> = mutableListOf()
 ): Block{
     override fun toString(): String {
         return "$name { $comms }"
     }
 
+    fun eval(commandList: CommandList?){
+        var cl = commandList
+        var command = cl?.comm
+        while (command != null) {
+            if(command is Evaluable){
+                command.eval()
+            }
+            else if(command is If){
+                eval(command.eval() as CommandList?)
+            }
+            else if(command is Property){
+                properties.add(command)
+            } else {
+                commands.add(command)
+            }
+            cl = cl?.comms
+            command = cl?.comm
+        }
+
+    }
     override fun toGEOJson(d: OutputStream) {
         if(!out) return
+
+        eval(comms)
+
         if(!firstBlock){
             d.write(",".toByteArray())
         } else firstBlock = false
+
         d.write("{".toByteArray())
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        comms?.propertiesToGEOJson(d)
+        properties.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
-        comms?.objectsToGeoJson(d)
+        commands.forEach { it.toGEOJson(d) }
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -819,7 +925,7 @@ class Measurment(
 }
 
 interface Property {
-
+    fun toGEOJson(d: OutputStream)
 }
 class SetString(
     private val name: String,
@@ -834,11 +940,11 @@ class SetString(
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
-        throw Error("set can not be used with in/out")
+        return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
-        throw Error("set can not be used with in/out")
+        return true
     }
 
 
@@ -857,11 +963,11 @@ class SetReal(
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
-        throw Error("set can not be used with in/out")
+        return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
-        throw Error("set can not be used with in/out")
+        return true
     }
 }
 
@@ -874,22 +980,48 @@ interface Construct{
 
 class City(
     private val name: String,
-    private val blocks: BlockList? = null
+    private val blockList: BlockList? = null,
+    private val properties: MutableList<Property> = mutableListOf(),
+    private val blocks: MutableList<Block> = mutableListOf()
+
 ) : Construct {
     override fun toString(): String {
-        return "$name { $blocks }"
+        return "$name { $blockList }"
+    }
+
+    fun eval(blockList: BlockList?){
+        var bl = blockList
+        var block = bl?.block
+        while (block != null) {
+            if(block is Evaluable){
+                block.eval()
+            }
+            else if(block is If){
+                eval(block.eval() as BlockList?)
+            }
+            else if(block is Property){
+                properties.add(block)
+            } else {
+                blocks.add(block)
+            }
+            bl = bl?.blockList
+            block = bl?.block
+        }
+
     }
 
     override fun toGEOJson(d: OutputStream) {
+        eval(blockList)
+
         firstBlock = true;
         d.write("{".toByteArray())
         d.write("\"type\": \"FeatureCollection\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        blocks?.propertiesToGEOJson(d)
+        properties.forEach{ it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"features\": [".toByteArray())
-        blocks?.objectsToGeoJson(d)
+        blocks.forEach { it.toGEOJson(d) }
         d.write("]".toByteArray())
         d.write("}".toByteArray())
     }
@@ -898,20 +1030,12 @@ class City(
 class ConstructList(
     private val construct: Construct,
     private val constructList: ConstructList?
-) : Construct, ObjList{
-    override fun propertiesToGEOJson(d: OutputStream) {
-        return
-    }
-
-    override fun objectsToGeoJson(d: OutputStream) {
-        toGEOJson(d)
-    }
-
+) : ObjList{
     override fun toString(): String {
         return "$construct ${constructList ?: ""}"
     }
 
-    override fun toGEOJson(d: OutputStream) {
+    fun toGEOJson(d: OutputStream) {
         construct.toGEOJson(d)
         constructList?.toGEOJson(d)
     }
@@ -922,7 +1046,29 @@ class ConstructList(
 class Assign(
     private val v: Variable,
     private val e: Any
-) : Construct, Block, Command {
+) : Construct, Block, Command, Evaluable {
+    override fun eval() {
+        if(vars.containsKey(v.toString())){
+            throw Error("Variable already defined")
+        }
+        if(e is Expr) {
+            val result = e.eval()
+            vars[v.toString()] = result
+        }
+        else if(e is Point){
+            vars[v.toString()] = e
+        }
+        else if(e is Block){
+            vars[v.toString()] = e
+        }
+        else if(e is Command){
+            vars[v.toString()] = e
+        }
+        else {
+            vars[v.toString()] = e
+        }
+    }
+
     override fun toString(): String {
         return "var $v = ($e);"
     }
@@ -961,7 +1107,29 @@ class Assign(
 class Reassign(
     private val v: Variable,
     private val e: Any
-) : Construct, Block, Command {
+) : Construct, Block, Command, Evaluable {
+    override fun eval() {
+        if(!vars.containsKey(v.toString())){
+            throw Error("Variable not defined")
+        }
+        if(e is Expr){
+            val result = e.eval()
+            vars[v.toString()] = result
+        }
+        else if(e is Point){
+            vars[v.toString()] = e
+        }
+        else if(e is Block){
+            vars[v.toString()] = e
+        }
+        else if(e is Command){
+            vars[v.toString()] = e
+        }
+        else {
+            vars[v.toString()] = e
+        }
+    }
+
     override fun toString(): String {
         return "var $v = ($e);"
     }
@@ -1173,16 +1341,20 @@ class If(
     val c: Comparator,
     val b: ObjList?
 ) : Block, Command, Construct {
+    fun eval(): ObjList? {
+        if(c.eval()){
+            return b
+        }
+        return null
+    }
+
     override fun toString(): String {
         return b.toString()
     }
 
+
+
     override fun toGEOJson(d: OutputStream) {
-        if(c.eval()){
-            println("true")
-            b?.propertiesToGEOJson(d)
-            b?.objectsToGeoJson(d)
-        }
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
@@ -1212,4 +1384,46 @@ class If(
             return true
         } else throw Error("Invalid")
     }
+}
+
+class ForLoop(
+    val a: Assign,
+    val e: Expr,
+    val b: ObjList?
+): Construct, Block, Command{
+    override fun toString(): String {
+        return b.toString()
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+    }
+
+    override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        if(b is CommandList) {
+            val comms = b as CommandList
+            var comm = comms?.comm
+            while (comm != null) {
+                if (!comm.isContainedInCircle(pc, r)) {
+                    return false
+                }
+                comm = comms?.comms?.comm
+            }
+            return true
+        } else throw Error("Invalid")
+    }
+
+    override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        if (b is CommandList) {
+            val comms = b as CommandList
+            var comm = comms?.comm
+            while (comm != null) {
+                if (!comm.isContainedInRectangle(pr1, pr2)) {
+                    return false
+                }
+                comm = comms?.comms?.comm
+            }
+            return true
+        } else throw Error("Invalid")
+    }
+
 }

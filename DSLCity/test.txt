@@ -12,14 +12,15 @@ city "Fiesa" {
 
     let point = measurement "m1" {
         if (a < b){
-            marker (2, 2);
+            marker(2, 2);
         };
     };
 
     let circ = circle ((4, 2), 3);
     let square = box((4, 4), (0, 0));
 
+
     if(point in square){
-        build;
+           point;
     };
 }
