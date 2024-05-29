@@ -501,6 +501,32 @@ class Parser(
                     }
                 }
             }
+            Symbol.FOR ->  {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.LPAREN){
+                    currentToken = lex.getToken()
+                    if(currentToken.symbol == Symbol.LET) {
+                        currentToken = lex.getToken()
+                        val assign = assignment()
+                        if (currentToken.symbol == Symbol.TO) {
+                            currentToken = lex.getToken()
+                            val add = additive()
+                            if (currentToken.symbol == Symbol.RPAREN) {
+                                currentToken = lex.getToken()
+                                if (currentToken.symbol == Symbol.BEGIN) {
+                                    currentToken = lex.getToken()
+                                    val blocks = blocks()
+                                    if (currentToken.symbol == Symbol.END) {
+                                        currentToken = lex.getToken()
+                                        return ForLoop(assign, add, blocks)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                throw Error("Invalid")
+            }
             else -> throw Error("Invalid")
         }
         throw Error("Invalid")
