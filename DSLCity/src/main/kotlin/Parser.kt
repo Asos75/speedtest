@@ -83,11 +83,11 @@ class Parser(
         }
         else if(currentToken.symbol == Symbol.TRUE){
             currentToken = lex.getToken()
-            return Boolean(true)
+            return CustomBoolean(true)
         }
         else if(currentToken.symbol == Symbol.FALSE){
             currentToken = lex.getToken()
-            return Boolean(false)
+            return CustomBoolean(false)
         }
         else if(currentToken.symbol == Symbol.LPAREN){
             currentToken = lex.getToken()
@@ -177,6 +177,11 @@ class Parser(
                     Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
                         return Assign(variable, command())
                     }
+                    Symbol.STRING -> {
+                        val str = CustomString(currentToken.lexeme)
+                        currentToken = lex.getToken()
+                        return Assign(variable, str)
+                    }
                     else -> {
                         return Assign(variable, additive())
                     }
@@ -208,6 +213,11 @@ class Parser(
                 Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
                     return Reassign(inVal, command())
                 }
+                Symbol.STRING -> {
+                    val str = CustomString(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    return Reassign(inVal, str)
+                }
                 else -> {
                     return Reassign(inVal, additive())
                 }
@@ -216,6 +226,71 @@ class Parser(
         throw Error("Invalid ReAssignment")
     }
 
+    private fun compare() : Comparator {
+        val e1 = if(currentToken.symbol == Symbol.STRING){
+            val str = CustomString(currentToken.lexeme)
+            currentToken = lex.getToken()
+            str
+        } else if(currentToken.symbol == Symbol.VARIABLE){
+            val variable = Variable(currentToken.lexeme)
+            currentToken = lex.getToken()
+            variable
+        }
+        else additive()
+        when(currentToken.symbol) {
+            Symbol.GREATER -> {
+                currentToken = lex.getToken()
+                val e2 = additive()
+                return Greater(e1, e2)
+            }
+            Symbol.LESSER -> {
+                currentToken = lex.getToken()
+                val e2 = additive()
+                return Lesser(e1, e2)
+            }
+            Symbol.EQUALS -> {
+                currentToken = lex.getToken()
+                val e2 = if(currentToken.symbol == Symbol.STRING){
+                    val str = CustomString(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    str
+                } else if(currentToken.symbol == Symbol.VARIABLE){
+                    val variable = Variable(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    variable
+                } else additive()
+                return Equal(e1, e2)
+            }
+            Symbol.IN -> {
+                currentToken = lex.getToken()
+                val e2 = if(currentToken.symbol == Symbol.STRING){
+                    val str = CustomString(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    str
+                } else if(currentToken.symbol == Symbol.VARIABLE){
+                    val variable = Variable(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    variable
+                } else additive()
+                return In(e1, e2)
+            }
+            Symbol.OUT -> {
+                currentToken = lex.getToken()
+                val e2 = if(currentToken.symbol == Symbol.STRING){
+                    val str = CustomString(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    str
+                } else if(currentToken.symbol == Symbol.VARIABLE){
+                    val variable = Variable(currentToken.lexeme)
+                    currentToken = lex.getToken()
+                    variable
+                } else additive()
+                return Out(e1, e2)
+            }
+            else -> throw Error("Invalid Compare")
+        }
+        throw Error("Invalid Compare")
+    }
 //region constructs
     private fun constructs(): ConstructList?{
         if (currentToken.symbol == Symbol.EOF || currentToken.symbol == Symbol.END) {
@@ -252,14 +327,37 @@ class Parser(
                 throw Error("Missing construct Terminator")
             }
             Symbol.VARIABLE -> {
-                val variable = Variable(currentToken.lexeme)
+                val variable = currentToken.lexeme
                 currentToken = lex.getToken()
-                val result = reassignment(variable)
+                if(currentToken.symbol == Symbol.TERM){
+                    return Variable(variable)
+                }
+                val result = reassignment(Variable(variable))
                 if(currentToken.symbol == Symbol.TERM){
                     currentToken = lex.getToken()
                     return result
                 }
                 throw Error("Missing construct Terminator")
+            }
+            Symbol.IF -> {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.LPAREN){
+                    currentToken = lex.getToken()
+                    val compare = compare()
+                    println(currentToken.symbol)
+                    if(currentToken.symbol == Symbol.RPAREN){
+                        currentToken = lex.getToken()
+                        if(currentToken.symbol == Symbol.BEGIN){
+                            currentToken = lex.getToken()
+                            val constructList = constructs()
+                            if(currentToken.symbol == Symbol.END){
+                                currentToken = lex.getToken()
+                                return If(compare, constructList)
+                            }
+                        }
+                    }
+                }
+                throw Error("Invalid")
             }
             else -> throw Error("Invalid")
         }
@@ -279,7 +377,7 @@ class Parser(
             currentToken  = lex.getToken()
             return result
         }
-        throw Error("Invalid")
+        throw Error("Missing terminator")
     }
 //endregion
 //region blocks
@@ -374,9 +472,38 @@ class Parser(
                 return  assignment()
             }
             Symbol.VARIABLE -> {
-                val variable = Variable(currentToken.lexeme)
+                val variable = currentToken.lexeme
                 currentToken = lex.getToken()
-                return reassignment(variable)
+                if(currentToken.symbol == Symbol.TERM){
+                    return Variable(variable)
+                }
+                return reassignment(Variable(variable))
+            }
+            Symbol.FOREACH -> {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.VARIABLE){
+                    currentToken = lex.getToken()
+                }
+                throw Error("Invalid")
+            }
+            Symbol.IF -> {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.LPAREN){
+                    currentToken = lex.getToken()
+                    val compare = compare()
+                    println(currentToken.symbol)
+                    if(currentToken.symbol == Symbol.RPAREN){
+                        currentToken = lex.getToken()
+                        if(currentToken.symbol == Symbol.BEGIN){
+                            currentToken = lex.getToken()
+                            val blocklist = blocks()
+                            if(currentToken.symbol == Symbol.END){
+                                currentToken = lex.getToken()
+                                return If(compare, blocklist)
+                            }
+                        }
+                    }
+                }
             }
             else -> throw Error("Invalid")
         }
@@ -399,7 +526,7 @@ class Parser(
             currentToken  = lex.getToken()
             return result
         }
-        throw Error("Invalid")
+        throw Error("Missing terminator")
     }
     private fun command(): Command {
         when(currentToken.symbol){
@@ -534,9 +661,12 @@ class Parser(
                 return  assignment()
             }
             Symbol.VARIABLE -> {
-                val variable = Variable(currentToken.lexeme)
+                val variable = currentToken.lexeme
                 currentToken = lex.getToken()
-                return reassignment(variable)
+                if(currentToken.symbol == Symbol.TERM){
+                    return Variable(variable)
+                }
+                return reassignment(Variable(variable))
             }
             Symbol.HIGHLIGHT -> {
                 currentToken = lex.getToken()
@@ -559,6 +689,26 @@ class Parser(
                 else if(currentToken.symbol == Symbol.FALSE){
                     currentToken = lex.getToken()
                     return SetString("\"output\"", "false")
+                }
+                throw Error("Invalid")
+            }
+            Symbol.IF -> {
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.LPAREN){
+                    currentToken = lex.getToken()
+                    val compare = compare()
+                    println(currentToken.symbol)
+                    if(currentToken.symbol == Symbol.RPAREN){
+                        currentToken = lex.getToken()
+                        if(currentToken.symbol == Symbol.BEGIN){
+                            currentToken = lex.getToken()
+                            val commandList = commands()
+                            if(currentToken.symbol == Symbol.END){
+                                currentToken = lex.getToken()
+                                return If(compare, commandList)
+                            }
+                        }
+                    }
                 }
                 throw Error("Invalid")
             }
