@@ -5,8 +5,10 @@ import React, { useEffect, useState} from 'react';
 import Speedii from '../assets/Icons/speedii.png';
 import { Squeeze as Hamburger } from 'hamburger-react'
 
-const DropdownMenu = ({ isOpen, children }) => {
-  return isOpen ? <div className="dropdown-menu show">{children}</div> : null;
+const DropdownMenu = ({ isOpen, children, side}) => {
+  return isOpen ? 
+  ( side === "left" ? <div className="dropdown-menu show">{children}</div> : <div className="dropdown-menu-right show">{children}</div> )
+  : null;
 };
 
 const Header = ({ title, username, onLogout }) => {
@@ -33,7 +35,7 @@ const Header = ({ title, username, onLogout }) => {
       {windowWidth <= 1290 ? (
         <div className="header-left-hamburger">
           <Hamburger toggled={isOpenLeft} toggle={setOpenLeft} className="hamburger-left"/>
-          <DropdownMenu isOpen={isOpenLeft}>
+          <DropdownMenu isOpen={isOpenLeft} side="left">
             <a href="/measure">⚡Measure</a>
             <a href="/geolocation">🌍Geolocations</a>
             <a href="/mobile-tower">🗼Mobile Towers</a>
@@ -47,9 +49,9 @@ const Header = ({ title, username, onLogout }) => {
         </div>
       )}
       {windowWidth <= 750 ? (
-          <div class="header-right-hamburger">
+          <div className="header-right-hamburger">
             <Hamburger toggled={isOpenRight} toggle={setOpenRight} className="hamburger-right"/>
-            <DropdownMenu isOpen={isOpenRight}>
+            <DropdownMenu isOpen={isOpenRight} side="right">
               {username ? (
                 <>
                   <span>Hello, <b>{username}</b></span>

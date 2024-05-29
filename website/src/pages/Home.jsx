@@ -39,7 +39,6 @@ return (
                     </div>
                 </div>
             </div>
-            <p className="homePageCredits blackBackground">Project created by Andraž, David and Domen. <Link to="/about-us" className="button">More about us</Link></p>
         </div>
         {/* <div className="homePageSubLayout">
             <h3 className="homePageSubtitle">Tools that are available on mobile</h3>

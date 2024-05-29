@@ -45,7 +45,7 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
         </div>
       </div>
       <hr className="measurementDivider" />
-      <div class="heatmapFilterLayout">
+      <div className="heatmapFilterLayout">
         <p>Filter mode</p>
         <Select
           labelId="heatmap-type-label"
@@ -58,7 +58,7 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
           <MenuItem value="time">Time</MenuItem>
         </Select>
       </div>
-      <div class="heatmapSizeLayout">
+      <div className="heatmapSizeLayout">
         <p>Grid sizes</p>
         <Select
           labelId="area-size-label"
