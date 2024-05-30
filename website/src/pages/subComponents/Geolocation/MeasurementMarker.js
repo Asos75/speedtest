@@ -1,5 +1,5 @@
 // Dependencies
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import { formatTime } from '../../../helpers/helperFunction';
 

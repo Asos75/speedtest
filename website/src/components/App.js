@@ -15,6 +15,7 @@ import Measure from '../pages/Measure';
 import Geolocation from '../pages/Geolocation';
 import AboutUs from '../pages/AboutUs';
 import Events from '../pages/Events';
+import User from '../pages/User';
 
 // Styles
 import '../styles/App.css';
@@ -52,6 +53,7 @@ const App = () => {
           <Route path="/about-us" element={<AboutUs />} />
           {/* Extra router */}
           <Route path="/events" element={<Events />} />
+          <Route path="/user" element={<User />} />
         </Routes>
       </BrowserRouter>
       <Footer />

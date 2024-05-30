@@ -76,14 +76,14 @@
     border-radius: 20px;
 }
 
-.header-right-loggedIn span b{
+.header-right-loggedIn span b a{
     color: var(--color-lightBlue);
     margin-right: 15px;
     cursor: pointer;
     transition: var(--hover-duration) ease;
 }
 
-.header-right-loggedIn span b:hover{
+.header-right-loggedIn span b a:hover{
     color: var(--color-white);
 }
 

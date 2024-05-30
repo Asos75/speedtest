@@ -54,7 +54,7 @@ const Header = ({ title, username, onLogout }) => {
             <DropdownMenu isOpen={isOpenRight} side="right">
               {username ? (
                 <>
-                  <span>Hello, <b>{username}</b></span>
+                  <span>Hello, <a href="/user">{username} </a></span>
                   <button onClick={onLogout}>Logout</button>
                 </>
               ) : (
@@ -68,7 +68,7 @@ const Header = ({ title, username, onLogout }) => {
         ) : (
           username ? (
             <div className="header-right-loggedIn">
-              <span>Hello, <b>{username}</b></span>
+              <span>Hello, <b> <a href="/user">{username} </a></b></span>
               <button onClick={onLogout}>Logout</button>
             </div>
           ) : (
