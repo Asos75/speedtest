@@ -1,10 +1,31 @@
 
 city "Fiesa" {
-    let i = 2;
-    building "b" {
-        set("valid", false);
-        set("valid", true);
-        marker(i, i);
+    measurement "a" {
+        marker (0, 0);
+    };
+    measurement "b" {
+        marker (1, 1);
+    };
+    measurement "c" {
+        marker (3, 2);
+    };
+    measurement "d" {
+        marker (7, 3);
+    };
+    measurement "e" {
+        marker (4, 6);
+    };
+    measurement "f" {
+        marker (5, 3);
+    };
+    measurement "g" {
+        marker (3, 5);
     };
 
+    let rad = circle((3, 4), 3);
+    foreach x {
+        if(x in rad){
+            highlight true;
+        };
+    };
 }

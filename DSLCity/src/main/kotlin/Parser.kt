@@ -225,6 +225,7 @@ class Parser(
     }
 
     private fun compare() : Comparator {
+        println(currentToken.lexeme)
         val e1 = if(currentToken.symbol == Symbol.STRING){
             val str = CustomString(currentToken.lexeme)
             currentToken = lex.getToken()
@@ -479,7 +480,16 @@ class Parser(
             Symbol.FOREACH -> {
                 currentToken = lex.getToken()
                 if(currentToken.symbol == Symbol.VARIABLE){
+                    val res = Variable(currentToken.lexeme)
                     currentToken = lex.getToken()
+                    if(currentToken.symbol == Symbol.BEGIN){
+                        currentToken = lex.getToken()
+                        val commands = commands()
+                        if(currentToken.symbol == Symbol.END){
+                            currentToken = lex.getToken()
+                            return ForEach(res, commands)
+                        }
+                    }
                 }
                 throw Error("Invalid")
             }
