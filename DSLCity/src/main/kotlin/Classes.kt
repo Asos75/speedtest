@@ -620,7 +620,6 @@ class Marker(
         return Marker(newPoint)
     }
     override fun save() {
-        println(pt)
         pt = if(pt is Variable) {
             (pt as Variable).eval() as Point
         } else {
@@ -668,11 +667,14 @@ class Marker(
 
 }
 
-interface Block : SuperType{
-    override fun toString(): String
-    fun toGEOJson(d: OutputStream)
-    fun isContainedInCircle(pc: Point, r: Double): Boolean
-    fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean
+abstract class Block(
+    val properties: MutableList<Property> = mutableListOf(),
+    val commands: MutableList<Command> = mutableListOf()
+) : SuperType{
+    abstract override fun toString(): String
+    abstract fun toGEOJson(d: OutputStream)
+    abstract fun isContainedInCircle(pc: Point, r: Double): Boolean
+    abstract fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean
 
 }
 
@@ -691,9 +693,7 @@ class Road(
     private val name: String,
     private val comms: CommandList? = null,
     val out: Boolean = true,
-    private val properties: MutableList<Property> = mutableListOf(),
-    private val commands: MutableList<Command> = mutableListOf()
-): Block, Copyable{
+): Block(), Copyable{
     override fun deepCopy(): Copyable {
         val newComms = comms?.deepCopy()
         return Road(name, newComms)
@@ -720,9 +720,9 @@ class Road(
             else if(command is Property){
                 properties.add(command)
             } else {
+                command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
-                println(command)
                 commands.add(newCommand)
             }
             cl = cl?.comms
@@ -784,9 +784,7 @@ class Building(
     private val name: String,
     private val comms: CommandList? = null,
     val out: Boolean = true,
-    private val properties: MutableList<Property> = mutableListOf(),
-    private val commands: MutableList<Command> = mutableListOf()
-): Block, Copyable{
+): Block(), Copyable{
     override fun deepCopy(): Copyable {
         val newComms = comms?.deepCopy()
         return Building(name, newComms)
@@ -815,7 +813,7 @@ class Building(
             else if(command is Property){
                 properties.add(command)
             } else {
-                println(command)
+                command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
                 commands.add(newCommand)
@@ -878,9 +876,7 @@ class River(
     private val name: String,
     private val comms: CommandList? = null,
     val out: Boolean = true,
-    private val properties: MutableList<Property> = mutableListOf(),
-    private val commands: MutableList<Command> = mutableListOf()
-): Block, Copyable{
+): Block(), Copyable{
 
     override fun deepCopy(): Copyable {
         val newComms = comms?.deepCopy()
@@ -909,9 +905,9 @@ class River(
             else if(command is Property){
                 properties.add(command)
             } else {
+                command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
-                println(command)
                 commands.add(newCommand)
             }
             cl = cl?.comms
@@ -972,9 +968,7 @@ class Tower(
     private val name: String,
     private val comms: CommandList? = null,
     val out: Boolean = true,
-    private val properties: MutableList<Property> = mutableListOf(),
-    private val commands: MutableList<Command> = mutableListOf()
-): Block, Copyable{
+): Block(), Copyable{
     override fun deepCopy(): Copyable {
         val newComms = comms?.deepCopy()
         return Tower(name, newComms)
@@ -1002,9 +996,9 @@ class Tower(
             else if(command is Property){
                 properties.add(command)
             } else {
+                command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
-                println(command)
                 commands.add(newCommand)
             }
             cl = cl?.comms
@@ -1065,9 +1059,8 @@ class Measurment(
     private val name: String,
     private val comms: CommandList? = null,
     val out: Boolean = true,
-    private val properties: MutableList<Property> = mutableListOf(),
-    private val commands: MutableList<Command> = mutableListOf()
-): Block, Copyable{
+
+): Block(), Copyable{
     override fun deepCopy(): Copyable {
         val newComms = comms?.deepCopy()
         return Measurment(name, newComms)
@@ -1095,9 +1088,9 @@ class Measurment(
             else if(command is Property){
                 properties.add(command)
             } else {
+                command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
-                println(command)
                 commands.add(newCommand)
             }
             cl = cl?.comms
@@ -1160,7 +1153,7 @@ interface Property : Saveable {
 class SetString(
     private val name: String,
     private val value: String,
-) : Block, Command, Property {
+) : Block(), Command, Property {
     override fun toString(): String {
         return "$name { $value }"
     }
@@ -1192,7 +1185,7 @@ class SetString(
 class SetReal(
     private val name: String,
     private val value: Expr
-) : Block, Command, Property{
+) : Block(), Command, Property{
     override fun toString(): String {
         return "$name { ${value.eval()} }"
     }
@@ -1255,7 +1248,11 @@ class City(
                 properties.addAll(forResult.first)
                 blocks.addAll(forResult.second as MutableList<Block>)
             }
+            else if(block is ForEach){
+                block.eval(blocks)
+            }
             else {
+                block = if(block is Variable) block.eval() as Block else block
                 val newBlock = (block as Copyable).deepCopy() as Block
                 blocks.add(newBlock)
             }
@@ -1302,7 +1299,7 @@ class ConstructList(
 class Assign(
     val v: Variable,
     private val e: Any
-) : Construct, Block, Command, Evaluable {
+) : Construct, Block(), Command, Evaluable {
     override fun eval() {
         if(vars.containsKey(v.toString())){
             throw Error("Variable already defined")
@@ -1363,7 +1360,7 @@ class Assign(
 class Reassign(
     private val v: Variable,
     private val e: Any
-) : Construct, Block, Command, Evaluable {
+) : Construct, Block(), Command, Evaluable {
     override fun eval() {
         if(!vars.containsKey(v.toString())){
             throw Error("Variable not defined")
@@ -1424,7 +1421,7 @@ class Reassign(
 
 class Variable(
     private val s: String
-) : Element, PointType, Construct, Command, Block {
+) : Element, PointType, Construct, Command, Block() {
     override fun toString(): String {
         return s
     }
@@ -1491,13 +1488,16 @@ class CustomString(
     }
 
 }
-interface Comparator{
-    fun eval(): Boolean
+abstract class Comparator(
+    var e1: Element,
+    val e2: Element
+){
+    abstract fun eval(): Boolean
 }
 class Greater(
-    private val e1: Element,
-    private val e2: Element
-) : Comparator{
+    e1: Element,
+    e2: Element
+) : Comparator(e1, e2){
     override fun eval(): Boolean {
         return ((e1.eval() as Double) > (e2.eval() as Double))
     }
@@ -1505,18 +1505,18 @@ class Greater(
 }
 
 class Lesser(
-    private val e1: Element,
-    private val e2: Element
-) : Comparator{
+    e1: Element,
+    e2: Element
+) : Comparator(e1, e2){
     override fun eval(): Boolean {
         return ((e1.eval() as Double) < (e2.eval() as Double))
     }
 
 }
 class Equal(
-    val e1: Element,
-    val e2: Element
-) : Comparator{
+    e1: Element,
+    e2: Element
+) : Comparator(e1, e2){
     override fun eval(): Boolean {
         val e1p = if(e1 is Variable) e1.eval() else e1
         val e2p = if(e2 is Variable) e2.eval() else e2
@@ -1536,9 +1536,9 @@ class Equal(
 }
 
 class In(
-    val e1: Element,
-    val e2: Element
-) : Comparator{
+    e1: Element,
+    e2: Element
+) : Comparator(e1, e2){
     override fun eval(): Boolean {
         val e1p = if(e1 is Variable) e1.eval() else e1
         val e2p = if(e2 is Variable) e2.eval() else e2
@@ -1576,9 +1576,9 @@ class In(
 }
 
 class Out(
-    val e1: Element,
-    val e2: Element
-) : Comparator{
+    e1: Element,
+    e2: Element
+) : Comparator(e1, e2){
     override fun eval(): Boolean {
         val e1p = if(e1 is Variable) e1.eval() else e1
         val e2p = if(e2 is Variable) e2.eval() else e2
@@ -1619,7 +1619,7 @@ class Out(
 class If(
     val c: Comparator,
     val b: ObjList?
-) : Block, Command, Construct {
+) : Block(), Command, Construct {
     fun eval(): ObjList? {
         if(c.eval()){
             return b
@@ -1669,9 +1669,8 @@ class ForLoop(
     val a: Assign,
     val e: Expr,
     val b: ObjList?,
-    val properties: MutableList<Property> = mutableListOf(),
     val superTypes: MutableList<SuperType> = mutableListOf()
-): Construct, Block, Command{
+): Construct, Block(), Command{
     override fun toString(): String {
         return b.toString()
     }
@@ -1711,7 +1710,6 @@ class ForLoop(
             } else {
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
-                println(command)
                 superTypes.add(newCommand)
             }
             cl = cl?.comms
@@ -1760,6 +1758,82 @@ class ForLoop(
             }
             return true
         } else throw Error("Invalid")
+    }
+
+}
+
+class ForEach(
+    val v: Variable,
+    val o: ObjList?
+): Block() {
+    override fun toString(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        TODO("Not yet implemented")
+    }
+
+    fun updateCurrent(e: Any){
+        if(e is Expr){
+            val result = e.eval()
+            vars[v.toString()] = result
+        }
+        else if(e is Point){
+            vars[v.toString()] = e
+        }
+        else if(e is Block){
+            vars[v.toString()] = e
+        }
+        else if(e is Command){
+            vars[v.toString()] = e
+        }
+        else {
+            vars[v.toString()] = e
+        }
+    }
+
+    fun eval(commandList: CommandList?, properties: MutableList<Property>, commands: MutableList<Command>){
+        var cl = commandList
+        var command = cl?.comm
+        while (command != null) {
+            if(command is Evaluable){
+                command.eval()
+            }
+            else if(command is If){
+                eval(command.eval() as CommandList?, properties, commands)
+            }
+            else if(command is ForLoop){
+                val forResult = command.eval()
+                properties.addAll(forResult.first)
+                commands.addAll(forResult.second as MutableList<Command>)
+            }
+            else if(command is Property){
+                properties.add(command)
+            } else {
+                command = if(command is Variable) command.eval() as Command else command
+                val newCommand = ((command as Saveable).deepCopy() as Command)
+                (newCommand as Saveable).save()
+                commands.add(newCommand)
+            }
+            cl = cl?.comms
+            command = cl?.comm
+        }
+    }
+    fun eval(blocks: MutableList<Block>){
+        blocks.forEach {
+            updateCurrent(it)
+            println(vars[v.toString()])
+            eval(o as CommandList, it.properties, it.commands)
+
+        }
+    }
+    override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        return true
+    }
+
+    override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        return true
     }
 
 }
