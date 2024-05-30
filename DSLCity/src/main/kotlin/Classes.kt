@@ -713,7 +713,9 @@ class Road(
                 eval(command.eval() as CommandList?)
             }
             else if(command is ForLoop){
-
+                val forResult = command.eval()
+                properties.addAll(forResult.first)
+                commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
                 properties.add(command)
@@ -742,7 +744,8 @@ class Road(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        properties.forEach { it.toGEOJson(d) }
+        val propertiesMap = properties.associateBy { it.getKey() }
+        propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         commands.forEach {
@@ -804,6 +807,11 @@ class Building(
             else if(command is If){
                 eval(command.eval() as CommandList?)
             }
+            else if(command is ForLoop){
+                val forResult = command.eval()
+                properties.addAll(forResult.first)
+                commands.addAll(forResult.second as MutableList<Command>)
+            }
             else if(command is Property){
                 properties.add(command)
             } else {
@@ -831,7 +839,8 @@ class Building(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        properties.forEach { it.toGEOJson(d) }
+        val propertiesMap = properties.associateBy { it.getKey() }
+        propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         commands.forEach {
@@ -892,6 +901,11 @@ class River(
             else if(command is If){
                 eval(command.eval() as CommandList?)
             }
+            else if(command is ForLoop){
+                val forResult = command.eval()
+                properties.addAll(forResult.first)
+                commands.addAll(forResult.second as MutableList<Command>)
+            }
             else if(command is Property){
                 properties.add(command)
             } else {
@@ -919,7 +933,8 @@ class River(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        properties.forEach { it.toGEOJson(d) }
+        val propertiesMap = properties.associateBy { it.getKey() }
+        propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         commands.forEach {
@@ -979,6 +994,11 @@ class Tower(
             else if(command is If){
                 eval(command.eval() as CommandList?)
             }
+            else if(command is ForLoop){
+                val forResult = command.eval()
+                properties.addAll(forResult.first)
+                commands.addAll(forResult.second as MutableList<Command>)
+            }
             else if(command is Property){
                 properties.add(command)
             } else {
@@ -1006,7 +1026,8 @@ class Tower(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        properties.forEach { it.toGEOJson(d) }
+        val propertiesMap = properties.associateBy { it.getKey() }
+        propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         commands.forEach {
@@ -1097,7 +1118,8 @@ class Measurment(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        properties.forEach { it.toGEOJson(d) }
+        val propertiesMap = properties.associateBy { it.getKey() }
+        propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         commands.forEach {
@@ -1131,8 +1153,9 @@ class Measurment(
 
 }
 
-interface Property {
+interface Property : Saveable {
     fun toGEOJson(d: OutputStream)
+    fun getKey() : String
 }
 class SetString(
     private val name: String,
@@ -1145,6 +1168,14 @@ class SetString(
     override fun toGEOJson(d: OutputStream) {
         d.write(", $name: $value".toByteArray())
     }
+
+    override fun getKey(): String = name
+
+    override fun deepCopy(): Saveable {
+        return SetString(name, value)
+    }
+
+    override fun save() { return }
 
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
@@ -1169,6 +1200,15 @@ class SetReal(
     override fun toGEOJson(d: OutputStream) {
         d.write(", $name: ${value.eval()}".toByteArray())
     }
+
+    override fun getKey(): String = name
+
+    override fun deepCopy(): Saveable {
+        val newVal = Real(value.eval())
+        return SetReal(name, newVal)
+    }
+
+    override fun save() { return }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
         return true
@@ -1233,7 +1273,8 @@ class City(
         d.write("\"type\": \"FeatureCollection\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        properties.forEach{ it.toGEOJson(d) }
+        val propertiesMap = properties.associateBy { it.getKey() }
+        propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"features\": [".toByteArray())
         blocks.forEach { it.toGEOJson(d) }
