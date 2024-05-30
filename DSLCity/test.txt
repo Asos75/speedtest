@@ -1,10 +1,8 @@
 
 city "Fiesa" {
-    let i = 2;
-    building "b" {
-            marker(i, i);
+    for(let i = 0, 4){
+            building "b" {
+                    marker(i, i);
+            };
     };
-    i = 3;
-
-
 }

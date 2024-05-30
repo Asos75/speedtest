@@ -16,7 +16,10 @@ val vars = HashMap<String, Any>()
 interface Evaluable{
     fun eval()
 }
+interface Copyable{
+    fun deepCopy(): Copyable
 
+}
 interface Saveable{
     fun deepCopy(): Saveable
     fun save()
@@ -174,10 +177,17 @@ interface Command : SuperType{
 
 class CommandList(
     val comm: Command,
-    val comms: CommandList? = null
+    var comms: CommandList? = null
 ): ObjList {
     override fun toString(): String {
         return "$comm ${comms ?: ""}"
+    }
+
+    fun deepCopy(): CommandList {
+        val newComm = (comm as Saveable).deepCopy() as Command
+        (newComm as Saveable).save()
+        val newComms = comms?.deepCopy()
+        return CommandList(newComm, newComms)
     }
 
 }
@@ -683,8 +693,11 @@ class Road(
     val out: Boolean = true,
     private val properties: MutableList<Property> = mutableListOf(),
     private val commands: MutableList<Command> = mutableListOf()
-): Block{
-
+): Block, Copyable{
+    override fun deepCopy(): Copyable {
+        val newComms = comms?.deepCopy()
+        return Road(name, newComms)
+    }
     override fun toString(): String {
         return "$name { $comms }"
     }
@@ -770,7 +783,12 @@ class Building(
     val out: Boolean = true,
     private val properties: MutableList<Property> = mutableListOf(),
     private val commands: MutableList<Command> = mutableListOf()
-): Block{
+): Block, Copyable{
+    override fun deepCopy(): Copyable {
+        val newComms = comms?.deepCopy()
+        return Building(name, newComms)
+    }
+
 
     override fun toString(): String {
         return "$name { $comms }"
@@ -853,8 +871,12 @@ class River(
     val out: Boolean = true,
     private val properties: MutableList<Property> = mutableListOf(),
     private val commands: MutableList<Command> = mutableListOf()
-): Block{
+): Block, Copyable{
 
+    override fun deepCopy(): Copyable {
+        val newComms = comms?.deepCopy()
+        return River(name, newComms)
+    }
 
     override fun toString(): String {
         return "$name { $comms }"
@@ -937,7 +959,11 @@ class Tower(
     val out: Boolean = true,
     private val properties: MutableList<Property> = mutableListOf(),
     private val commands: MutableList<Command> = mutableListOf()
-): Block{
+): Block, Copyable{
+    override fun deepCopy(): Copyable {
+        val newComms = comms?.deepCopy()
+        return Tower(name, newComms)
+    }
 
     override fun toString(): String {
         return "$name { $comms }"
@@ -1020,7 +1046,11 @@ class Measurment(
     val out: Boolean = true,
     private val properties: MutableList<Property> = mutableListOf(),
     private val commands: MutableList<Command> = mutableListOf()
-): Block{
+): Block, Copyable{
+    override fun deepCopy(): Copyable {
+        val newComms = comms?.deepCopy()
+        return Measurment(name, newComms)
+    }
 
     override fun toString(): String {
         return "$name { $comms }"
@@ -1186,7 +1216,8 @@ class City(
                 blocks.addAll(forResult.second as MutableList<Block>)
             }
             else {
-                blocks.add(block)
+                val newBlock = (block as Copyable).deepCopy() as Block
+                blocks.add(newBlock)
             }
             bl = bl?.blockList
             block = bl?.block
@@ -1617,7 +1648,8 @@ class ForLoop(
             else if(block is Property){
                 properties.add(block)
             } else {
-                superTypes.add(block)
+                val newBlock = (block as Copyable).deepCopy() as Block
+                superTypes.add(newBlock)
             }
             bl = bl?.blockList
             block = bl?.block
