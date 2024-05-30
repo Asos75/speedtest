@@ -5,6 +5,9 @@ import L from 'leaflet';
 import { Rectangle, Popup } from 'react-leaflet';
 import * as d3 from 'd3';
 
+// Helpers
+import { formatTime } from '../../../helpers/helperFunction';
+
 // Calculate color based on heatmap type
 const calculateColor = (data, heatmapType) => {
   let value;
@@ -195,8 +198,8 @@ const GridHeatmapLayer = ({ measurements, heatmapType, setLoading, selectedArea 
             pathOptions={{ weight: 1 }}
           >
             <Popup>
-              <span className="popup-text">Speed: <b>{Math.floor(data.speedSum / data.count)}</b></span><br/>
-              <span className="popup-text">Average Creation Date: <b>{averageCreationDate.toLocaleString()}</b></span><br/>
+              <span className="popup-text">Average speed: <b>{Math.floor(data.speedSum / data.count)}</b></span><br/>
+              <span className="popup-text">Average creation date: <b>{formatTime(averageCreationDate.toLocaleString())}</b></span><br/>
               <span className="popup-text">Days since creation: <b>{daysDifference}</b></span>
 
               {heatmapType ==="speed" && <div className="heatmapGraphLayout">

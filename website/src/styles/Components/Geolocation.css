@@ -11,6 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  padding-bottom: 25px;
 }
 
 .measurementMap {
@@ -110,8 +111,9 @@
 .measurementList {
   width: 80%;
   padding: 0 25px;
+  height: 750px;
+  overflow-y: scroll;
 }
-
 .measurement{
   display:flex;
   flex-direction: column;
