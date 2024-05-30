@@ -12,6 +12,7 @@ fun<T: Any> T.getClass(): KClass<T> {
 }
 val vars = HashMap<String, Any>()
 
+
 interface Evaluable{
     fun eval()
 }
@@ -704,8 +705,10 @@ class Road(
             else if(command is Property){
                 properties.add(command)
             } else {
-                (command as Saveable).save()
-                commands.add(command)
+                val newCommand = ((command as Saveable).deepCopy() as Command)
+                (newCommand as Saveable).save()
+                println(command)
+                commands.add(newCommand)
             }
             cl = cl?.comms
             command = cl?.comm
@@ -786,8 +789,10 @@ class Building(
             else if(command is Property){
                 properties.add(command)
             } else {
-                (command as Saveable).save()
-                commands.add(command)
+                println(command)
+                val newCommand = ((command as Saveable).deepCopy() as Command)
+                (newCommand as Saveable).save()
+                commands.add(newCommand)
             }
             cl = cl?.comms
             command = cl?.comm
@@ -868,8 +873,10 @@ class River(
             else if(command is Property){
                 properties.add(command)
             } else {
-                (command as Saveable).save()
-                commands.add(command)
+                val newCommand = ((command as Saveable).deepCopy() as Command)
+                (newCommand as Saveable).save()
+                println(command)
+                commands.add(newCommand)
             }
             cl = cl?.comms
             command = cl?.comm
@@ -949,8 +956,10 @@ class Tower(
             else if(command is Property){
                 properties.add(command)
             } else {
-                (command as Saveable).save()
-                commands.add(command)
+                val newCommand = ((command as Saveable).deepCopy() as Command)
+                (newCommand as Saveable).save()
+                println(command)
+                commands.add(newCommand)
             }
             cl = cl?.comms
             command = cl?.comm
@@ -1035,8 +1044,10 @@ class Measurment(
             else if(command is Property){
                 properties.add(command)
             } else {
-                (command as Saveable).save()
-                commands.add(command)
+                val newCommand = ((command as Saveable).deepCopy() as Command)
+                (newCommand as Saveable).save()
+                println(command)
+                commands.add(newCommand)
             }
             cl = cl?.comms
             command = cl?.comm
@@ -1501,10 +1512,33 @@ class Out(
         val e2p = if(e2 is Variable) e2.eval() else e2
 
         if(e2p is Circle){
-
+            val p : Point = if((e2p as Circle).pt is Variable) {
+                ((e2p as Circle).pt as Variable).eval() as Point
+            } else {
+                (e2p as Circle).pt as Point
+            }
+            if(e1p is Block){
+                if(e1p.isContainedInCircle(p, e2p.r.eval())){
+                    return false
+                }
+            } else throw Error("First parameter of out must be a block")
         } else if (e2p is Box){
-
-        } else throw Error("Second parameter in of out can only be simple blocks with area (Box, Circle)")
+            val p1 : Point = if((e2p as Box).pt1 is Variable) {
+                ((e2p as Box).pt1 as Variable).eval() as Point
+            } else {
+                (e2p as Box).pt1 as Point
+            }
+            val p2 : Point = if((e2p as Box).pt2 is Variable) {
+                ((e2p as Box).pt2 as Variable).eval() as Point
+            } else {
+                (e2p as Box).pt2 as Point
+            }
+            if(e1p is Block){
+                if(e1p.isContainedInRectangle(p1, p2)){
+                    return false
+                }
+            } else throw Error("First parameter of out must be a block")
+        } else throw Error("Second parameter in of out only be simple blocks with area (Box, Circle)")
         return true
     }
 
