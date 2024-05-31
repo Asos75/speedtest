@@ -17,8 +17,8 @@
 
 .userDetails {
     width: 50%;
-    background-color:var(--color-darkerBlue);
-    border-radius:25px;
+    background-color: var(--color-darkerBlue);
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -39,7 +39,7 @@
     color: var(--color-white);
 }
 
-.measureButton{
+.measureButton {
     background: none;
     color: var(--color-white);
     border: 1px solid var(--color-lightBlue);
@@ -51,23 +51,63 @@
     transition: 0.5s border;
 }
 
-.measureButton:hover{
+.measureButton:hover {
     border-color: var(--color-white);
 }
 
-.measureLoadingContainer{
-    display:flex;
+.measureLoadingContainer {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     padding-left: 25px;
     width: 100%;
 }
 
-.measureLoadingContainer p{
-    margin-right: 50px
+.measureLoadingContainer p {
+    margin-right: 50px;
 }
 
-.measureLoadingText{
+.progress-bar {
     width: 100%;
+    background-color: #f3f3f3;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 30px;
+    margin-top: 10px;
+}
+
+.progress {
+    background-color: var(--color-lightBlue);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white);
+    transition: width 0.5s ease-in-out;
+}
+
+.spinner {
+    margin: 10px 0;
+}
+
+.buttonRed {
+    background: none;
+    color: var(--color-white);
+    border: 1px solid var(--color-red);
+    border-radius: 15px;
+    padding: 8px 12px;
+    margin: 0 auto;
     font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.5s border;
+}
+
+.buttonRed:hover {
+    border-color: var(--color-white);
+}
+
+.measureLoadingText {
+    width: 100%;
+    margin: 0 auto;
     text-align: center;
 }

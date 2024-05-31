@@ -166,3 +166,4 @@ const EventList = () => {
 }
 
 export default EventList;
+export { Event, EventMarker};

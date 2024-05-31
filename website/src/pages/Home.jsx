@@ -33,9 +33,9 @@ return (
                         <Link to="/mobile-tower" className="button">Go to Mobile Towers</Link>
                     </div>
                     <div>
-                        <h3>⚙️ And more</h3>
-                        <p>And more</p>
-                        <Link to="/more" className="button">Learn More</Link>
+                        <h3>📌 Events </h3>
+                        <p>Find interesting <Link to="/events">events</Link> nearby</p>
+                        <Link to="/events" className="button">Go to Events</Link>
                     </div>
                 </div>
             </div>

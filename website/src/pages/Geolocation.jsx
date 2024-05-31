@@ -1,7 +1,8 @@
 // Dependencies
 import React, { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer} from 'react-leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import { calculateDistance } from '../helpers/helperFunction';
+import { useParams } from 'react-router-dom';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
@@ -25,12 +26,17 @@ const Geolocation = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [heatmapType, setHeatmapType] = useState('speed');
   const [selectedArea, setSelectedArea] = useState(0.0025);
+  const [selectedEvent, setSelectedEvent] = useState('none');
+  const [timeRange, setTimeRange] = useState('1');
+  const [eventTime, setEventTime] = useState(null);
+  const [eventLocation, setEventLocation] = useState(null);
 
   // Pagination state
   const [layout, setLayout] = useState('points');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const itemsPerPageOptions = [10, 20, 50];
+
   // Loading state
   const [loading, setLoading] = useState(false);
 
@@ -58,10 +64,23 @@ const Geolocation = () => {
     setLoading(false);
   }, [backendUrl, itemsPerPage, startDate, endDate]);
 
-  // Fetch measurements on component mount
+  const fetchEvent = useCallback(async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/event/${selectedEvent}`);
+      const data = await response.json();
+      setEventLocation(data.location);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }, [selectedEvent]);
+
   useEffect(() => {
     fetchMeasurements();
   }, [fetchMeasurements]);
+
+  useEffect(() => {
+    fetchEvent();
+  }, [fetchEvent]);
 
   // Filter and paginate measurements
   const handleFilter = () => {
@@ -87,6 +106,7 @@ const Geolocation = () => {
   // Re-filter measurements when dependencies change
   useEffect(() => {
     handleFilter();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterType, currentPage, itemsPerPage, allMeasurements]);
 
   const handleResetDates = () => {
@@ -109,10 +129,18 @@ const Geolocation = () => {
               key={index}
               measurement={measurement}
               index={index}
-            />
+            />    
           ))}
           {layout === 'grid' && (
-            <GridHeatmapLayer measurements={allMeasurements} heatmapType={heatmapType} setLoading={setLoading} selectedArea={selectedArea}/>
+            <>
+              {eventLocation && (
+                <MeasurementMarker
+                  measurement={{ location: eventLocation, type: 'Event' }}
+                  index={0}
+                />
+              )}
+              <GridHeatmapLayer measurements={allMeasurements} heatmapType={heatmapType} setLoading={setLoading} selectedArea={selectedArea}/>
+            </>
           )}
         </MapContainer>
         {loading && <div>Loading...</div>}
@@ -152,22 +180,22 @@ const Geolocation = () => {
         )}
         {layout === 'grid' && (
           <div className="pointsLocationLayout">
-          <div className="geolocationDateSelect">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="dateInput"
-            />
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="dateInput"
-            />
-            <button onClick={fetchMeasurements} className="filterButton">Filter</button>
-            <button onClick={handleResetDates} className="resetButton">Reset Dates</button>
-          </div>
+            <div className="geolocationDateSelect">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="dateInput"
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="dateInput"
+              />
+              <button onClick={fetchMeasurements} className="filterButton">Filter</button>
+              <button onClick={handleResetDates} className="resetButton">Reset Dates</button>
+            </div>
             <HeatmapSettings
               setLayout={setLayout}
               heatmapType={heatmapType}
@@ -175,6 +203,14 @@ const Geolocation = () => {
               measurements={allMeasurements}
               selectedArea={selectedArea}
               setSelectedArea={setSelectedArea}
+              selectedEvent={selectedEvent}
+              setSelectedEvent={setSelectedEvent}
+              timeRange={timeRange}
+              setTimeRange={setTimeRange}
+              eventTime={eventTime}
+              setEventTime={setEventTime}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
             />
           </div>
         )}

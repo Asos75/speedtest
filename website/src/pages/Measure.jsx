@@ -1,11 +1,6 @@
-// Dependencies
-import React, { useState } from 'react';
-
-// Styles
-import '../styles/Components/Measure.css';
-
-// Icons
+import React, { useState, useEffect } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
+import '../styles/Components/Measure.css';
 
 // Function to get user location
 const getLocation = async () => {
@@ -36,7 +31,7 @@ const getIPInfo = async () => {
     const ipResponse = await fetch('https://api.ipify.org?format=json');
     const ipData = await ipResponse.json();
     const ispResponse = await fetch(`https://ipinfo.io/${ipData.ip}?token=c0c493794d365d`);
-    return ispResponse.json()
+    return ispResponse.json();
   } catch (error) {
     console.error('Error:', error);
     return 'ISP information could not be retrieved';
@@ -61,19 +56,32 @@ const downloadImg = () => {
   });
 };
 
-const speedtest = async () => {
+const speedtest = async (duration, setCurrentSpeed, setProgress) => {
+  const endTime = Date.now() + duration * 1000;
   const results = [];
-  for (let i = 0; i < 10; i++) {
-    results.push(await downloadImg());
+  const interval = 0.5 * 1000; // 0.5 seconds interval
+  let elapsed = 0;
+
+  while (Date.now() < endTime) {
+    const time = await downloadImg();
+    const speedBps = (downloadSize * 8) / (time / 1000);
+    const speedMbps = (speedBps / bytesInAKilobyte / bytesInAKilobyte).toFixed(roundedDecimals);
+    results.push(speedMbps);
+    setCurrentSpeed(speedMbps);
+
+    elapsed += interval;
+    setProgress((elapsed / (duration * 1000)) * 100);
+    await new Promise((resolve) => setTimeout(resolve, interval));
   }
-  results.sort((a, b) => a - b).splice(0, Math.floor(results.length / 3));
-  const avgTime = results.reduce((a, b) => a + b, 0) / results.length;
-  const speedBps = (downloadSize * 8) / (avgTime / 1000);
-  return (speedBps / bytesInAKilobyte / bytesInAKilobyte).toFixed(roundedDecimals);
+
+  const avgSpeed = (results.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / results.length).toFixed(roundedDecimals);
+  return avgSpeed;
 };
 
 const MeasureList = () => {
   const [userSpeed, setUserSpeed] = useState(null);
+  const [currentSpeed, setCurrentSpeed] = useState(null);
+  const [progress, setProgress] = useState(0);
   const [userLocation, setUserLocation] = useState(null);
   const [userISP, setUserISP] = useState(null);
   const [loading, setLoading] = useState({ speed: false, location: false, isp: false });
@@ -85,9 +93,14 @@ const MeasureList = () => {
 
   const fetchUserDetails = async () => {
     setLoading({ speed: true, location: true, isp: true });
+    setProgress(0);
     try {
-      const [speed, location, isp] = await Promise.all([speedtest(), getLocation(), getIPInfo()]);
-      setUserSpeed(speed);
+      const [avgSpeed, location, isp] = await Promise.all([
+        speedtest(10, setCurrentSpeed, setProgress), // Run speed test for 10 seconds
+        getLocation(),
+        getIPInfo()
+      ]);
+      setUserSpeed(avgSpeed); // Set the final average speed
       setUserLocation(location.join(', '));
       setUserISP(isp);
     } catch (error) {
@@ -101,28 +114,30 @@ const MeasureList = () => {
     <>
       <h1 className="measureTitle">Measure Page</h1>
       <div className="measureLayout">
-      <div className="userDetails">
+        <div className="userDetails">
           <h2>Your Internet Speed</h2>
           {loading.speed ? (
-            <>
-              <div className="measureLoadingContainer">
-                <p>Loading speed...</p>
-                <ThreeDots color="#00BFFF" height={80} width={80} />
+            <div className="measureLoadingContainer">
+              <p>Current Speed: {currentSpeed} Mbps</p>
+              <div className="progress-bar">
+                <div className="progress" style={{ width: `${progress}%` }}>
+                </div>
               </div>
-            </>
+            </div>
           ) : (
             userSpeed ? <p>Your speed: <b>{userSpeed} Mbps</b></p> : <p><b>No speed currently available</b></p>
           )}
           <h2>Your GPS Location</h2>
           {loading.location ? (
             <div className="measureLoadingContainer">
-            <p>Loading location...</p>
-            <ThreeDots color="#00BFFF" height={80} width={80} />
-          </div>
+              <p>Loading location...</p>
+              <ThreeDots color="#00BFFF" height={80} width={80} />
+            </div>
           ) : (
             userLocation ? <p>Your GPS location: <b>{userLocation}</b></p> : <p><b>No location currently available</b></p>
           )}
-           {loading.isp ? (
+          <h2>Your ISP Information</h2>
+          {loading.isp ? (
             <div className="measureLoadingContainer">
               <p>Loading ISP...</p>
               <ThreeDots color="#00BFFF" height={80} width={80} />
