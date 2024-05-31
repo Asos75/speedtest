@@ -252,30 +252,37 @@
 
 /* HeatmapSettings.js */
 
-.heatmapFilterLayout, .heatmapSizeLayout{
+.heatmapFilterLayout, .heatmapSizeLayout {
   display: flex;
   align-items: center;
+  margin: 0;
 }
 
-.heatmapFilterLayout p, .heatmapSizeLayout p{
+.heatmapFilterLayout p, .heatmapSizeLayout p {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--color-black);
   margin-right: 10px;
 }
 
+.eventSelect, .timeRangeSelect, .heatmapTypeSelect, .areaSizeSelect {
+  font-size: 20px;
+  margin-left: 10px;
+}
+
 .heatmapStatisticsLayout p {
   font-size: 1.2rem;
   font-weight: 500;
-  color: var (--color-black);
+  color: var(--color-black);
   margin-right: 10px;
 }
 
-.heatmapStatisticsTitle{
+.heatmapStatisticsTitle {
   text-align: center;
   font-size: 2rem;
   margin: 0.5rem 0;
 }
+
 
 /* GridHeatmapLayer.jsx */
 
