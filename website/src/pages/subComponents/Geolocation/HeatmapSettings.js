@@ -1,14 +1,8 @@
-// Dependencies
 import React, { useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
-
-// Material UI
 import { Select, MenuItem } from '@material-ui/core';
-
-// Helpers
 import { formatTime } from '../../../helpers/helperFunction';
 
-// Fetch Events Function
 const fetchEvents = async () => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/event`);
@@ -19,7 +13,11 @@ const fetchEvents = async () => {
   }
 };
 
-const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType, selectedArea, setSelectedArea, selectedEvent, setSelectedEvent, timeRange, setTimeRange, eventTime, setEventTime, setStartDate, setEndDate }) => {
+const HeatmapSettings = ({
+  measurements, setLayout, heatmapType, setHeatmapType, selectedArea, setSelectedArea,
+  selectedEvent, setSelectedEvent, timeRange, setTimeRange, eventTime, setEventTime,
+  setStartDate, setEndDate
+}) => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -30,16 +28,16 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
     getEvents();
   }, []);
 
-  const eventOptions = events.map(event => ({ 
-    label: event.name, 
+  const eventOptions = useMemo(() => events.map(event => ({
+    label: event.name,
     value: event._id,
-    time: event.time
-  }));
+    time: event.time,
+  })), [events]);
 
   const speeds = measurements.map(measurement => measurement.speed);
   const times = measurements.map(measurement => Date.parse(measurement.time));
 
-  const { minSpeed, avgSpeed, maxSpeed, minTime, avgTime, maxTime, totalResults } = useMemo(() => {
+  const stats = useMemo(() => {
     const minSpeed = Math.min(...speeds);
     const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
     const maxSpeed = Math.max(...speeds);
@@ -49,26 +47,17 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
     const totalResults = speeds.length;
 
     return {
-      minSpeed,
-      avgSpeed,
-      maxSpeed,
-      minTime,
-      avgTime,
-      maxTime,
-      totalResults
+      minSpeed, avgSpeed, maxSpeed, minTime, avgTime, maxTime, totalResults,
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heatmapType, measurements]);
+  }, [measurements]);
 
   useEffect(() => {
     if (selectedEvent !== 'none') {
-      // Start date
       const date = new Date(eventTime);
-      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const formattedDate = date.toISOString().split('T')[0];
       setStartDate(formattedDate);
-      // End 
       const endDate = new Date(date.getTime() + (timeRange * 24 * 60 * 60 * 1000));
-      const formattedEndDate = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+      const formattedEndDate = endDate.toISOString().split('T')[0];
       setEndDate(formattedEndDate);
     }
   }, [eventTime, selectedEvent, timeRange, setStartDate, setEndDate]);
@@ -90,44 +79,41 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
       <div className="heatmapFilterLayout">
         <p>Choose an event</p>
         <Select
-          labelId="event-select-label"
           value={selectedEvent}
           onChange={(e) => {
             setSelectedEvent(e.target.value);
             const selectedOption = eventOptions.find(option => option.value === e.target.value);
-            if (selectedOption) {
-              setEventTime(selectedOption.time);
-            }
+            if (selectedOption) setEventTime(selectedOption.time);
           }}
           className="eventSelect"
           style={{ fontSize: '20px' }}
         >
           <MenuItem value="none">None</MenuItem>
           {eventOptions.map(option => (
-            <MenuItem key={option.value} value={option.value} time={option.time}>{option.label}</MenuItem>
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
           ))}
         </Select>
       </div>
-      {selectedEvent !== 'none' && 
-      <div className="heatmapFilterLayout">
-        <p>Measurement time range</p>
-        <Select
-          labelId="time-range-select-label"
-          value={timeRange}
-          onChange={(e) => setTimeRange(e.target.value)}
-          className="timeRangeSelect"
-          style={{ fontSize: '20px' }}
-        >
-          <MenuItem value="1">1 day</MenuItem>
-          <MenuItem value="2">2 days</MenuItem>
-          <MenuItem value="5">5 days</MenuItem>
-        </Select>
-      </div>
-      }
+      {selectedEvent !== 'none' && (
+        <div className="heatmapFilterLayout">
+          <p>Measurement time range</p>
+          <Select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="timeRangeSelect"
+            style={{ fontSize: '20px' }}
+          >
+            <MenuItem value="1">1 day</MenuItem>
+            <MenuItem value="2">2 days</MenuItem>
+            <MenuItem value="5">5 days</MenuItem>
+          </Select>
+        </div>
+      )}
       <div className="heatmapFilterLayout">
         <p>Filter mode</p>
         <Select
-          labelId="heatmap-type-label"
           value={heatmapType}
           onChange={(e) => setHeatmapType(e.target.value)}
           className="heatmapTypeSelect"
@@ -140,27 +126,26 @@ const HeatmapSettings = ({ measurements, setLayout, heatmapType, setHeatmapType,
       <div className="heatmapSizeLayout">
         <p>Grid sizes</p>
         <Select
-          labelId="area-size-label"
           value={selectedArea}
           onChange={(e) => setSelectedArea(e.target.value)}
           className="areaSizeSelect"
           style={{ fontSize: '20px' }}
         >
-          <MenuItem value="0.0025">25m2</MenuItem>
-          <MenuItem value="0.0050">50m2</MenuItem>
-          <MenuItem value="0.0100">100m2</MenuItem>
-          <MenuItem value="0.0250">250m2</MenuItem>
+          <MenuItem value="0.0025">25m²</MenuItem>
+          <MenuItem value="0.0050">50m²</MenuItem>
+          <MenuItem value="0.0100">100m²</MenuItem>
+          <MenuItem value="0.0250">250m²</MenuItem>
         </Select>
       </div>
       <div className="heatmapStatisticsLayout">
         <h3 className="heatmapStatisticsTitle">Statistics</h3>
-        <p>Minimum speed: <b>{parseInt(minSpeed)}</b></p>
-        <p>Avarage speed: <b>{parseInt(avgSpeed)}</b></p>
-        <p>Maximum speed: <b>{parseInt(maxSpeed)}</b></p>
-        <p>Earliest time: <b>{minTime}</b></p>
-        <p>Avarage time: <b>{avgTime}</b></p>
-        <p>Latest time: <b>{maxTime}</b></p>
-        <p>Total results: <b>{totalResults}</b></p>
+        <p>Minimum speed: <b>{parseInt(stats.minSpeed)}</b></p>
+        <p>Average speed: <b>{parseInt(stats.avgSpeed)}</b></p>
+        <p>Maximum speed: <b>{parseInt(stats.maxSpeed)}</b></p>
+        <p>Earliest time: <b>{stats.minTime}</b></p>
+        <p>Average time: <b>{stats.avgTime}</b></p>
+        <p>Latest time: <b>{stats.maxTime}</b></p>
+        <p>Total results: <b>{stats.totalResults}</b></p>
       </div>
     </div>
   );

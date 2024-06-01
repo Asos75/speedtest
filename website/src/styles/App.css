@@ -46,4 +46,9 @@ body{
 
 .buttonRed{
   background-color: rgb(154, 0, 0);
+  transition: background-color var(--hover-duration);
+}
+
+.buttonRed:hover{
+  background-color: rgb(200, 0, 0);
 }

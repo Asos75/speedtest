@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import { calculateDistance } from '../helpers/helperFunction';
-import { useParams } from 'react-router-dom';
 
 // Styles
 import 'leaflet/dist/leaflet.css';
@@ -160,7 +159,7 @@ const Geolocation = () => {
                 className="dateInput"
               />
               <button onClick={fetchMeasurements} className="filterButton">Filter</button>
-              <button onClick={handleResetDates} className="resetButton">Reset Dates</button>
+              <button onClick={handleResetDates} className="resetButton buttonRed">Reset Dates</button>
             </div>
             <PointsSettings
               setLayout={setLayout}
@@ -194,7 +193,7 @@ const Geolocation = () => {
                 className="dateInput"
               />
               <button onClick={fetchMeasurements} className="filterButton">Filter</button>
-              <button onClick={handleResetDates} className="resetButton">Reset Dates</button>
+              <button onClick={handleResetDates} className="resetButton buttonRed">Reset Dates</button>
             </div>
             <HeatmapSettings
               setLayout={setLayout}
