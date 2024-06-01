@@ -25,8 +25,8 @@ const Measurement = ({ measurement, index }) => {
       {showDetails && (
         <>
           <p>Speed: <b>{measurement.speed ? measurement.speed : 'Currently unvailable'}</b></p>
-          <p>Provider: <b>{measurement.provider}</b></p>
-          <p>Time: <b>{formatTime(measurement.time)}</b></p>
+          {measurement.provider && (<p>Provider: <b>{measurement.provider}</b></p>)}
+          {measurement.time && (<p>Time: <b>{formatTime(measurement.time)}</b></p>)}
         </>
       )}
       <button onClick={() => setShowDetails(!showDetails)}>{!showDetails ? "Show More" : "Show less"}</button>

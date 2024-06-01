@@ -43,7 +43,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           {/* <Route path="/" element={<AboutUs />} /> */}
           {/* Left side */}
-          <Route path="/measure" element={<Measure />} />
+          <Route path="/measure" element={<Measure username={username}/>} />
           <Route path="/geolocation" element={<Geolocation />} />
           <Route path="/mobile-tower" element={<MobileTower />} />
           {/* Right side */}

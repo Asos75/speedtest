@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
 import '../styles/Components/Measure.css';
 
@@ -30,7 +30,7 @@ const getIPInfo = async () => {
   try {
     const ipResponse = await fetch('https://api.ipify.org?format=json');
     const ipData = await ipResponse.json();
-    const ispResponse = await fetch(`https://ipinfo.io/${ipData.ip}?token=c0c493794d365d`);
+    const ispResponse = await fetch(`https://ipinfo.io/${ipData.ip}?token=${process.env.REACT_APP_IPINFO_TOKEN}`);
     return ispResponse.json();
   } catch (error) {
     console.error('Error:', error);
@@ -38,50 +38,53 @@ const getIPInfo = async () => {
   }
 };
 
-// Speed test related functions
+// Speed test related constants
 const downloadSize = 5616998; // Size of the image used for speed test
 const imageAddr = "http://wallpaperswide.com/download/shadow_of_the_tomb_raider_2018_puzzle_video_game-wallpaper-7680x4800.jpg";
 const bytesInAKilobyte = 1024;
 const roundedDecimals = 2;
 
-const downloadImg = () => {
-  return new Promise((resolve) => {
+const downloadImg = async () => {
+  return new Promise((resolve, reject) => {
     const download = new Image();
     download.onload = () => {
       const endTime = new Date().getTime();
       resolve(endTime - startTime);
+    };
+    download.onerror = (err) => {
+      reject(err);
     };
     const startTime = new Date().getTime();
     download.src = `${imageAddr}?cacheBuster=${startTime}`;
   });
 };
 
-const speedtest = async (duration, setCurrentSpeed, setProgress) => {
+const speedtest = async (duration, setCurrentSpeed) => {
   const endTime = Date.now() + duration * 1000;
   const results = [];
   const interval = 0.5 * 1000; // 0.5 seconds interval
-  let elapsed = 0;
 
   while (Date.now() < endTime) {
-    const time = await downloadImg();
-    const speedBps = (downloadSize * 8) / (time / 1000);
-    const speedMbps = (speedBps / bytesInAKilobyte / bytesInAKilobyte).toFixed(roundedDecimals);
-    results.push(speedMbps);
-    setCurrentSpeed(speedMbps);
-
-    elapsed += interval;
-    setProgress((elapsed / (duration * 1000)) * 100);
+    try {
+      const time = await downloadImg();
+      const speedBps = (downloadSize * 8) / (time / 1000);
+      const speedMbps = (speedBps / bytesInAKilobyte / bytesInAKilobyte).toFixed(roundedDecimals);
+      results.push(parseFloat(speedMbps));
+      setCurrentSpeed(speedMbps);
+    } catch (error) {
+      console.error('Error during speed test:', error);
+      break;
+    }
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
 
-  const avgSpeed = (results.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / results.length).toFixed(roundedDecimals);
+  const avgSpeed = (results.reduce((a, b) => a + b, 0) / results.length).toFixed(roundedDecimals);
   return avgSpeed;
 };
 
-const MeasureList = () => {
+const MeasureList = ({ username }) => {
   const [userSpeed, setUserSpeed] = useState(null);
   const [currentSpeed, setCurrentSpeed] = useState(null);
-  const [progress, setProgress] = useState(0);
   const [userLocation, setUserLocation] = useState(null);
   const [userISP, setUserISP] = useState(null);
   const [loading, setLoading] = useState({ speed: false, location: false, isp: false });
@@ -93,20 +96,65 @@ const MeasureList = () => {
 
   const fetchUserDetails = async () => {
     setLoading({ speed: true, location: true, isp: true });
-    setProgress(0);
+
+    // Remove all the previous data
+    setUserSpeed(null);
+    setCurrentSpeed(null);
+    setUserLocation(null);
+    setUserISP(null);
+
     try {
       const [avgSpeed, location, isp] = await Promise.all([
-        speedtest(10, setCurrentSpeed, setProgress), // Run speed test for 10 seconds
+        speedtest(10, setCurrentSpeed), // Run speed test for 10 seconds
         getLocation(),
         getIPInfo()
       ]);
       setUserSpeed(avgSpeed); // Set the final average speed
       setUserLocation(location.join(', '));
+      //console.log("ISP: ", isp);
       setUserISP(isp);
     } catch (error) {
       console.error('Error fetching user details:', error);
     } finally {
       setLoading({ speed: false, location: false, isp: false });
+    }
+  };
+
+  const addMeasurement = async (anonymous) => {
+    const connectionType = navigator.connection?.type === 'wifi' ? 'wifi' : 'data';
+    const userId = localStorage.getItem('id');
+    const measurement = {
+      speed: Math.floor(userSpeed * bytesInAKilobyte * bytesInAKilobyte),
+      type: connectionType,
+      provider: userISP.company.name,
+      time: new Date(),
+      location: {
+        type: 'Point',
+        coordinates: userLocation.split(', ').map(Number).reverse() // Reverse the coordinates
+      },
+      ...(anonymous ? {} : { measuredBy: userId })
+    };
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/measurements`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(measurement)
+      });
+
+      if (response.ok) {
+        // Reset values
+        setUserSpeed(null);
+        setCurrentSpeed(null);
+        setUserLocation(null);
+        setUserISP(null);
+      } else {
+        console.error('Error adding measurement');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -119,9 +167,8 @@ const MeasureList = () => {
           {loading.speed ? (
             <div className="measureLoadingContainer">
               <p>Current Speed: {currentSpeed} Mbps</p>
-              <div className="progress-bar">
-                <div className="progress" style={{ width: `${progress}%` }}>
-                </div>
+              <div className="loading-bar">
+                <div className="loading-bar-inner"></div>
               </div>
             </div>
           ) : (
@@ -147,7 +194,7 @@ const MeasureList = () => {
               <button onClick={handleMoreInfoClick} className="measureButton">
                 {showMoreInfo ? 'Hide ISP info' : 'Info about ISP'}
               </button>
-              {showMoreInfo && typeof userISP === 'object' && userISP !== null ? (
+              {showMoreInfo && typeof userISP === 'object' && userISP !== null && (
                 <div>
                   <p>IP: <b>{userISP.ip}</b></p>
                   <p>City: <b>{userISP.city}</b></p>
@@ -157,13 +204,29 @@ const MeasureList = () => {
                   <p>Postal: <b>{userISP.postal}</b></p>
                   <p>Timezone: <b>{userISP.timezone}</b></p>
                 </div>
-              ) : <p className="measureLoadingText">Here will be shown info about user's ISP</p>}
+              )}
             </>
           )}
           {loading.location && <p className="measureLoadingText">This depends on your internet speed</p>}
           <button className="measureButton buttonRed" onClick={fetchUserDetails} disabled={loading.speed || loading.location || loading.isp}>
-            {loading.speed || loading.location || loading.isp ? 'Measuring...' : 'Measure Speed'}
+            {(loading.speed || loading.location || loading.isp) ? 'Measuring...' : 'Measure Speed'}
           </button>
+          {(userSpeed && userLocation && userISP) && 
+          (<div className="addMeasurementLayout">
+            <h3>Add your measurement</h3>
+            {username ? (
+              <div className="addMeasurementButtons">
+                <button className="measureButton" onClick={() => addMeasurement(false)}>Add Measurement as <b>{username}</b></button>
+                <button className="measureButton" onClick={() => addMeasurement(true)}>Add Measurement anonymously</button>
+              </div>
+            ) : (
+              <>
+                <p>You need to be logged in to add a measurement</p>
+                <a href="/login" className="measureButton buttonRed">Login</a>
+              </>
+            )}
+          
+          </div>)} 
         </div>
       </div>
     </>
