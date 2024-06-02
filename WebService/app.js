@@ -36,7 +36,9 @@ async function run() {
   }
 }
 
-mongoose.connect(uri)
+
+// connect  to mongodb
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
