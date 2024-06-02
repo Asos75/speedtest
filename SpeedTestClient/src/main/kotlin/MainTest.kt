@@ -85,8 +85,7 @@ fun main(){
         }
     }
 */
-/*
-    repeat(6){
+    repeat(2){
         GeneratorUtil.generateMeasurementsToMongo(
             50000,
             100000,
@@ -95,14 +94,10 @@ fun main(){
             Location(coordinates = listOf(15.615567, 46.570405)),
             Location(coordinates = listOf(15.683889, 46.526323)),
             null,
-            500
+            500,
+            sessionManager
         )
     }
-*/
-    val tower = HttpMobileTower(sessionManager).getById(ObjectId("664244edce52a37eab981b63"))
-    println("$tower")
-    if (tower != null) {
-        tower.confirmed = false
-        HttpMobileTower(sessionManager).update(tower)
-    }
+
+
 }
