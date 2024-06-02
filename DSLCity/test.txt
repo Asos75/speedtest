@@ -1,72 +1,41 @@
-let datalink = fetch("http:localhost:3000/measurements")
-
 city "Fiesa" {
-  road "Oljcna pot" {
-    bend((1, 1), (2, 2), 20);
-    bend((2, 2), (3, 1), 40);
-    line((2, 2), (2, 5));
-    bend((2, 3), (5, 4), 20);
-    line((5, 4), (6, 4));
-  };
-  building "Soncne terase" {
-    box((3, 2), (5, 3));
-  };
-  building "Dom Fiesa" {
-    box((0.5, 3.5), (1.5, 2.5));
-  };
-  building "LaRocca" {
-    box((0.5, 5), (1.5, 4));
-  };
-  building "Hotel Fiesa" {
-    box((1.75, 1.5), (2.25, 1));
-  }
-  tower "Ime Stolpa" {
-    marker(1.2, 1.3);
-  }
+    measurement "a" {
+        marker (0, 0);
+        set("speed", 70286);
+    };
+    measurement "b" {
+        marker (1, 1);
+        set("speed", 51293);
+    };
+    measurement "c" {
+        marker (3, 2);
+        set("speed", 67927);
+    };
+    measurement "d" {
+        marker (7, 3);
+        set("speed", 73102);
+    };
+    measurement "e" {
+        marker (4, 6);
+        set("speed", 91203);
+    };
+    measurement "f" {
+        marker (5, 3);
+        set("speed", 78219);
+    };
+    measurement "g" {
+        marker (3, 5);
+        set("speed", 88231);
+    };
 
-  measurement "List" {
-    let p = (1, 1);
-    point(p){
-      set("speed", 12345);
-    }
-    marker(1, 1){
-      set("speed", 23456);
-    }
-    marker(3, 2){
-      set("speed", 69420);
-    }
-    marker(7, 3){
-      set("speed", 47182);
-    }
-    marker(4, 6){
-      set("speed", 82912);
-    }
-    marker(5, 3){
-      set("speed", 13723);
-    }
-    marker(3, 5){
-      set("speed", 37182);
-    }
+    let rad = circle((3, 4), 3);
+    foreach x {
+        if(x in rad){
+            highlight true;
+        };
+    };
 
-    let c = circle((3,4), 3)
-
-    foreach x in c {
-      output c;
-      if x["speed"] < 5000{
-        highlight c;
-      }
-    }
-  }
-
-  measurements "Real" {
-    foreach x in datalink{
-      marker(x[location].coordinates){
-        set("speed", x[speed])
-        set("provider", x[provider])
-      }
-    }
-    if x["provider"] == "telekom" {
-        highlight c;
-    }
-  }
+    building "rad"{
+        rad;
+    };
 }
