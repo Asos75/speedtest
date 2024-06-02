@@ -1,5 +1,5 @@
-name: Build and Push Docker Image 
-#neki
+name: Build and Push Docker Image
+
 on:
   push:
     branches:
@@ -25,10 +25,14 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: ./Dockerfile 
+          context: ./WebService
+          file: ./WebService/Dockerfile 
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/speedtest:latest
+          build-args: 
+            MONGO_URL=${{ secrets.MONGO_URL }}
+            JWT_KEY=${{ secrets.JWT_KEY }}
+            IPNFO_KEY=${{ secrets.IPNFO_KEY }}
 
   notify-server:
     needs: build-and-push
