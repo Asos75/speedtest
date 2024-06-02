@@ -184,10 +184,14 @@ class CommandList(
     }
 
     fun deepCopy(): CommandList {
-        val newComm = (comm as Saveable).deepCopy() as Command
-        (newComm as Saveable).save()
         val newComms = comms?.deepCopy()
-        return CommandList(newComm, newComms)
+        if(comm is Saveable) {
+            val newComm = (comm as Saveable).deepCopy() as Command
+            (newComm as Saveable).save()
+            return CommandList(newComm, newComms)
+        }
+        return CommandList(comm, newComms)
+
     }
 
 }
@@ -756,23 +760,27 @@ class Road(
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInCircle(pc, r)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInRectangle(pr1, pr2)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
@@ -849,23 +857,27 @@ class Building(
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInCircle(pc, r)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInRectangle(pr1, pr2)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
@@ -942,23 +954,27 @@ class River(
 
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInCircle(pc, r)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInRectangle(pr1, pr2)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
@@ -1031,25 +1047,28 @@ class Tower(
         d.write("}".toByteArray())
     }
 
-
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInCircle(pc, r)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInRectangle(pr1, pr2)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
@@ -1123,23 +1142,27 @@ class Measurment(
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInCircle(pc, r)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        var comms = comms
         var comm = comms?.comm
         while(comm != null){
             if(!comm.isContainedInRectangle(pr1, pr2)){
                 return false
             }
             comm = comms?.comms?.comm
+            comms = comms?.comms
         }
         return true
     }
@@ -1427,7 +1450,6 @@ class Variable(
     }
 
     override fun toGEOJson(d: OutputStream) {
-        println("Class of vars[$s]: ${vars[s]?.javaClass?.name}")
         if(vars[s] is Block){
             println(true)
         }
@@ -1450,7 +1472,6 @@ class Variable(
 
 
     override fun eval(): Any{
-        println(vars[s]?.getClass())
         if(vars[s] is Double)
             return vars[s] as Double
         if(vars[s] is Point)
@@ -1621,6 +1642,7 @@ class If(
     val b: ObjList?
 ) : Block(), Command, Construct {
     fun eval(): ObjList? {
+        println(c.getClass())
         if(c.eval()){
             return b
         }
@@ -1628,7 +1650,7 @@ class If(
     }
 
     override fun toString(): String {
-        return b.toString()
+        return "if($c) $b"
     }
 
 
@@ -1801,7 +1823,11 @@ class ForEach(
                 command.eval()
             }
             else if(command is If){
-                eval(command.eval() as CommandList?, properties, commands)
+                println(command)
+
+                val innerList = (command).eval() as CommandList?
+                println(innerList)
+                eval(innerList, properties, commands)
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
@@ -1816,6 +1842,7 @@ class ForEach(
                 (newCommand as Saveable).save()
                 commands.add(newCommand)
             }
+
             cl = cl?.comms
             command = cl?.comm
         }
