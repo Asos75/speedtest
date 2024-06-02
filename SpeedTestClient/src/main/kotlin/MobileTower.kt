@@ -9,6 +9,6 @@ class MobileTower(
     var id: ObjectId = ObjectId()
 ) {
     override fun toString(): String {
-        return "${location}, $provider, $type, $confirmed, $locator"
+        return "${location}, $provider, $type, $confirmed, $locator $id"
     }
 }

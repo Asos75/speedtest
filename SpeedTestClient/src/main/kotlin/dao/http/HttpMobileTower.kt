@@ -141,7 +141,6 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
             return response.isSuccessful
         }
     }
-    //TODO test insert many
     override fun insertMany(list: List<MobileTower>): Boolean{
         val jsonArray = JSONArray()
         list.forEach { tower ->
@@ -209,7 +208,9 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
             put("operator", obj.provider)
             put("type", obj.type)
             put("confirmed", obj.confirmed)
-            put("locator", obj.locator.toString())
+            if(obj.locator != null) {
+                put("locator", obj.locator!!.id)
+            }
         }
         return json.toString().toRequestBody("application/json".toMediaType())
     }

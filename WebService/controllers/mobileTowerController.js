@@ -116,7 +116,7 @@ module.exports = {
 
         MobiletowerModel.findOne({_id: id}, function (err, mobileTower) {
             if (err) {
-                return res.status(500).json({
+                return res.status(501).json({
                     message: 'Error when getting mobileTower',
                     error: err
                 });
@@ -131,12 +131,12 @@ module.exports = {
             mobileTower.location = req.body.location ? req.body.location : mobileTower.location;
 			mobileTower.operator = req.body.operator ? req.body.operator : mobileTower.operator;
 			mobileTower.type = req.body.type ? req.body.type : mobileTower.type;
-			mobileTower.confirmed = req.body.confirmed ? req.body.confirmed : mobileTower.confirmed;
-			mobileTower.locator = req.body.locator ? req.body.locator : mobileTower.locator;
+            mobileTower.confirmed = req.body.hasOwnProperty('confirmed') ? req.body.confirmed : mobileTower.confirmed;
+            mobileTower.locator = req.body.locator ? req.body.locator : mobileTower.locator;
 			
             mobileTower.save(function (err, mobileTower) {
                 if (err) {
-                    return res.status(500).json({
+                    return res.status(502).json({
                         message: 'Error when updating mobileTower.',
                         error: err
                     });
