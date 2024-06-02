@@ -6,7 +6,7 @@
   /* Creator colors */
   --color-lightGreen: #b4f2b4;
   --color-lightOrange: #ebd4b8;
-  --color-lightPurple: #dac0f1;
+  --color-lightPurple: #eda8e4;
   /* Filler colors */
   --color-white: white;
   --color-white-dark: rgb(240, 240, 240);
@@ -42,4 +42,13 @@ body{
 
 .oneColumnContainer{
   flex-direction: column;
+}
+
+.buttonRed{
+  background-color: rgb(154, 0, 0);
+  transition: background-color var(--hover-duration);
+}
+
+.buttonRed:hover{
+  background-color: rgb(200, 0, 0);
 }

@@ -18,9 +18,9 @@ return (
                 <h4 className="homePageSubtitle">Below you can explore the different tools available on this website.</h4>
                 <div className="homePageFeatures">
                     <div>
-                            <h3>🔍 Explore</h3>
-                            <p>Explore, create and edit <Link to="/event">events</Link></p>
-                            <Link to="/event" className="button">Go to Events</Link>
+                            <h3>⚡Measure</h3>
+                            <p>Check your internet speed, location and ISP info in <Link to="/measure">speedtest</Link></p>
+                            <Link to="/measure" className="button">Go to Speedtest</Link>
                     </div>
                     <div>
                             <h3>🌍 Geolocations</h3>
@@ -33,13 +33,12 @@ return (
                         <Link to="/mobile-tower" className="button">Go to Mobile Towers</Link>
                     </div>
                     <div>
-                        <h3>⚙️ And more</h3>
-                        <p>And more</p>
-                        <Link to="/more" className="button">Learn More</Link>
+                        <h3>📌 Events </h3>
+                        <p>Find interesting <Link to="/events">events</Link> nearby</p>
+                        <Link to="/events" className="button">Go to Events</Link>
                     </div>
                 </div>
             </div>
-            <p className="homePageCredits blackBackground">Project created by Andraž, David and Domen. <Link to="/about-us" className="button">More about us</Link></p>
         </div>
         {/* <div className="homePageSubLayout">
             <h3 className="homePageSubtitle">Tools that are available on mobile</h3>

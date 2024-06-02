@@ -5,6 +5,7 @@
     backdrop-filter: blur(5px);
     height: 100px;
     background-color: var(--color-black-transparent);
+    justify-content: flex-start;
 }
 
 .header-title{
@@ -26,16 +27,22 @@
     cursor: pointer;
 }
 
-.header-left, .header-right, .header-right-loggedIn{
+.header-left, .header-right, .header-right-loggedIn, .header-left-hamburger, .header-right-hamburger{
     position: absolute;
     display: flex;
     align-items: center;
     padding: 10px;
 }
 
+.header-left-hamburger, .header-right-hamburger{
+    color: var(--color-white);
+}
+
+.header-right-hamburger{ right: 0;}
+
 .header-left{left: 20px;}
 
-.header-right, .header-right-loggedIn {right: 20px;}
+.header-right, .header-right-loggedIn{right: 20px;}
 
 .header-left > *, .header-right > *{
     color: var(--color-white);
@@ -69,14 +76,14 @@
     border-radius: 20px;
 }
 
-.header-right-loggedIn span b{
+.header-right-loggedIn span b a{
     color: var(--color-lightBlue);
     margin-right: 15px;
     cursor: pointer;
     transition: var(--hover-duration) ease;
 }
 
-.header-right-loggedIn span b:hover{
+.header-right-loggedIn span b a:hover{
     color: var(--color-white);
 }
 
@@ -95,7 +102,6 @@
     border: 1px solid var(--color-white);
 }
 
-
 .header-Login{
     margin-right: 15px;
 }
@@ -113,7 +119,7 @@
     width: 275px;
     align-items: center;
     margin-top: 3%;
-}
+    cursor: pointer;}
 
 .header-title-link{
     color: var(--color-white);
@@ -123,4 +129,54 @@
 
 .header-title-link:hover{
     color: var(--color-lightgray);
+}
+
+/* EXTRA OPTIMIZATION */
+
+.dropdown-menu, .dropdown-menu-right {
+    position: absolute;
+    background-color: var(--color-black-transparent);
+    border: 1px solid var(--color-lightBlue);
+    border-radius: 5px;
+    padding: 10px;
+    top: 83px;
+    z-index: 100;
+    width: 200px;
+    font-size: 1.2em;
+}
+
+.dropdown-menu {left: 0;}
+
+.dropdown-menu-right{right: 0;}
+
+.dropdown-menu a {
+    display: block;
+    background-color: var(--color-lightgray);
+    color: var(--color-black);
+    border: 1px solid var(--color-black);
+    padding: 5px 0;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--color-lightBlue-light);
+    color: var(--color-white);
+}
+
+.dropdown-menu-right button{
+    background-color: var(--color-lightBlue-light);
+    color: var(--color-white);
+    border: 1px solid var(--color-lightBlue);
+    font-size: 0.8em;
+    padding: 8px 16px;
+    border-radius: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: var(--hover-duration) ease;
+}
+
+@media screen and (max-width: 750px){
+    .header-right, .header-right-loggedIn {
+        flex-direction: column;
+    }
 }
