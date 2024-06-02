@@ -1,0 +1,25 @@
+/* SpeedTest.css */
+.speedTest {
+    margin-top: 20px;
+  }
+  
+  .speedTest button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: var(--color-uraniunBlue);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .speedTest button:disabled {
+    background-color: var(--color-lightgray);
+    cursor: not-allowed;
+  }
+  
+  .speedTest button:hover:not(:disabled) {
+    background-color: var(--color-darkerBlue);
+  }
+  
