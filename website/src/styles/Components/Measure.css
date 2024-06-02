@@ -9,43 +9,135 @@
 
 .measureLayout {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    font-size: 1.4rem;
     padding: 25px;
     background-color: var(--color-uraniunBlue);
 }
 
-.measureList {
-    width: 40%;
+.userDetails {
+    width: 50%;
+    background-color: var(--color-darkerBlue);
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
     justify-items: center;
     align-items: start;
-    padding: 0 50px;
+    padding: 20px 50px;
 }
 
-.measureList h2{
+.userDetails h2 {
     font-size: 2rem;
     color: var(--color-white);
     margin: 0 auto;
     padding: 0 25px;
 }
 
-.measure {
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    padding: 25px;
-    width: 100%;
-    box-shadow: 0px 5px 10px var(--color-darkerBlue);
-    margin: 0;
-    transition: background-color var(--hover-duration);
-}
-
-.measure:hover{
-    background-color: var(--color-lightgray);
-}
-
-.measure p {
+.userDetails p {
     margin: 0.5rem 0;
-    color: var(--color-black);
+    color: var(--color-white);
+}
+
+.measureButton {
+    background: none;
+    color: var(--color-white);
+    border: 1px solid var(--color-lightBlue);
+    border-radius: 15px;
+    padding: 8px 12px;
+    margin: 0 auto;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.5s border;
+}
+
+.measureButton:hover {
+    border-color: var(--color-white);
+}
+
+.measureLoadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.measureLoadingContainer div{
+    width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.measureLoadingContainer p {
+    padding: 0 25px;
+}
+
+.loading-bar {
+    width: 100%;
+    background-color: #f3f3f3;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 30px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.loading-bar-inner {
+    width: 50%;
+    height: 100%;
+    background-color: var(--color-lightBlue);
+    position: absolute;
+    animation: loadingAnimation 2s linear infinite;
+}
+
+.buttonRed {
+    background: none;
+    color: var(--color-white);
+    border: 1px solid var(--color-red);
+    border-radius: 15px;
+    padding: 8px 12px;
+    margin: 0 auto;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.5s border;
+}
+
+.buttonRed:hover {
+    border-color: var(--color-white);
+}
+
+.measureLoadingText {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+@keyframes loadingAnimation {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.addMeasurementLayout{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.addMeasurementLayout a{
+    text-decoration: none;
+}
+
+.addMeasurementLayout h3{
+    font-size: 1.6rem;
+    color: var(--color-white);
+    text-align: center;
+    margin: 0;
+}
+
+.addMeasurementButtons{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
 }

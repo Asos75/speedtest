@@ -21,10 +21,12 @@ const Login = () => {
         })
     });
     const data = await res.json();
+    console.log("User data: ", data);
     if(data.token){
       // Save the token and username to localStorage or to a cookie
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', username);
+      localStorage.setItem('id', data.user._id);
       window.location.href="/";
     }
     else{
