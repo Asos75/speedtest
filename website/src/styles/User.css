@@ -16,18 +16,24 @@
   
   .userDescription {
     display: flex;
-    flex-direction: column;
     color: var(--color-white);
     background-color: var(--color-black-more-transparent);
     font-weight: 300;
     margin: auto;
     font-size: 24px;
-    padding: 50px 10%;
+    padding: 50px 5%;
     border-radius: 15px;
     box-shadow: 0px 5px 10px var(--color-darkerBlue);
   }
+
+  .userInfoContainer{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    margin: auto;
+  }
   
-  .userDescription h4 {
+  .userInfoContainer h4 {
     text-align: center;
     margin: 25px 0;
   }
@@ -56,6 +62,9 @@
     text-align: center;
   }
 
+  .userInfoRole{
+    font-weight: 500;
+  }
   
   .blueBackground {
     background-color: var(--color-uraniunBlue);
@@ -65,6 +74,7 @@
 
 .userAddInfo{
   display: flex;
+  justify-content: center;
 }
 
 .userAddInfo a{
@@ -76,4 +86,26 @@
 
 .userAddInfo a:hover{
   color: var(--color-uraniunBlue);
+}
+
+.userExtraInfo{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.userExtraInfo h4{
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.measurementUserMap {
+  width: 500px;
+  height: 500px;
+  border-radius: 25px;
+  box-shadow: 0px 5px 10px var(--color-darkerBlue);
+  margin: 0 auto;
 }

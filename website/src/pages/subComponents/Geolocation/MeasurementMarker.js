@@ -47,13 +47,14 @@ const MeasurementMarker = ({ measurement, index }) => {
     return null;
   }
 
+  const speedInMBps = (measurement.speed / (1024 * 1024)).toFixed(2);
   return (
     <Marker key={index} position={coordinates} icon={customIcon}>
       <Popup>
         <p><b>{measurement.type}</b></p>
         {coordinates && <p>Coordinates: <b>{coordinates.join(', ')}</b></p>}
         {address && <p>Address: <b>{address}</b></p>}
-        {measurement.speed && <p>Speed: <b>{measurement.speed}</b></p>}
+        {measurement.speed && <p>Speed: <b>{speedInMBps} MB/s</b></p>}
         {measurement.provider && <p>Provider: <b>{measurement.provider}</b></p>}
         {measurement.time && <p>Time: <b>{formatTime(measurement.time)}</b></p>}
       </Popup>

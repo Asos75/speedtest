@@ -9,16 +9,6 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-
-  // Function to handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const username = e.target.username.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    console.log
-    (`Username: ${username}\nEmail: ${email}\nPassword: ${password}`);
-  }
   
   // Regsiter user to the website
   async function Register(e){
@@ -46,8 +36,7 @@ const Register = () => {
 }
 
   return (
-    <>
-      <div className="backgroundImage"></div>
+    <div className="blueBackground">
       {/* <div className="blueBackground"></div> */}
       <h2 className="registerTitle">Create an account</h2>
       <form onSubmit={Register} className="registerLoginContainer">
@@ -66,7 +55,7 @@ const Register = () => {
         <button type="submit">Register</button>
       </form>
       <p className="existingAccount">Already have an account? <a href="/login">Login</a></p>
-    </>
+    </div>
   );
 };
 

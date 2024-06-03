@@ -18,13 +18,13 @@ return (
                 <h4 className="homePageSubtitle">Below you can explore the different tools available on this website.</h4>
                 <div className="homePageFeatures">
                     <div>
-                            <h3>⚡Measure</h3>
-                            <p>Check your internet speed, location and ISP info in <Link to="/measure">speedtest</Link></p>
-                            <Link to="/measure" className="button">Go to Speedtest</Link>
+                        <h3>⚡Measure</h3>
+                        <p>Check your internet speed, location and ISP info in <Link to="/measure">speedtest</Link></p>
+                        <Link to="/measure" className="button">Go to Speedtest</Link>
                     </div>
                     <div>
-                            <h3>🌍 Geolocations</h3>
-                            <p>Read, measure, and create <Link to="/geolocation">geolocations</Link> on the map</p>
+                        <h3>🌍 Geolocations</h3>
+                        <p>Read, measure, and create <Link to="/geolocation">geolocations</Link> on the map</p>
                         <Link to="/geolocation" className="button">Go to Geolocations</Link>
                     </div>
                     <div>
