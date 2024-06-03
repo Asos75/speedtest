@@ -270,8 +270,9 @@ module.exports = {
 			measurement.provider = req.body.provider ? req.body.provider : measurement.provider;
 			measurement.time = req.body.time ? req.body.time : measurement.time;
 			measurement.location = req.body.location ? req.body.location : measurement.location;
-			measurement.measuredBy = req.body.measuredBy ? req.body.measuredBy : measurement.measuredBy;
-			
+			measurement.measuredBy = req.body.hasOwnProperty('measuredBy')  ? req.body.measuredBy : measurement.measuredBy;
+
+
             measurement.save(function (err, measurement) {
                 if (err) {
                     return res.status(500).json({

@@ -1,20 +1,26 @@
-# Use an official Node runtime as the base image
-FROM node:14
+FROM node:18-alpine
 
-# Set the working directory in the container to /app
 WORKDIR /app
 
-# Copy package.json and package-lock.json into the directory
 COPY package*.json ./
 
-# Install the application dependencies
+COPY ./controllers ./controllers
+COPY ./middleware ./middleware
+COPY ./models ./models
+COPY ./routes ./routes
+
+COPY app.js ./
+
+ARG MONGO_URL
+ARG JWT_KEY
+ARG IPNFO_KEY
+
+ENV MONGO_URL $MONGO_URL
+ENV JWT_KEY $JWT_KEY
+ENV IPNFO_KEY $IPNFO_KEY
+
 RUN npm install
 
-# Bundle the app source inside the Docker image
-COPY . .
+EXPOSE 3000
 
-# Make port 5000 available to the world outside the container
-EXPOSE 5000
-
-# Define the command to run the app
-CMD [ "npm", "start" ]
+CMD [ "npm","start" ]

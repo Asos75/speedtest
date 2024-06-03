@@ -85,8 +85,7 @@ fun main(){
         }
     }
 */
-/*
-    repeat(6){
+    repeat(2){
         GeneratorUtil.generateMeasurementsToMongo(
             50000,
             100000,
@@ -95,14 +94,10 @@ fun main(){
             Location(coordinates = listOf(15.615567, 46.570405)),
             Location(coordinates = listOf(15.683889, 46.526323)),
             null,
-            500
+            500,
+            sessionManager
         )
     }
-*/
-    val eventToMod = httpEvent.getById(ObjectId("664387b5d3e028a44e6191fc"))
-    if (eventToMod != null) {
-        eventToMod.name =  "Test Event3"
-        httpEvent.update(eventToMod)
 
-    }
+
 }
