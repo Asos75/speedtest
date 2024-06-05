@@ -43,6 +43,23 @@ import speedTest.*
 import util.*
 import java.awt.Button
 import kotlin.concurrent.thread
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import okhttp3.OkHttpClient
+import okhttp3.Request
+
+import java.time.format.DateTimeFormatter
+import dao.http.HttpEvent
+import Event
+import java.time.LocalDate
+import java.time.LocalTime
+
+val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+val timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME
+
 
 var conn : MongoDatabase? = null
 val sessionManager = SessionManager()
@@ -619,13 +636,172 @@ fun Editor() {
     }
 }
 
+data class Coordinates(val lat: Double, val lng: Double)
+
+fun getCoordinates(apiKey: String, location: String): Coordinates? {
+    val client = OkHttpClient()
+    val encodedLocation = java.net.URLEncoder.encode(location, "UTF-8")
+    val url = "https://maps.googleapis.com/maps/api/geocode/json?address=$encodedLocation&key=$apiKey"
+
+    val request = Request.Builder().url(url).build()
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return null
+
+        val responseBody = response.body?.string() ?: return null
+        val jsonResponse = Gson().fromJson(responseBody, JsonObject::class.java)
+
+        val results = jsonResponse.getAsJsonArray("results")
+        if (results.size() == 0) return null
+
+        val locationObj = results[0].asJsonObject
+            .getAsJsonObject("geometry")
+            .getAsJsonObject("location")
+
+        val lat = locationObj.get("lat").asDouble
+        val lng = locationObj.get("lng").asDouble
+
+        return Coordinates(lat, lng)
+    }
+}
+
+data class Event1(
+    val title: String,
+    val location: String,
+    val latitude: Double,
+    val longitude: Double,
+    val date: String,
+    val time: String,
+    val description: String
+)
+
+
+fun fetchEvents(url: String): List<Event> {
+    val document: Document = Jsoup.connect(url).get()
+    val events: List<Element> = document.select("article.tribe-events-calendar-list__event")
+    val eventList = mutableListOf<Event>()
+
+    if (events.isEmpty()) {
+        println("Ni dogodkov ali napačni selektorji.")
+    } else {
+        for (event in events) {
+            val title: String = event.select("h3.tribe-events-calendar-list__event-title a").text()
+            val location: String = event.select("span.tribe-events-calendar-list__event-venue-title").text()
+            val apiKey = "AIzaSyC8z6CMLoTRX9SPrvxoH_1dSxTMHf519N8"
+            val coordinates = getCoordinates(apiKey, location)
+            if (coordinates == null) {
+                println("Koordinate za $location niso bile najdene.")
+            }
+            val dateTime: String = event.select("span.tribe-event-date-start").text()
+            val dateInput = dateTime.split(" ").firstOrNull().orEmpty()
+            println(dateInput)
+            val timeInput = dateTime.split(" ").lastOrNull().orEmpty()
+            val date : LocalDate= when(dateInput.length){
+                8 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.M.yyyy"))
+                7 -> if(dateInput.get(1) == '.') LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.MM.yyyy")) else LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.M.yyyy"))
+                10 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                else -> throw Error("invalid date")
+            }
+            val time = LocalTime.parse(timeInput, DateTimeFormatter.ISO_LOCAL_TIME)
+           // val endDate: String = event.select("span.tribe-event-date-end").text()
+
+            /*
+            val dateTime = if (endDate.isEmpty()) {
+                startDate
+            } else {
+                "Od $startDate do $endDate"
+            }
+
+             */
+
+            if (coordinates != null) {
+                eventList.add(Event(title, "",  LocalDateTime.of(date, time), false, Location(coordinates = listOf(coordinates.lng, coordinates.lat))))
+            }
+
+        }
+    }
+    return eventList
+}
+
+fun fetchEvents1(url: String): List<Event> {
+    val document: Document = Jsoup.connect(url).get()
+    val events: List<Element> = document.select("article.node--type-dogodek")
+    val eventList = mutableListOf<Event>()
+
+    for (event in events) {
+        val title: String = event.select(".dogodek__title a").text()
+        val timeInput: String = event.select(".event-date__time").text()
+        val locationElement = event.select(".dogodek__location").first()
+        val locationText = locationElement?.text()?.split(" ob ")?.first().orEmpty()
+        val apiKey = "AIzaSyC8z6CMLoTRX9SPrvxoH_1dSxTMHf519N8"
+        val dateInput = locationText.split(" ").lastOrNull().orEmpty()
+        val location: String = event.select(".dogodek__location").first()?.apply { select("span").remove() }?.text()?.trim().orEmpty()
+        val coordinates = getCoordinates(apiKey, location)
+        if (coordinates == null) {
+            println("Koordinate za $location niso bile najdene.")
+        }
+
+        val date : LocalDate= when(dateInput.length){
+            8 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.M.yyyy"))
+            7 -> if(dateInput.get(1) == '.') LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.MM.yyyy")) else LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.M.yyyy"))
+            10 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+           else -> throw Error("invalid date")
+        }
+        val time = LocalTime.parse(timeInput, DateTimeFormatter.ISO_LOCAL_TIME)
+        val description: String = event.select(".dogodek__body .field__item p").text()
+
+        if (coordinates != null) {
+            eventList.add(Event(title, description,  LocalDateTime.of(date, time), false, Location(coordinates = listOf(coordinates.lng, coordinates.lat))))
+        }
+    }
+
+    return eventList
+}
+
+
 
 @Composable
 fun Scraper() {
-    Text(
-        text = "You are viewing scraper tab.",
-        modifier = Modifier.fillMaxSize().wrapContentSize()
-    )
+    val url1 = "https://kultura.maribor.si/napovednik/seznam/?tribe_eventcategory%5B0%5D=12"
+    val url2 = "https://mariborinfo.com/dogodki"
+    var events by remember { mutableStateOf<List<Event>>(emptyList()) }
+
+    LaunchedEffect(url1) {
+        events = fetchEvents(url1)
+    }
+
+    if (events.isEmpty()) {
+        Text(
+            text = "Loading...",
+            modifier = Modifier.fillMaxSize().wrapContentSize()
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(events) { event ->
+
+                Column(modifier = Modifier.fillMaxWidth()  .border(1.dp, Color.Black)
+                    .padding(8.dp)) {
+                    Button(
+                        onClick = {
+                            HttpEvent(sessionManager).insert(event)
+                        },
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text("ADD")
+                    }
+                    Text(text = event.name, modifier = Modifier.padding(4.dp), fontWeight = FontWeight.Bold)
+                    Text(text = "Lokacija: ${event.location!!.coordinates[1]}, ${event.location!!.coordinates[0]}", modifier = Modifier.padding(4.dp))
+
+                    Text(text = "Datum: ${event.time}", modifier = Modifier.padding(4.dp))
+                  // if(event.time != "")  { Text(text = "Čas: ${event.time}", modifier = Modifier.padding(4.dp)) }
+                    if (event.type != "") { Text(text = "Opis: ${event.type}", modifier = Modifier.padding(4.dp)) }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+    }
 }
 
 @Composable
