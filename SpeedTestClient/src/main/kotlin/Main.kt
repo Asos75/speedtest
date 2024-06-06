@@ -664,17 +664,6 @@ fun getCoordinates(apiKey: String, location: String): Coordinates? {
     }
 }
 
-data class Event1(
-    val title: String,
-    val location: String,
-    val latitude: Double,
-    val longitude: Double,
-    val date: String,
-    val time: String,
-    val description: String
-)
-
-
 fun fetchEvents(url: String): List<Event> {
     val document: Document = Jsoup.connect(url).get()
     val events: List<Element> = document.select("article.tribe-events-calendar-list__event")
@@ -691,9 +680,12 @@ fun fetchEvents(url: String): List<Event> {
             if (coordinates == null) {
                 println("Koordinate za $location niso bile najdene.")
             }
+            val notFormattedDate: String = event.select("time.tribe-events-calendar-list__event-datetime").attr("datetime")
+            val dateInput: String = notFormattedDate.split("-").reversed().joinToString(".")
+            // Izvlečenje besedila iz elementa <time>
+
             val dateTime: String = event.select("span.tribe-event-date-start").text()
-            val dateInput = dateTime.split(" ").firstOrNull().orEmpty()
-            println(dateInput)
+
             val timeInput = dateTime.split(" ").lastOrNull().orEmpty()
             val date : LocalDate= when(dateInput.length){
                 8 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.M.yyyy"))
@@ -702,16 +694,6 @@ fun fetchEvents(url: String): List<Event> {
                 else -> throw Error("invalid date")
             }
             val time = LocalTime.parse(timeInput, DateTimeFormatter.ISO_LOCAL_TIME)
-           // val endDate: String = event.select("span.tribe-event-date-end").text()
-
-            /*
-            val dateTime = if (endDate.isEmpty()) {
-                startDate
-            } else {
-                "Od $startDate do $endDate"
-            }
-
-             */
 
             if (coordinates != null) {
                 eventList.add(Event(title, "",  LocalDateTime.of(date, time), false, Location(coordinates = listOf(coordinates.lng, coordinates.lat))))
@@ -765,8 +747,8 @@ fun Scraper() {
     val url2 = "https://mariborinfo.com/dogodki"
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
 
-    LaunchedEffect(url1) {
-        events = fetchEvents(url1)
+    LaunchedEffect(url2) {
+        events = fetchEvents1(url2)
     }
 
     if (events.isEmpty()) {
@@ -780,16 +762,19 @@ fun Scraper() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(events) { event ->
-
+                var buttonText by remember { mutableStateOf("ADD") }
                 Column(modifier = Modifier.fillMaxWidth()  .border(1.dp, Color.Black)
                     .padding(8.dp)) {
                     Button(
                         onClick = {
                             HttpEvent(sessionManager).insert(event)
+                            buttonText = "Added"
                         },
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red, contentColor = Color.White)
+
                     ) {
-                        Text("ADD")
+                        Text(buttonText)
                     }
                     Text(text = event.name, modifier = Modifier.padding(4.dp), fontWeight = FontWeight.Bold)
                     Text(text = "Lokacija: ${event.location!!.coordinates[1]}, ${event.location!!.coordinates[0]}", modifier = Modifier.padding(4.dp))
