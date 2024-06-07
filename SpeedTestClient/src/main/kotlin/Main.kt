@@ -27,9 +27,8 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import dao.http.HttpMeasurement
 import dao.http.HttpMobileTower
 import dao.http.HttpUser
-import dslCity.ForForeachFFFAutomaton
-import dslCity.Parser
-import dslCity.Scanner
+import dslCity.*
+
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
@@ -267,7 +266,7 @@ fun Measure(
         }
 
         Text(
-            text = "Measured speed = $speed",
+            text = "Measured speed = $speed b/s",
             modifier = Modifier.fillMaxWidth().wrapContentSize()
         )
 
@@ -364,14 +363,6 @@ fun Data(){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                Button(
-                    onClick = {
-                        //Open Create user
-                    },
-                    colors = ButtonDefaults.buttonColors(Color.White),
-                ) {
-                    Text("+")
-                }
                 Spacer(modifier = Modifier.width(16.dp))
             }
 
@@ -544,7 +535,7 @@ fun Editor() {
                 output += "@" + LocalDateTime.now() + "\n"
                 val out = ByteArrayOutputStream()
                 try{
-                    Parser(Scanner(ForForeachFFFAutomaton, text.toByteArray().inputStream())).parse().eval(out)
+                    Parser(Scanner(ForForeachFFFAutomaton, text.toByteArray().inputStream())).parse()?.toGEOJson(out)
                     output += String(out.toByteArray())
                 } catch (e : Exception){
                     output += e
@@ -1102,6 +1093,7 @@ fun AboutApp() {
 @Composable
 fun Profile(){
     Column {
+        Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Username: ${sessionManager.user?.username}")
         Text(text = "Email: ${sessionManager.user?.email}")
         Button(onClick = { sessionManager.destroy() }) {
@@ -1174,8 +1166,7 @@ fun App() {
 }
 
 fun main() = application {
-    HttpUser(sessionManager).authenticate("KotlinTester", "1234")
-    Window(onCloseRequest = ::exitApplication, undecorated = true) {
+    Window(onCloseRequest = ::exitApplication) {
         App()
     }
 }

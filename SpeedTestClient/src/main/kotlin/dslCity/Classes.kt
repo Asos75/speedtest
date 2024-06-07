@@ -1,5 +1,6 @@
-package org.example
+package dslCity
 
+import org.example.Aux
 import java.io.OutputStream
 import kotlin.Boolean
 import kotlin.math.cos
@@ -1079,7 +1080,7 @@ class Measurment(
     private val comms: CommandList? = null,
     val out: Boolean = true,
 
-): Block(), Copyable{
+    ): Block(), Copyable{
     override fun deepCopy(): Copyable {
         val newComms = comms?.deepCopy()
         return Measurment(name, newComms)
