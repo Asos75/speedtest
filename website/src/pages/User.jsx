@@ -9,6 +9,8 @@ import '../styles/User.css';
 import { formatTime } from '../helpers/helperFunction';
 import pinIcon from '../assets/Icons/pin.png';
 
+import AdminDashboard from './subComponents/User/AdminContainer';
+
 const customIcon = new Icon({
   iconUrl: pinIcon,
   iconSize: [30, 30],
@@ -119,6 +121,9 @@ function UserPage() {
                   <p>Email: <b>{user.email}</b></p>
                   <p className="userInfoRole">{user.admin ? 'Admin' : 'Default user'}</p>
                 </div>
+                {user.admin && (
+                  <AdminDashboard />
+                )}
                 <div className="userAddInfo">
                   <a href="/measure">Your measurements</a>
                 </div>

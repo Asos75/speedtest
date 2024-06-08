@@ -154,3 +154,16 @@
 .graphTab:hover {
   background-color: var(--color-darkerBlue);
 }
+
+.adminContainer{
+  display: flex;
+  flex-direction: column;
+  color: var(--color-black);
+  background-color: rgb(255, 180, 180);
+  border-radius: 15px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 790px;
+  padding: 10px;
+}
