@@ -56,7 +56,6 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
 
             return emptyList()
         }
-
     }
 
     override fun toggleConfirm(obj: MobileTower): Boolean {
