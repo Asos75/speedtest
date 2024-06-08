@@ -46,7 +46,7 @@ const GraphView = ({ measurements }) => {
       <Line
         data={{
           datasets: [{
-            label: 'Speed (MB/s)',
+            label: 'Speed (Mb/s)',
             data: speedData,
             borderColor: 'blue',
             backgroundColor: 'rgba(0, 0, 255, 0.1)',

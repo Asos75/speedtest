@@ -120,7 +120,7 @@ function UserPage() {
                   <p className="userInfoRole">{user.admin ? 'Admin' : 'Default user'}</p>
                 </div>
                 <div className="userAddInfo">
-                  <a href="/measure">Add a new measurement</a>
+                  <a href="/measure">Your measurements</a>
                 </div>
               </>
             ) : (
