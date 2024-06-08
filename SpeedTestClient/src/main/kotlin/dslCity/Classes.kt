@@ -1,6 +1,6 @@
 package dslCity
 
-import org.example.Aux
+import org.example.Auiks
 import java.io.OutputStream
 import kotlin.Boolean
 import kotlin.math.cos
@@ -362,8 +362,8 @@ class Line(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
-                Aux.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
+        return Auiks.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
+                Auiks.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
@@ -377,8 +377,8 @@ class Line(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
-                Aux.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
+        return Auiks.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
+                Auiks.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
     }
 
 }
@@ -472,8 +472,8 @@ class Box(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
-                Aux.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
+        return Auiks.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
+                Auiks.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
@@ -487,8 +487,8 @@ class Box(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
-                Aux.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
+        return Auiks.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
+                Auiks.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
     }
 
 }
@@ -574,7 +574,7 @@ class Circle(
             listOf(x, y)
         } + listOf(listOf(centerX + radius, centerY))
         coordinates.forEachIndexed { index, point ->
-            if(!Aux.isPointInCircle(point[0], point[1], circleX, circleY, rc)){
+            if(!Auiks.isPointInCircle(point[0], point[1], circleX, circleY, rc)){
                 return false
             }
         }
@@ -602,7 +602,7 @@ class Circle(
             listOf(x, y)
         } + listOf(listOf(centerX + radius, centerY))
         coordinates.forEachIndexed { index, point ->
-            if(!Aux.isPointInRectangle(point[0], point[1], rectX1, rectY1, rectX2, rectY2)){
+            if(!Auiks.isPointInRectangle(point[0], point[1], rectX1, rectY1, rectX2, rectY2)){
                 return false
             }
         }
@@ -660,14 +660,14 @@ class Marker(
         } else {
             pt as Point
         }
-        return Aux.isPointInCircle(p.c1.eval(), p.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
+        return Auiks.isPointInCircle(p.c1.eval(), p.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         val p : Point = if(pt is Variable) {
             (pt as Variable).eval() as Point
         } else pt as Point
-        return Aux.isPointInRectangle(p.c1.eval(), p.c2.eval(), pr1.c1.eval(), pr1.c2.eval(),  pr2.c1.eval(), pr2.c2.eval())
+        return Auiks.isPointInRectangle(p.c1.eval(), p.c2.eval(), pr1.c1.eval(), pr1.c2.eval(),  pr2.c1.eval(), pr2.c2.eval())
     }
 
 }
