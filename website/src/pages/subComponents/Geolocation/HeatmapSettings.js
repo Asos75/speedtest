@@ -139,9 +139,9 @@ const HeatmapSettings = ({
       </div>
       <div className="heatmapStatisticsLayout">
         <h3 className="heatmapStatisticsTitle">Statistics</h3>
-        <p>Minimum speed: <b>{parseInt(stats.minSpeed)}</b></p>
-        <p>Average speed: <b>{parseInt(stats.avgSpeed)}</b></p>
-        <p>Maximum speed: <b>{parseInt(stats.maxSpeed)}</b></p>
+        <p>Minimum speed: <b>{(stats.minSpeed / 1e6).toFixed(2)}</b> Mb/s</p>
+        <p>Average speed: <b>{(stats.avgSpeed / 1e6).toFixed(2)}</b> Mb/s</p>
+        <p>Maximum speed: <b>{(stats.maxSpeed / 1e6).toFixed(2)}</b> Mb/s</p>
         <p>Earliest time: <b>{stats.minTime}</b></p>
         <p>Average time: <b>{stats.avgTime}</b></p>
         <p>Latest time: <b>{stats.maxTime}</b></p>
