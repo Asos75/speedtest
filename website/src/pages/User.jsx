@@ -3,7 +3,8 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import { Link } from 'react-router-dom';
-import { Line, Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
+import Chart from 'chart.js/auto';
 import '../styles/User.css';
 import { formatTime } from '../helpers/helperFunction';
 import pinIcon from '../assets/Icons/pin.png';
@@ -83,24 +84,15 @@ function UserPage() {
     ],
   };
 
-  const dailyMeasurements = measurements.reduce((acc, measurement) => {
-    const date = new Date(measurement.time).toLocaleDateString();
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date]++;
-    return acc;
-  }, {});
-
   const timeData = {
-    labels: Object.keys(dailyMeasurements),
+    labels: measurements.map(m => new Date(m.time).toLocaleString()),
     datasets: [
       {
-        label: 'Measurements per Day',
-        data: Object.values(dailyMeasurements),
+        label: 'Measurements Added Over Time',
+        data: measurements.map((_, index) => index + 1),
+        fill: false,
         backgroundColor: 'rgba(153,102,255,0.4)',
         borderColor: 'rgba(153,102,255,1)',
-        borderWidth: 1,
       },
     ],
   };
@@ -146,7 +138,7 @@ function UserPage() {
                       <Popup>
                         <p>Location: <b>{measurement.location.coordinates.join(', ')}</b></p>
                         <p>Time: <b>{formatTime(new Date(measurement.time).toLocaleString())}</b></p>
-                        <p>Speed: <b>{(measurement.speed / 1024 / 1024).toFixed(2)} Mb/s</b></p>
+                        <p>Speed: <b>{(measurement.speed / 1024 / 1024).toFixed(2)} MB/s</b></p>
                       </Popup>
                     </Marker>
                   ))}
@@ -170,7 +162,7 @@ function UserPage() {
                 {graphType === 'speed' ? (
                   <Line data={speedData} />
                 ) : (
-                  <Bar data={timeData} />
+                  <Line data={timeData} />
                 )}
               </div>
             )}
