@@ -49,5 +49,6 @@ enum class Symbol {
     TRUE,
     FALSE,
     FETCH,
-    POINT
+    POINT,
+    GET
 }

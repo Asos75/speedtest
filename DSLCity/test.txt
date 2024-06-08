@@ -1,18 +1,24 @@
 city "Fiesa" {
- road "Oljcna pot" {
- line((2, 2), (2, 5));
- line((5, 4), (6, 4));
- };
- building "Soncne terase" {
- box((3, 2), (5, 3));
- };
- building "Dom Fiesa" {
- box((0.5, 3.5), (1.5, 2.5));
- };
- building "LaRocca" {
- box((0.5, 5), (1.5, 4));
- };
- building "Hotel Fiesa" {
- box((1.75, 1.5), (2.25, 1));
- };
- }
+        let rad = building "within" {
+            circle ( point, 20);
+        };
+
+        let circ = circle ( point, 20);
+
+
+       set("active", false);
+       let b = 2;
+       b = 3;
+       let point = Point(b, b);
+       let point2 = Point(2, 2);
+       measurement "line" {
+        output false;
+            set("owner", "City");
+          marker point;
+
+       };
+        building "radius" {
+            set("owner", "City");
+            circle ( point, 20);
+        };
+};
