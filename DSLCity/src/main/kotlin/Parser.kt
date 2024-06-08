@@ -153,47 +153,17 @@ class Parser(
             currentToken = lex.getToken()
             if(currentToken.symbol == Symbol.ASSIGN){
                 currentToken = lex.getToken()
-                when(currentToken.symbol){
-                    Symbol.POINT -> {
-                        currentToken = lex.getToken()
-                        if(currentToken.symbol == Symbol.LPAREN){
-                            currentToken = lex.getToken()
-                            val resultC1 = additive()
-                            if (currentToken.symbol == Symbol.TO) {
-                                currentToken = lex.getToken()
-                                val resultC2 = additive()
-                                if (currentToken.symbol == Symbol.RPAREN) {
-                                    currentToken = lex.getToken()
-                                    return Assign(variable, Point(resultC1, resultC2))
-                                }
-                            }
-                        }
-                    }
-                    Symbol.ROAD, Symbol.BUILDING, Symbol.RIVER, Symbol.TOWER, Symbol.MEASUREMENT -> {
-                        return Assign(variable, block())
-                    }
-                    Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
-                        return Assign(variable, command())
-                    }
-                    Symbol.STRING -> {
-                        val str = CustomString(currentToken.lexeme)
-                        currentToken = lex.getToken()
-                        return Assign(variable, str)
-                    }
-                    else -> {
-                        return Assign(variable, additive())
-                    }
-                }
+                return assignment2(variable)
             }
         }
         throw Error("Invalid Assignment")
     }
 
-    private fun reassignment(inVal: Variable): Reassign {
-        if(currentToken.symbol == Symbol.ASSIGN){
-            currentToken = lex.getToken()
-            when(currentToken.symbol){
-                Symbol.LPAREN -> {
+    private fun assignment2(variable: Variable): Assign {
+        when (currentToken.symbol) {
+            Symbol.POINT -> {
+                currentToken = lex.getToken()
+                if (currentToken.symbol == Symbol.LPAREN) {
                     currentToken = lex.getToken()
                     val resultC1 = additive()
                     if (currentToken.symbol == Symbol.TO) {
@@ -201,27 +171,71 @@ class Parser(
                         val resultC2 = additive()
                         if (currentToken.symbol == Symbol.RPAREN) {
                             currentToken = lex.getToken()
-                            return Reassign(inVal, Point(resultC1, resultC2))
+                            return Assign(variable, Point(resultC1, resultC2))
                         }
                     }
                 }
-                Symbol.ROAD, Symbol.BUILDING, Symbol.RIVER, Symbol.TOWER, Symbol.MEASUREMENT -> {
-                    return Reassign(inVal, block())
-                }
-                Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
-                    return Reassign(inVal, command())
-                }
-                Symbol.STRING -> {
-                    val str = CustomString(currentToken.lexeme)
-                    currentToken = lex.getToken()
-                    return Reassign(inVal, str)
-                }
-                else -> {
-                    return Reassign(inVal, additive())
-                }
+                throw Error("Invalid Assignment")
+            }
+
+            Symbol.ROAD, Symbol.BUILDING, Symbol.RIVER, Symbol.TOWER, Symbol.MEASUREMENT -> {
+                return Assign(variable, block())
+            }
+
+            Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER -> {
+                return Assign(variable, command())
+            }
+
+            Symbol.STRING -> {
+                val str = CustomString(currentToken.lexeme)
+                currentToken = lex.getToken()
+                return Assign(variable, str)
+            }
+
+            else -> {
+                return Assign(variable, additive())
             }
         }
+    }
+
+    private fun reassignment(inVal: Variable): Reassign {
+        if(currentToken.symbol == Symbol.ASSIGN){
+            currentToken = lex.getToken()
+            return reassignment2(inVal)
+        }
         throw Error("Invalid ReAssignment")
+    }
+
+    fun reassignment2(inVal: Variable): Reassign{
+        when(currentToken.symbol){
+            Symbol.LPAREN -> {
+                currentToken = lex.getToken()
+                val resultC1 = additive()
+                if (currentToken.symbol == Symbol.TO) {
+                    currentToken = lex.getToken()
+                    val resultC2 = additive()
+                    if (currentToken.symbol == Symbol.RPAREN) {
+                        currentToken = lex.getToken()
+                        return Reassign(inVal, Point(resultC1, resultC2))
+                    }
+                }
+                throw Error("Invalid")
+            }
+            Symbol.ROAD, Symbol.BUILDING, Symbol.RIVER, Symbol.TOWER, Symbol.MEASUREMENT -> {
+                return Reassign(inVal, block())
+            }
+            Symbol.BEND, Symbol.LINE, Symbol.BOX, Symbol.CIRCLE, Symbol.MARKER ->{
+                return Reassign(inVal, command())
+            }
+            Symbol.STRING -> {
+                val str = CustomString(currentToken.lexeme)
+                currentToken = lex.getToken()
+                return Reassign(inVal, str)
+            }
+            else -> {
+                return Reassign(inVal, additive())
+            }
+        }
     }
 
     private fun compare() : Comparator {
@@ -295,8 +309,20 @@ class Parser(
         if (currentToken.symbol == Symbol.EOF || currentToken.symbol == Symbol.END) {
             return null
         }
-        return ConstructList(construct(), constructs())
+        return ConstructList(constructTerminator(), constructs())
     }
+
+    private fun constructTerminator(): Construct{
+        val result = construct()
+        if(currentToken.symbol == Symbol.TERM){
+            currentToken  = lex.getToken()
+            return result
+        }
+        throw Error("Missing terminator")
+    }
+
+
+
 
     private fun construct() : Construct{
         when(currentToken.symbol){

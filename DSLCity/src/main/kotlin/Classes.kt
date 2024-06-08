@@ -270,8 +270,7 @@ class Bend(
 
         val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
         var first = true
-        d.write("\"type\": \"LineString\",".toByteArray())
-        d.write("\"coordinates\": [".toByteArray())
+        d.write("[".toByteArray())
         points.forEach{
             if(!first){
                 d.write(",".toByteArray())
@@ -399,8 +398,7 @@ class Line(
         } else {
             pt2 as Point
         }
-        d.write("\"type\": \"LineString\",".toByteArray())
-        d.write("\"coordinates\": [".toByteArray())
+        d.write("[".toByteArray())
 
         d.write("[${p1.c1.eval()}, ${p1.c2.eval()}],".toByteArray())
         d.write("[${p2.c1.eval()}, ${p2.c2.eval()}]".toByteArray())
@@ -505,8 +503,7 @@ class Box(
             listOf(p1.c1.eval(), p2.c2.eval()),
             listOf(p1.c1.eval(), p1.c2.eval()) // Closing the polygon
         )
-        d.write("\"type\": \"Polygon\",".toByteArray())
-        d.write("\"coordinates\": [ [".toByteArray())
+        d.write("[ [".toByteArray())
 
         coordinates.forEachIndexed { index, point ->
             d.write("[${point[0]}, ${point[1]}]".toByteArray())
@@ -599,8 +596,7 @@ class Circle(
             val y = centerY + radius * sin(angle)
             listOf(x, y)
         } + listOf(listOf(centerX + radius, centerY))
-        d.write("\"type\": \"Polygon\",".toByteArray())
-        d.write("\"coordinates\": [ [".toByteArray())
+        d.write("[ [".toByteArray())
 
         coordinates.forEachIndexed { index, point ->
             d.write("[${point[0]}, ${point[1]}]".toByteArray())
@@ -707,8 +703,7 @@ class Marker(
         } else {
             pt as Point
         }
-        d.write("\"type\": \"Point\",".toByteArray())
-        d.write("\"coordinates\": [ ${p.c1.eval()},${p.c2.eval()} ]".toByteArray())
+        d.write("[ ${p.c1.eval()},${p.c2.eval()} ]".toByteArray())
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
@@ -810,9 +805,12 @@ class Road(
         propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiLineString\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -907,9 +905,12 @@ class Building(
         propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiPolygon\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -1003,9 +1004,12 @@ class River(
         propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiLineString\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -1098,9 +1102,12 @@ class Tower(
         propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiPoint\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -1192,9 +1199,12 @@ class Measurment(
         propertiesMap.values.forEach { it.toGEOJson(d) }
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiPoint\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -1293,6 +1303,26 @@ class SetReal(
     }
 }
 
+class Get(
+    private val name: String
+) : Block(), Command {
+    override fun toString(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun toGEOJson(d: OutputStream) {
+        TODO("Not yet implemented")
+    }
+
+    override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        return true
+    }
+
+    override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        return true
+    }
+
+}
 
 interface Construct : SuperType{
     override fun toString(): String
