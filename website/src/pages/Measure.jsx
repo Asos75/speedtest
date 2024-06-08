@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
+import { MapContainer, TileLayer, Circle, Marker, Popup } from 'react-leaflet';
+import { Icon } from 'leaflet';
+import pinIconMaker from '../assets/Icons/pin.png';
 import '../styles/Components/Measure.css';
 
-// Function to get user location
+const pinIcon = new Icon({
+  iconUrl: pinIconMaker,
+  iconSize: [30, 30],
+  iconAnchor: [15, 30]
+});
+
 const getLocation = async () => {
   return new Promise((resolve, reject) => {
     if ('geolocation' in navigator) {
@@ -25,7 +33,6 @@ const getLocation = async () => {
   });
 };
 
-// Function to get IP info
 const getIPInfo = async () => {
   try {
     const ipResponse = await fetch('https://api.ipify.org?format=json');
@@ -38,8 +45,7 @@ const getIPInfo = async () => {
   }
 };
 
-// Speed test related constants
-const downloadSize = 5616998; // Size of the image used for speed test
+const downloadSize = 5616998;
 const imageAddr = "http://wallpaperswide.com/download/shadow_of_the_tomb_raider_2018_puzzle_video_game-wallpaper-7680x4800.jpg";
 const bytesInAKilobyte = 1024;
 const roundedDecimals = 2;
@@ -62,7 +68,7 @@ const downloadImg = async () => {
 const speedtest = async (duration, setCurrentSpeed) => {
   const endTime = Date.now() + duration * 1000;
   const results = [];
-  const interval = 0.5 * 1000; // 0.5 seconds interval
+  const interval = 0.5 * 1000;
 
   while (Date.now() < endTime) {
     try {
@@ -89,6 +95,9 @@ const MeasureList = ({ username }) => {
   const [userISP, setUserISP] = useState(null);
   const [loading, setLoading] = useState({ speed: false, location: false, isp: false });
   const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const [radius, setRadius] = useState(500); 
+  const [averageSpeed, setAverageSpeed] = useState(null);
+  const [loadingAverageSpeed, setLoadingAverageSpeed] = useState(false); // Loading state for average speed
 
   const handleMoreInfoClick = () => {
     setShowMoreInfo(!showMoreInfo);
@@ -97,7 +106,6 @@ const MeasureList = ({ username }) => {
   const fetchUserDetails = async () => {
     setLoading({ speed: true, location: true, isp: true });
 
-    // Remove all the previous data
     setUserSpeed(null);
     setCurrentSpeed(null);
     setUserLocation(null);
@@ -105,18 +113,18 @@ const MeasureList = ({ username }) => {
 
     try {
       const [avgSpeed, location, isp] = await Promise.all([
-        speedtest(10, setCurrentSpeed), // Run speed test for 10 seconds
+        speedtest(10, setCurrentSpeed),
         getLocation(),
         getIPInfo()
       ]);
-      setUserSpeed(avgSpeed); // Set the final average speed
+      setUserSpeed(avgSpeed);
       setUserLocation(location.join(', '));
-      //console.log("ISP: ", isp);
       setUserISP(isp);
     } catch (error) {
       console.error('Error fetching user details:', error);
     } finally {
       setLoading({ speed: false, location: false, isp: false });
+      calculateAverageSpeed(radius);
     }
   };
 
@@ -126,11 +134,11 @@ const MeasureList = ({ username }) => {
     const measurement = {
       speed: Math.floor(userSpeed * bytesInAKilobyte * bytesInAKilobyte),
       type: connectionType,
-      provider: userISP.company.name,
+      provider: (userISP.org ? userISP.org : null),
       time: new Date(),
       location: {
         type: 'Point',
-        coordinates: userLocation.split(', ').map(Number).reverse() // Reverse the coordinates
+        coordinates: userLocation.split(', ').map(Number).reverse()
       },
       ...(anonymous ? {} : { measuredBy: userId })
     };
@@ -145,7 +153,6 @@ const MeasureList = ({ username }) => {
       });
 
       if (response.ok) {
-        // Reset values
         setUserSpeed(null);
         setCurrentSpeed(null);
         setUserLocation(null);
@@ -156,6 +163,37 @@ const MeasureList = ({ username }) => {
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  const calculateAverageSpeed = async (selectedRadius) => {
+    if (!userLocation) return;
+
+    setLoadingAverageSpeed(true);
+    try {
+      const [lat, lon] = userLocation.split(', ').map(Number);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/measurements/measure/${lat}/${lon}/${selectedRadius / 1000}`);
+      const data = await response.json();
+      const pointsWithinRadius = data.pointsWithinRadius;
+
+      if (pointsWithinRadius.length === 0) {
+        setAverageSpeed(null);
+        return;
+      }
+
+      const totalSpeed = pointsWithinRadius.reduce((total, measurement) => total + measurement.speed, 0);
+      const avgSpeed = (totalSpeed / pointsWithinRadius.length / bytesInAKilobyte / bytesInAKilobyte).toFixed(roundedDecimals);
+      setAverageSpeed(avgSpeed);
+    } catch (error) {
+      console.error('Error fetching measurements:', error);
+      setAverageSpeed(null);
+    } finally {
+      setLoadingAverageSpeed(false);
+    }
+  };
+
+  const handleRadiusChange = (selectedRadius) => {
+    setRadius(selectedRadius);
+    calculateAverageSpeed(selectedRadius);
   };
 
   return (
@@ -178,7 +216,6 @@ const MeasureList = ({ username }) => {
           {loading.location ? (
             <div className="measureLoadingContainer">
               <p>Loading location...</p>
-              <ThreeDots color="#00BFFF" height={80} width={80} />
             </div>
           ) : (
             userLocation ? <p>Your GPS location: <b>{userLocation}</b></p> : <p><b>No location currently available</b></p>
@@ -187,7 +224,6 @@ const MeasureList = ({ username }) => {
           {loading.isp ? (
             <div className="measureLoadingContainer">
               <p>Loading ISP...</p>
-              <ThreeDots color="#00BFFF" height={80} width={80} />
             </div>
           ) : (
             <>
@@ -200,6 +236,7 @@ const MeasureList = ({ username }) => {
                   <p>City: <b>{userISP.city}</b></p>
                   <p>Region: <b>{userISP.region}</b></p>
                   <p>Country: <b>{userISP.country}</b></p>
+                  <p>Organisation: <b>{userISP.org}</b></p>
                   <p>Location: <b>{userISP.loc}</b></p>
                   <p>Postal: <b>{userISP.postal}</b></p>
                   <p>Timezone: <b>{userISP.timezone}</b></p>
@@ -207,26 +244,58 @@ const MeasureList = ({ username }) => {
               )}
             </>
           )}
-          {loading.location && <p className="measureLoadingText">This depends on your internet speed</p>}
-          <button className="measureButton buttonRed" onClick={fetchUserDetails} disabled={loading.speed || loading.location || loading.isp}>
-            {(loading.speed || loading.location || loading.isp) ? 'Measuring...' : 'Measure Speed'}
-          </button>
+          {loading.location && <p className="measureLoadingText">Loading duration depends on your internet speed</p>}
+          {!(loading.speed || loading.location || loading.isp) && (
+            <button className="measureButton buttonRed" onClick={fetchUserDetails}>
+              Measure Speed
+            </button>
+          )}
           {(userSpeed && userLocation && userISP) && 
           (<div className="addMeasurementLayout">
             <h3>Add your measurement</h3>
             {username ? (
               <div className="addMeasurementButtons">
                 <button className="measureButton" onClick={() => addMeasurement(false)}>Add Measurement as <b>{username}</b></button>
-                <button className="measureButton" onClick={() => addMeasurement(true)}>Add Measurement anonymously</button>
+                <button className="measureButton" onClick={() => addMeasurement(true)}>Add Measurement Anonymously</button>
               </div>
             ) : (
-              <>
-                <p>You need to be logged in to add a measurement</p>
-                <a href="/login" className="measureButton buttonRed">Login</a>
-              </>
+              <button className="measureButton" onClick={() => addMeasurement(true)}>Add Measurement Anonymously</button>
             )}
-          
-          </div>)} 
+          </div>)}
+        </div>
+        <div className="mapContainer">
+          <h2>Map of Measurements</h2>
+          {userLocation ? (
+            <div>
+              <MapContainer center={userLocation.split(', ').map(Number)} zoom={13} style={{ height: '400px', width: '100%' }}>
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <Marker position={userLocation.split(', ').map(Number)} icon={pinIcon}>
+                  <Popup>Your Location</Popup>
+                </Marker>
+                <Circle
+                  center={userLocation.split(', ').map(Number)}
+                  radius={radius}
+                  color="blue"
+                />
+              </MapContainer>
+              <div className="radiusLayout">
+                <p>Average speed in the selected area: <b>{loadingAverageSpeed ? 'Loading...' : averageSpeed ? `${averageSpeed} Mbps` : (userSpeed ? `${userSpeed} Mbps`: "No data available")}</b></p>
+                <p>Adjust Radius:</p>
+                <div className="radiusContainer">
+                  <button className="radiusButton" onClick={() => handleRadiusChange(500)}>500m</button>
+                  <button className="radiusButton" onClick={() => handleRadiusChange(1000)}>1km</button>
+                  <button className="radiusButton" onClick={() => handleRadiusChange(5000)}>5km</button>
+                  <button className="radiusButton" onClick={() => handleRadiusChange(15000)}>15km</button>
+                  <button className="radiusButton" onClick={() => handleRadiusChange(50000)}>50km</button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p>Location not available. Please measure your speed and location first.</p>
+          )}
         </div>
       </div>
     </>

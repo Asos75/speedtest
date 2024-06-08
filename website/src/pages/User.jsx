@@ -1,14 +1,13 @@
-// Dependencies
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
-import { Link } from 'react-router-dom'; // Ensure you have react-router-dom installed
+import { Link } from 'react-router-dom';
+import { Line, Bar } from 'react-chartjs-2';
 import '../styles/User.css';
 import { formatTime } from '../helpers/helperFunction';
 import pinIcon from '../assets/Icons/pin.png';
 
-// Custom marker icon
 const customIcon = new Icon({
   iconUrl: pinIcon,
   iconSize: [30, 30],
@@ -20,7 +19,9 @@ const customIcon = new Icon({
 function UserPage() {
   const [user, setUser] = useState(null);
   const [measurements, setMeasurements] = useState([]);
-  const [mapCenter, setMapCenter] = useState([46.5546, 15.6467]); // Default center, to be updated
+  const [mapCenter, setMapCenter] = useState([46.5546, 15.6467]);
+  const [view, setView] = useState('map'); // 'map' or 'graph'
+  const [graphType, setGraphType] = useState('speed'); // 'speed' or 'time'
 
   useEffect(() => {
     const id = localStorage.getItem('id');
@@ -61,6 +62,49 @@ function UserPage() {
     fetchUserMeasurements();
   }, []);
 
+  const toggleView = () => {
+    setView((prevView) => (prevView === 'map' ? 'graph' : 'map'));
+  };
+
+  const toggleGraphType = (type) => {
+    setGraphType(type);
+  };
+
+  const speedData = {
+    labels: measurements.map(m => new Date(m.time).toLocaleString()),
+    datasets: [
+      {
+        label: 'Speed (Mbps)',
+        data: measurements.map(m => (m.speed / 1024 / 1024).toFixed(2)),
+        fill: false,
+        backgroundColor: 'rgba(75,192,192,0.4)',
+        borderColor: 'rgba(75,192,192,1)',
+      },
+    ],
+  };
+
+  const dailyMeasurements = measurements.reduce((acc, measurement) => {
+    const date = new Date(measurement.time).toLocaleDateString();
+    if (!acc[date]) {
+      acc[date] = 0;
+    }
+    acc[date]++;
+    return acc;
+  }, {});
+
+  const timeData = {
+    labels: Object.keys(dailyMeasurements),
+    datasets: [
+      {
+        label: 'Measurements per Day',
+        data: Object.values(dailyMeasurements),
+        backgroundColor: 'rgba(153,102,255,0.4)',
+        borderColor: 'rgba(153,102,255,1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
   return (
     <div className="userContainer">
       <h1 className="mobileTowerTitle">User Page</h1>
@@ -74,9 +118,8 @@ function UserPage() {
                   <p>Email: <b>{user.email}</b></p>
                   <p className="userInfoRole">{user.admin ? 'Admin' : 'Default user'}</p>
                 </div>
-                <h4>Add data to database</h4>
                 <div className="userAddInfo">
-                  <a href="/measure">Add a new measurement</a>
+                  <a href="/measure">Your measurements</a>
                 </div>
               </>
             ) : (
@@ -84,31 +127,51 @@ function UserPage() {
             )}
           </div>
           <div className="userExtraInfo">
-            <h4>Your Measurements</h4>
-            {measurements.length > 0 ? (
-              <MapContainer center={mapCenter} zoom={13} className="measurementUserMap">
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                />
-                {measurements.map((measurement, index) => (
-                  <Marker
-                    key={index}
-                    position={[measurement.location.coordinates[1], measurement.location.coordinates[0]]}
-                    icon={customIcon}
-                  >
-                    <Popup>
-                      <p>Location: <b>{measurement.location.coordinates.join(', ')}</b></p>
-                      <p>Time: <b>{formatTime(new Date(measurement.time).toLocaleString())}</b></p>
-                      <p>Speed: <b>{(measurement.speed / 1024 / 1024).toFixed(2)} MB/s</b></p>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+            <button onClick={toggleView} className="toggleButton">
+              {view === 'map' ? 'Switch to Graph View' : 'Switch to Map View'}
+            </button>
+            {view === 'map' ? (
+              measurements.length > 0 ? (
+                <MapContainer center={mapCenter} zoom={13} className="measurementUserMap">
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  {measurements.map((measurement, index) => (
+                    <Marker
+                      key={index}
+                      position={[measurement.location.coordinates[1], measurement.location.coordinates[0]]}
+                      icon={customIcon}
+                    >
+                      <Popup>
+                        <p>Location: <b>{measurement.location.coordinates.join(', ')}</b></p>
+                        <p>Time: <b>{formatTime(new Date(measurement.time).toLocaleString())}</b></p>
+                        <p>Speed: <b>{(measurement.speed / 1024 / 1024).toFixed(2)} Mb/s</b></p>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              ) : (
+                <div>
+                  <p>No measurements found.</p>
+                  <Link to="/measure" className="button">Go to Speedtest</Link>
+                </div>
+              )
             ) : (
-              <div>
-                <p>No measurements found.</p>
-                <Link to="/measure" className="button">Go to Speedtest</Link>
+              <div className="chartContainer">
+                <div className="graphTabs">
+                  <button onClick={() => toggleGraphType('speed')} className={`graphTab ${graphType === 'speed' ? 'active' : ''}`}>
+                    Speed
+                  </button>
+                  <button onClick={() => toggleGraphType('time')} className={`graphTab ${graphType === 'time' ? 'active' : ''}`}>
+                    Measurements Over Time
+                  </button>
+                </div>
+                {graphType === 'speed' ? (
+                  <Line data={speedData} />
+                ) : (
+                  <Bar data={timeData} />
+                )}
               </div>
             )}
           </div>

@@ -19,7 +19,10 @@ const PointsSettings = ({ measurements, setLayout, filterType, setFilterType, it
         <hr className="measurementDivider" />
           <div className="measurementSettingsContainer">
             <div className="measurementPageContainer">
-              <p className="measurementCurrentPage">Showing page {currentPage} out of {totalPages}</p>
+              <p className="measurementCurrentPage">Showing page 
+              <input type="number" min="1" max={totalPages} 
+                  value={currentPage} onChange={(e) => goToPage(Number(e.target.value))} />
+                   out of {totalPages}</p>
               <Select
                 labelId="filter-label"
                 value={filterType}
@@ -45,11 +48,6 @@ const PointsSettings = ({ measurements, setLayout, filterType, setFilterType, it
             </div>
             <div className="measurementPageSelection">
               <button onClick={() => prevPage()} disabled={currentPage === 1}>Previous</button>
-              <div className="measurementPageInput">
-                <p>Choose page</p>
-                <input type="number" min="1" max={totalPages} 
-                  value={currentPage} onChange={(e) => goToPage(Number(e.target.value))} />
-              </div>
               <button onClick={() => nextPage()} disabled={currentPage === totalPages}>Next</button>
             </div>
           </div>

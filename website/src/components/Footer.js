@@ -3,7 +3,6 @@ import React from 'react';
 
 
 const Footer = ({username }) => {
-    console.log("Username: " + username.stri);
     return (
         <footer className="oneColumnContainer footerLayout blackBackground">
             <div className="footerLinks">

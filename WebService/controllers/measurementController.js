@@ -14,11 +14,15 @@ const turf = require('@turf/turf');
 function findPointsWithinRadius(center, points, radius) {
     const centerPoint = turf.point(center);
     const searchArea = turf.circle(centerPoint, radius, { steps: 64, units: 'kilometers' });
-  
+
     const results = points.filter(point => {
-        
-        const targetPoint = turf.point(point);
-        return turf.booleanPointInPolygon(targetPoint, searchArea);
+        const targetPoint = turf.point(point.coords);
+        if (turf.booleanPointInPolygon(targetPoint, searchArea)) {
+            return {
+                coords: point.coords,
+                speed: point.speed
+            };
+        }
     });
 
     return results;
@@ -118,17 +122,19 @@ module.exports = {
     listNearby: async function (req, res) {
         try {
             const measurements = await MeasurementModel.find()
-                .select('location.coordinates -_id')
+                .select('speed location.coordinates -_id')
                 .populate('measuredBy');
     
             const coordinates = measurements.map(measurement => {
-                return [
-                    measurement.location.coordinates[1],
-                    measurement.location.coordinates[0]
-                    
-                ];
+                return {
+                    coords: [
+                        measurement.location.coordinates[1],
+                        measurement.location.coordinates[0]
+                    ],
+                    speed: measurement.speed
+                };
             });
-            
+    
             const center = [req.params.lat, req.params.lon]; // Središčna točka
             const radius = req.params.radius; // Radij v kilometrih
     
