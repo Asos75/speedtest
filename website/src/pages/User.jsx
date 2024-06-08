@@ -3,7 +3,7 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import { Link } from 'react-router-dom';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import '../styles/User.css';
 import { formatTime } from '../helpers/helperFunction';
@@ -84,15 +84,24 @@ function UserPage() {
     ],
   };
 
+  const dailyMeasurements = measurements.reduce((acc, measurement) => {
+    const date = new Date(measurement.time).toLocaleDateString();
+    if (!acc[date]) {
+      acc[date] = 0;
+    }
+    acc[date]++;
+    return acc;
+  }, {});
+
   const timeData = {
-    labels: measurements.map(m => new Date(m.time).toLocaleString()),
+    labels: Object.keys(dailyMeasurements),
     datasets: [
       {
-        label: 'Measurements Added Over Time',
-        data: measurements.map((_, index) => index + 1),
-        fill: false,
+        label: 'Measurements per Day',
+        data: Object.values(dailyMeasurements),
         backgroundColor: 'rgba(153,102,255,0.4)',
         borderColor: 'rgba(153,102,255,1)',
+        borderWidth: 1,
       },
     ],
   };
@@ -111,7 +120,7 @@ function UserPage() {
                   <p className="userInfoRole">{user.admin ? 'Admin' : 'Default user'}</p>
                 </div>
                 <div className="userAddInfo">
-                  <a href="/measure">Your measurements</a>
+                  <a href="/measure">Add a new measurement</a>
                 </div>
               </>
             ) : (
@@ -162,7 +171,7 @@ function UserPage() {
                 {graphType === 'speed' ? (
                   <Line data={speedData} />
                 ) : (
-                  <Line data={timeData} />
+                  <Bar data={timeData} />
                 )}
               </div>
             )}
