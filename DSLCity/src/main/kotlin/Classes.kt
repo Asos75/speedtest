@@ -268,19 +268,77 @@ class Bend(
         val p2c2 = p2.c2.eval()
 
 
+        val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
+        var first = true
         d.write("\"type\": \"LineString\",".toByteArray())
         d.write("\"coordinates\": [".toByteArray())
-
-
+        points.forEach{
+            if(!first){
+                d.write(",".toByteArray())
+            } else first = false
+            d.write("[${it.x}, ${it.y}]".toByteArray())
+        }
         d.write("]".toByteArray())
     }
 
-    override fun isContainedInCircle(p: Point, r: Double): Boolean {
-        TODO("Not yet implemented")
+    override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        val numSegments = 128
+        val an = angle.eval()
+        val p1c1 = p1.c1.eval()
+        val p1c2 = p1.c2.eval()
+        val p2c1 = p2.c1.eval()
+        val p2c2 = p2.c2.eval()
+
+
+        val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
+
+        points.forEach{
+            if(Aux.isPointInCircle(it.x, it.y, pc.c1.eval(), pc.c2.eval(), r)){
+                return true
+            }
+        }
+
+        return false
     }
 
-    override fun isContainedInRectangle(p1: Point, p2: Point): Boolean {
-        TODO("Not yet implemented")
+    override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        val numSegments = 128
+        val an = angle.eval()
+        val p1c1 = p1.c1.eval()
+        val p1c2 = p1.c2.eval()
+        val p2c1 = p2.c1.eval()
+        val p2c2 = p2.c2.eval()
+
+
+        val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
+
+        points.forEach {
+            if(Aux.isPointInRectangle(it.x, it.y, pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval())){
+                return true
+            }
+        }
+
+        return true
     }
 }
 
