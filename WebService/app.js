@@ -5,11 +5,15 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
 const socketIo = require('socket.io');
+// Cors for cross origin allowance
+const cors = require('cors');
 
-
-require('dotenv').config();
+// Changed the path of the .env file for the dotenv package
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const mongoose = require('mongoose');
+// Extra strict Squery 
+mongoose.set('strictQuery', true);
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const uri = process.env.MONGO_URL;
@@ -31,6 +35,7 @@ async function run() {
     await client.close();
   }
 }
+
 
 // connect  to mongodb
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -65,6 +70,7 @@ io.on('connection', (socket) => {
 
 
 app.use(logger('dev'));
+//app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
