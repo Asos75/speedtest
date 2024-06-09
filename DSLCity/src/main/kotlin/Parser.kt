@@ -70,6 +70,22 @@ class Parser(
         }
         return primary()
     }
+
+    private fun get(): Get {
+        if(currentToken.symbol == Symbol.LPAREN){
+            currentToken = lex.getToken()
+            if (currentToken.symbol == Symbol.STRING){
+                val res = currentToken.lexeme
+                currentToken = lex.getToken()
+                if(currentToken.symbol == Symbol.RPAREN){
+                    currentToken = lex.getToken()
+                    return Get(res)
+                }
+            }
+        }
+        throw Error("Invalid Get")
+    }
+
     private fun primary(): Expr{
         if(currentToken.symbol == Symbol.REAL){
             val lexeme = currentToken.lexeme
@@ -97,6 +113,10 @@ class Parser(
                 return result
             }
             throw Error("Invalid")
+        }
+        else if(currentToken.symbol == Symbol.GET){
+            currentToken = lex.getToken()
+            return get()
         }
         throw Error("Invalid")
     }
@@ -259,6 +279,7 @@ class Parser(
             Symbol.LESSER -> {
                 currentToken = lex.getToken()
                 val e2 = additive()
+
                 return Lesser(e1, e2)
             }
             Symbol.EQUALS -> {
@@ -302,7 +323,6 @@ class Parser(
             }
             else -> throw Error("Invalid Compare")
         }
-        throw Error("Invalid Compare")
     }
 //region constructs
     private fun constructs(): ConstructList?{

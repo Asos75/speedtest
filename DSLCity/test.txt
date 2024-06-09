@@ -1,24 +1,48 @@
-city "Fiesa" {
-        let rad = building "within" {
-            circle ( point, 20);
+city "Maribor meritve"{
+    measurement "m1" {
+        marker(15.639188890602073, 46.55939310122827);
+        set("speed", 57683);
+    };
+    measurement "m1" {
+        marker(15.641306448788265, 46.560029448886205);
+        set("speed", 89321);
+    };
+    measurement "m1" {
+        marker(15.639083792537326, 46.56044429415445);
+        set("speed", 67290);
+    };
+    measurement "m1" {
+        marker(15.638692645920846, 46.560716418881206);
+        set("speed", 51375);
+    };
+    measurement "m1" {
+        marker(15.640074802307568, 46.55872824859034);
+        set("speed", 91234);
+    };
+    measurement "m1" {
+        marker(15.637856809765267, 46.56042262638542);
+        set("speed", 74321);
+    };
+    measurement "m1" {
+        marker(15.640831575387969, 46.55936987786658);
+        set("speed", 60985);
+    };
+    measurement "m1" {
+        marker(15.639252562284245, 46.558371336009444);
+        set("speed", 52378);
+    };
+    measurement "m1" {
+        marker(15.637630778164429, 46.55832457844193);
+        set("speed", 68842);
+    };
+    measurement "m1" {
+        marker(15.640314295921263, 46.55841921399983);
+        set("speed", 98014);
+    };
+
+      foreach x {
+        if(get("speed") < 70000){
+            output false;
         };
-
-        let circ = circle ( point, 20);
-
-
-       set("active", false);
-       let b = 2;
-       b = 3;
-       let point = Point(b, b);
-       let point2 = Point(2, 2);
-       measurement "line" {
-        output false;
-            set("owner", "City");
-          marker point;
-
-       };
-        building "radius" {
-            set("owner", "City");
-            circle ( point, 20);
-        };
+    };
 };
