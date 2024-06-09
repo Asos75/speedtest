@@ -92,7 +92,6 @@ class HttpEvent(val sessionManager: SessionManager): EventCRUD{
             return response.isSuccessful
         }
     }
-    //TODO fix update
     override fun update(obj: Event): Boolean {
         val url = "$ip/event/${obj.id}"
         val requestBody = createRequestBody(obj)
@@ -107,7 +106,6 @@ class HttpEvent(val sessionManager: SessionManager): EventCRUD{
         }
     }
 
-    //TODO fix delete
     override fun delete(obj: Event): Boolean {
         val url = "$ip/event/${obj.id}"
         val request = Request.Builder()

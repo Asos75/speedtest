@@ -1480,6 +1480,7 @@ class ConstructList(
     }
 
     fun toGEOJson(d: OutputStream) {
+        vars.clear()
         vars["nil"] = 0
         construct.toGEOJson(d)
         constructList?.toGEOJson(d)

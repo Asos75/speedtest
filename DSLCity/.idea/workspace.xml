@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="57d7f9b2-923e-4272-bb87-f071b8445bf6" name="Changes" comment="SPEED-18 Saving progress">
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/nullnull" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/CharTypes.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Classes.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/DFA.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/ForForeachFFFAutomaton.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Parser.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Scanner.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Symbol.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Token.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out.json" beforeDir="false" afterPath="$PROJECT_DIR$/out.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Classes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Classes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Lang.kt" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Object" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RESET_MODE" value="HARD" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2h5um7pUc2q8IURy3tUNjoGOPvC" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build DSLCity.executor&quot;: &quot;Run&quot;,
+    &quot;Kotlin.MainKt.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.MainKt" />
+      <module name="DSLCity.main" />
+      <option name="PROGRAM_PARAMETERS" value="test.txt out.json" />
+      <shortenClasspath name="NONE" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Kotlin.MainKt" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-21.0.2-openjdk-21.0.2-4caba194b151-4f524021" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="57d7f9b2-923e-4272-bb87-f071b8445bf6" name="Changes" comment="" />
+      <created>1716896419898</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1716896419898</updated>
+      <workItem from="1716896423191" duration="3295000" />
+      <workItem from="1716900871696" duration="1216000" />
+      <workItem from="1716990414358" duration="23530000" />
+      <workItem from="1717048349568" duration="6165000" />
+      <workItem from="1717056161829" duration="1071000" />
+      <workItem from="1717059179873" duration="4100000" />
+      <workItem from="1717069718205" duration="3239000" />
+      <workItem from="1717074591631" duration="1460000" />
+      <workItem from="1717080468530" duration="16000" />
+      <workItem from="1717085042073" duration="202000" />
+      <workItem from="1717338827248" duration="33000" />
+      <workItem from="1717499987439" duration="7000" />
+      <workItem from="1717668347957" duration="1427000" />
+      <workItem from="1717669804490" duration="11000" />
+    </task>
+    <task id="LOCAL-00001" summary="SPEED-18 added if with matching comparators">
+      <option name="closed" value="true" />
+      <created>1716997408568</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1716997408568</updated>
+    </task>
+    <task id="LOCAL-00002" summary="SPEED-18 Re-wrote evaluation logic">
+      <option name="closed" value="true" />
+      <created>1717003817531</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1717003817531</updated>
+    </task>
+    <task id="LOCAL-00003" summary="SPEED-18 Enabled deepCopy for command and made for loop at command level">
+      <option name="closed" value="true" />
+      <created>1717018270699</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1717018270699</updated>
+    </task>
+    <task id="LOCAL-00004" summary="SPEED-18 Added parser support for for at block level">
+      <option name="closed" value="true" />
+      <created>1717018308166</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1717018308166</updated>
+    </task>
+    <task id="LOCAL-00005" summary="SPEED-18 Added function out code">
+      <option name="closed" value="true" />
+      <created>1717049023697</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1717049023697</updated>
+    </task>
+    <task id="LOCAL-00006" summary="SPEED-18 Enabled Deep copy at block level">
+      <option name="closed" value="true" />
+      <created>1717049982526</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1717049982526</updated>
+    </task>
+    <task id="LOCAL-00007" summary="SPEED-18 Made it so that property with same name overrides previous value">
+      <option name="closed" value="true" />
+      <created>1717054280056</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1717054280056</updated>
+    </task>
+    <task id="LOCAL-00008" summary="SPEED-18 Saving progress">
+      <option name="closed" value="true" />
+      <created>1717338852357</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1717338852357</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="SPEED-18 added if with matching comparators" />
+    <MESSAGE value="SPEED-18 Re-wrote evaluation logic" />
+    <MESSAGE value="SPEED-18 Fixed commas when displaying features" />
+    <MESSAGE value="SPEED-18 Enabled deepCopy for command and made for loop at command level" />
+    <MESSAGE value="SPEED-18 Added parser support for for at block level" />
+    <MESSAGE value="SPEED-18 Added function out code" />
+    <MESSAGE value="SPEED-18 Enabled Deep copy at block level" />
+    <MESSAGE value="SPEED-18 Made it so that property with same name overrides previous value" />
+    <MESSAGE value="SPEED-18 Saving progress" />
+    <option name="LAST_COMMIT_MESSAGE" value="SPEED-18 Saving progress" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.Error" package="java.lang" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

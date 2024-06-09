@@ -1,3 +1,3 @@
 # SpeedTest
 
-Speedtest app
+Speedtest app.
