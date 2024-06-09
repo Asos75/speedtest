@@ -1,11 +1,10 @@
 package org.example
 
 import java.io.OutputStream
+import java.util.*
 import kotlin.Boolean
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.pow
-import kotlin.math.sin
+import kotlin.collections.HashMap
+import kotlin.math.*
 import kotlin.reflect.KClass
 fun<T: Any> T.getClass(): KClass<T> {
     return javaClass.kotlin
@@ -268,19 +267,74 @@ class Bend(
         val p2c2 = p2.c2.eval()
 
 
-        d.write("\"type\": \"LineString\",".toByteArray())
-        d.write("\"coordinates\": [".toByteArray())
-
-
-        d.write("]".toByteArray())
+        val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
+        var first = true
+        points.forEach{
+            if(!first){
+                d.write(",".toByteArray())
+            } else first = false
+            d.write("[${it.x}, ${it.y}]".toByteArray())
+        }
     }
 
-    override fun isContainedInCircle(p: Point, r: Double): Boolean {
-        TODO("Not yet implemented")
+    override fun isContainedInCircle(pc: Point, r: Double): Boolean {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        val numSegments = 128
+        val an = angle.eval()
+        val p1c1 = p1.c1.eval()
+        val p1c2 = p1.c2.eval()
+        val p2c1 = p2.c1.eval()
+        val p2c2 = p2.c2.eval()
+
+
+        val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
+
+        points.forEach{
+            if(Auiks.isPointInCircle(it.x, it.y, pc.c1.eval(), pc.c2.eval(), r)){
+                return true
+            }
+        }
+
+        return false
     }
 
-    override fun isContainedInRectangle(p1: Point, p2: Point): Boolean {
-        TODO("Not yet implemented")
+    override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
+        val p1 : Point = if(pt1 is Variable) {
+            (pt1 as Variable).eval() as Point
+        } else {
+            pt1 as Point
+        }
+        val p2 : Point = if(pt2 is Variable) {
+            (pt2 as Variable).eval() as Point
+        } else {
+            pt2 as Point
+        }
+        val numSegments = 128
+        val an = angle.eval()
+        val p1c1 = p1.c1.eval()
+        val p1c2 = p1.c2.eval()
+        val p2c1 = p2.c1.eval()
+        val p2c2 = p2.c2.eval()
+
+
+        val points = Bezier.bend(Coordinates(p1c1, p1c2), Coordinates(p2c1, p2c2), an).toPoints(numSegments)
+
+        points.forEach {
+            if(Auiks.isPointInRectangle(it.x, it.y, pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval())){
+                return true
+            }
+        }
+
+        return true
     }
 }
 
@@ -341,13 +395,10 @@ class Line(
         } else {
             pt2 as Point
         }
-        d.write("\"type\": \"LineString\",".toByteArray())
-        d.write("\"coordinates\": [".toByteArray())
 
         d.write("[${p1.c1.eval()}, ${p1.c2.eval()}],".toByteArray())
         d.write("[${p2.c1.eval()}, ${p2.c2.eval()}]".toByteArray())
 
-        d.write("]".toByteArray())
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
@@ -361,8 +412,8 @@ class Line(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
-                Aux.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
+        return Auiks.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
+                Auiks.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
@@ -376,8 +427,8 @@ class Line(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
-                Aux.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
+        return Auiks.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
+                Auiks.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
     }
 
 }
@@ -447,8 +498,6 @@ class Box(
             listOf(p1.c1.eval(), p2.c2.eval()),
             listOf(p1.c1.eval(), p1.c2.eval()) // Closing the polygon
         )
-        d.write("\"type\": \"Polygon\",".toByteArray())
-        d.write("\"coordinates\": [ [".toByteArray())
 
         coordinates.forEachIndexed { index, point ->
             d.write("[${point[0]}, ${point[1]}]".toByteArray())
@@ -457,7 +506,6 @@ class Box(
             }
         }
 
-        d.write("] ]".toByteArray())
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
@@ -471,8 +519,8 @@ class Box(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
-                Aux.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
+        return Auiks.isPointInCircle(p1.c1.eval(), p1.c2.eval(), pc.c1.eval(), pc.c2.eval(), r) &&
+                Auiks.isPointInCircle(p2.c1.eval(), p2.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
@@ -486,8 +534,8 @@ class Box(
         } else {
             pt2 as Point
         }
-        return Aux.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
-                Aux.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
+        return Auiks.isPointInRectangle(p1.c1.eval(), p1.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),) &&
+                Auiks.isPointInRectangle(p2.c1.eval(), p2.c2.eval(), pr1.c1.eval(), pr1.c2.eval(), pr2.c1.eval(), pr1.c2.eval(),)
     }
 
 }
@@ -535,14 +583,19 @@ class Circle(
         val centerX = p.c1.eval()
         val centerY = p.c2.eval()
 
-        val coordinates = (0 until numPoints).map { i ->
-            val angle = 2 * Math.PI * i / numPoints
-            val x = centerX + radius * cos(angle)
-            val y = centerY + radius * sin(angle)
-            listOf(x, y)
-        } + listOf(listOf(centerX + radius, centerY))
-        d.write("\"type\": \"Polygon\",".toByteArray())
-        d.write("\"coordinates\": [ [".toByteArray())
+
+        val c = radius / 6371
+
+        val lat = Math.toRadians(centerY)
+        val lon = Math.toRadians(centerX)
+
+        val coordinates = (0 until 360 step 10).map { i ->
+            val beta = Math.toRadians(i.toDouble())
+            val lat_ = asin(sin(lat) * cos(c) + cos(lat) * sin(c) * cos(beta))
+            val lon_ = lon + atan2(sin(beta) * sin(c) * cos(lat), cos(c) - sin(lat) * sin(lat_))
+
+            listOf(Math.toDegrees(lon_), Math.toDegrees(lat_))
+        }
 
         coordinates.forEachIndexed { index, point ->
             d.write("[${point[0]}, ${point[1]}]".toByteArray())
@@ -551,7 +604,6 @@ class Circle(
             }
         }
 
-        d.write("] ]".toByteArray())
     }
 
     override fun isContainedInCircle(pc: Point, rc: Double): Boolean {
@@ -562,18 +614,23 @@ class Circle(
         } else {
             pt as Point
         }
-        val numPoints = 64
         val radius = r.eval()
         val centerX = p.c1.eval()
         val centerY = p.c2.eval()
-        val coordinates = (0 until numPoints).map { i ->
-            val angle = 2 * Math.PI * i / numPoints
-            val x = centerX + radius * cos(angle)
-            val y = centerY + radius * sin(angle)
-            listOf(x, y)
-        } + listOf(listOf(centerX + radius, centerY))
+        val c = radius / 6371
+
+        val lat = Math.toRadians(centerY)
+        val lon = Math.toRadians(centerX)
+
+        val coordinates = (0 until 360 step 10).map { i ->
+            val beta = Math.toRadians(i.toDouble())
+            val lat_ = asin(sin(lat) * cos(c) + cos(lat) * sin(c) * cos(beta))
+            val lon_ = lon + atan2(sin(beta) * sin(c) * cos(lat), cos(c) - sin(lat) * sin(lat_))
+
+            listOf(Math.toDegrees(lon_), Math.toDegrees(lat_))
+        }
         coordinates.forEachIndexed { index, point ->
-            if(!Aux.isPointInCircle(point[0], point[1], circleX, circleY, rc)){
+            if(!Auiks.isPointInCircle(point[0], point[1], circleX, circleY, rc)){
                 return false
             }
         }
@@ -590,18 +647,23 @@ class Circle(
         } else {
             pt as Point
         }
-        val numPoints = 64
         val radius = r.eval()
         val centerX = p.c1.eval()
         val centerY = p.c2.eval()
-        val coordinates = (0 until numPoints).map { i ->
-            val angle = 2 * Math.PI * i / numPoints
-            val x = centerX + radius * cos(angle)
-            val y = centerY + radius * sin(angle)
-            listOf(x, y)
-        } + listOf(listOf(centerX + radius, centerY))
+        val c = radius / 6371
+
+        val lat = Math.toRadians(centerY)
+        val lon = Math.toRadians(centerX)
+
+        val coordinates = (0 until 360 step 10).map { i ->
+            val beta = Math.toRadians(i.toDouble())
+            val lat_ = asin(sin(lat) * cos(c) + cos(lat) * sin(c) * cos(beta))
+            val lon_ = lon + atan2(sin(beta) * sin(c) * cos(lat), cos(c) - sin(lat) * sin(lat_))
+
+            listOf(Math.toDegrees(lon_), Math.toDegrees(lat_))
+        }
         coordinates.forEachIndexed { index, point ->
-            if(!Aux.isPointInRectangle(point[0], point[1], rectX1, rectY1, rectX2, rectY2)){
+            if(!Auiks.isPointInRectangle(point[0], point[1], rectX1, rectY1, rectX2, rectY2)){
                 return false
             }
         }
@@ -649,8 +711,7 @@ class Marker(
         } else {
             pt as Point
         }
-        d.write("\"type\": \"Point\",".toByteArray())
-        d.write("\"coordinates\": [ ${p.c1.eval()},${p.c2.eval()} ]".toByteArray())
+        d.write("[ ${p.c1.eval()},${p.c2.eval()} ]".toByteArray())
     }
 
     override fun isContainedInCircle(pc: Point, r: Double): Boolean {
@@ -659,30 +720,47 @@ class Marker(
         } else {
             pt as Point
         }
-        return Aux.isPointInCircle(p.c1.eval(), p.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
+        return Auiks.isPointInCircle(p.c1.eval(), p.c2.eval(), pc.c1.eval(), pc.c2.eval(), r)
     }
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         val p : Point = if(pt is Variable) {
             (pt as Variable).eval() as Point
         } else pt as Point
-        return Aux.isPointInRectangle(p.c1.eval(), p.c2.eval(), pr1.c1.eval(), pr1.c2.eval(),  pr2.c1.eval(), pr2.c2.eval())
+        return Auiks.isPointInRectangle(p.c1.eval(), p.c2.eval(), pr1.c1.eval(), pr1.c2.eval(),  pr2.c1.eval(), pr2.c2.eval())
     }
 
 }
 
 abstract class Block(
-    val properties: MutableList<Property> = mutableListOf(),
+    val properties: MutableMap<String, Any> = mutableMapOf(),
     val commands: MutableList<Command> = mutableListOf()
 ) : SuperType{
     abstract override fun toString(): String
+    fun printProperties(d: OutputStream){
+        properties.forEach{
+            d.write(",${it.key}: ".toByteArray())
+            if(it.value is Expr){
+                d.write("${(it.value as Expr).eval()} ".toByteArray())
+            }
+            else if(it.value is Double){
+                d.write("${(it.value as Double)} ".toByteArray())
+            }
+            else if(it.value is String){
+                d.write("${it.value} ".toByteArray())
+            }
+            else throw Error("Invalid propery type")
+        }
+    }
     abstract fun toGEOJson(d: OutputStream)
     abstract fun isContainedInCircle(pc: Point, r: Double): Boolean
     abstract fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean
 
+    abstract fun evaluate()
+
 }
 
-
+var propertyStack = Stack<MutableMap<String, Any>>()
 
 var firstBlock = false
 class BlockList(
@@ -707,6 +785,7 @@ class Road(
     }
 
     fun eval(commandList: CommandList?){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -718,11 +797,11 @@ class Road(
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
@@ -732,12 +811,16 @@ class Road(
             cl = cl?.comms
             command = cl?.comm
         }
+        propertyStack.pop()
+    }
 
+    override fun evaluate(){
+        eval(comms)
     }
     override fun toGEOJson(d: OutputStream) {
-        if(!out) return
 
-        eval(comms)
+        if(properties["\"output\""] == "false") return
+
 
         if(!firstBlock){
             d.write(",".toByteArray())
@@ -748,13 +831,19 @@ class Road(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        val propertiesMap = properties.associateBy { it.getKey() }
-        propertiesMap.values.forEach { it.toGEOJson(d) }
+        super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiLineString\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
-            it.toGEOJson(d) }
+
+            d.write("[".toByteArray())
+            it.toGEOJson(d)
+            d.write("]".toByteArray())
+        }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -804,6 +893,7 @@ class Building(
     }
 
     fun eval(commandList: CommandList?){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -815,11 +905,11 @@ class Building(
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
@@ -829,12 +919,16 @@ class Building(
             cl = cl?.comms
             command = cl?.comm
         }
+        propertyStack.pop()
+    }
 
+    override fun evaluate(){
+        eval(comms)
     }
     override fun toGEOJson(d: OutputStream) {
-        if(!out) return
 
-        eval(comms)
+        if(properties["\"output\""] == "false") return
+
 
         if(!firstBlock){
             d.write(",".toByteArray())
@@ -845,13 +939,19 @@ class Building(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        val propertiesMap = properties.associateBy { it.getKey() }
-        propertiesMap.values.forEach { it.toGEOJson(d) }
+        super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiPolygon\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
+        d.write("[ [".toByteArray())
+
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("] ]".toByteArray())
+
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -900,6 +1000,7 @@ class River(
     }
 
     fun eval(commandList: CommandList?){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -911,11 +1012,11 @@ class River(
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
@@ -925,12 +1026,15 @@ class River(
             cl = cl?.comms
             command = cl?.comm
         }
-
+        propertyStack.pop()
+    }
+    override fun evaluate(){
+        eval(comms)
     }
     override fun toGEOJson(d: OutputStream) {
-        if(!out) return
 
-        eval(comms)
+        if(properties["\"output\""] == "false") return
+
 
         if(!firstBlock){
             d.write(",".toByteArray())
@@ -941,13 +1045,18 @@ class River(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        val propertiesMap = properties.associateBy { it.getKey() }
-        propertiesMap.values.forEach { it.toGEOJson(d) }
+        super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiLineString\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
-            it.toGEOJson(d) }
+            d.write("[".toByteArray())
+            it.toGEOJson(d)
+            d.write("]".toByteArray())
+        }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -995,6 +1104,7 @@ class Tower(
     }
 
     fun eval(commandList: CommandList?){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -1006,11 +1116,11 @@ class Tower(
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
@@ -1020,12 +1130,15 @@ class Tower(
             cl = cl?.comms
             command = cl?.comm
         }
-
+        propertyStack.pop()
+    }
+    override fun evaluate(){
+        eval(comms)
     }
     override fun toGEOJson(d: OutputStream) {
-        if(!out) return
 
-        eval(comms)
+        if(properties["\"output\""] == "false") return
+
 
         if(!firstBlock){
             d.write(",".toByteArray())
@@ -1036,13 +1149,15 @@ class Tower(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        val propertiesMap = properties.associateBy { it.getKey() }
-        propertiesMap.values.forEach { it.toGEOJson(d) }
+        super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiPoint\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -1090,6 +1205,7 @@ class Measurment(
     }
 
     fun eval(commandList: CommandList?){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -1101,11 +1217,11 @@ class Measurment(
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
@@ -1115,11 +1231,15 @@ class Measurment(
             cl = cl?.comms
             command = cl?.comm
         }
+        propertyStack.pop()
+    }
+    override fun evaluate(){
+        eval(comms)
     }
     override fun toGEOJson(d: OutputStream) {
-        if(!out) return
 
-        eval(comms)
+        if(properties["\"output\""] == "false") return
+
 
         if(!firstBlock){
             d.write(",".toByteArray())
@@ -1130,13 +1250,15 @@ class Measurment(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        val propertiesMap = properties.associateBy { it.getKey() }
-        propertiesMap.values.forEach { it.toGEOJson(d) }
+        super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
+        d.write("\"type\": \"MultiPoint\",".toByteArray())
+        d.write("\"coordinates\": [".toByteArray())
         commands.forEach {
             if(firstCommand) firstCommand = false else d.write(",".toByteArray())
             it.toGEOJson(d) }
+        d.write("]".toByteArray())
         d.write("}".toByteArray())
         d.write("}".toByteArray())
     }
@@ -1172,6 +1294,7 @@ class Measurment(
 interface Property : Saveable {
     fun toGEOJson(d: OutputStream)
     fun getKey() : String
+    fun add(m: MutableMap<String, Any>)
 }
 class SetString(
     private val name: String,
@@ -1186,6 +1309,9 @@ class SetString(
     }
 
     override fun getKey(): String = name
+    override fun add(m: MutableMap<String, Any>) {
+        m[name] = value
+    }
 
     override fun deepCopy(): Saveable {
         return SetString(name, value)
@@ -1200,6 +1326,10 @@ class SetString(
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         return true
+    }
+
+    override fun evaluate() {
+        return
     }
 
 
@@ -1218,6 +1348,9 @@ class SetReal(
     }
 
     override fun getKey(): String = name
+    override fun add(m: MutableMap<String, Any>) {
+        m[name] = value.eval()
+    }
 
     override fun deepCopy(): Saveable {
         val newVal = Real(value.eval())
@@ -1233,8 +1366,28 @@ class SetReal(
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         return true
     }
+
+    override fun evaluate() {
+        return
+    }
 }
 
+class Get(
+    private val name: String
+) : Expr {
+    override fun toString(): String {
+        return "Get $name"
+    }
+
+    override fun eval(): Double {
+        println("GET ${propertyStack.peek()[name]}")
+        if(!propertyStack.peek().containsKey(name)) return 0.0
+        if(propertyStack.peek()[name] !is Double) return 0.0
+        return propertyStack.peek()[name] as Double
+    }
+
+
+}
 
 interface Construct : SuperType{
     override fun toString(): String
@@ -1245,7 +1398,7 @@ interface Construct : SuperType{
 class City(
     private val name: String,
     private val blockList: BlockList? = null,
-    private val properties: MutableList<Property> = mutableListOf(),
+    private val properties: MutableMap<String, Any> = mutableMapOf(),
     private val blocks: MutableList<Block> = mutableListOf()
 
 ) : Construct {
@@ -1254,6 +1407,7 @@ class City(
     }
 
     fun eval(blockList: BlockList?){
+        propertyStack.push(properties)
         var bl = blockList
         var block = bl?.block
         while (block != null) {
@@ -1264,11 +1418,11 @@ class City(
                 eval(block.eval() as BlockList?)
             }
             else if(block is Property){
-                properties.add(block)
+                block.add(properties)
             }
             else if(block is ForLoop){
                 val forResult = block.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 blocks.addAll(forResult.second as MutableList<Block>)
             }
             else if(block is ForEach){
@@ -1277,14 +1431,29 @@ class City(
             else {
                 block = if(block is Variable) block.eval() as Block else block
                 val newBlock = (block as Copyable).deepCopy() as Block
+                newBlock.evaluate()
                 blocks.add(newBlock)
+                println("Properties ${newBlock.properties}")
+
             }
             bl = bl?.blockList
             block = bl?.block
         }
-
+        propertyStack.pop()
     }
 
+    fun printProperties(d: OutputStream){
+        properties.forEach{
+            d.write(",${it.key}: ".toByteArray())
+            if(it.value is Expr){
+                d.write("${(it.value as Expr).eval()} ".toByteArray())
+            }
+            else if(it.value is String){
+                d.write("${it.value} ".toByteArray())
+            }
+            else throw Error("Invalid propery type")
+        }
+    }
     override fun toGEOJson(d: OutputStream) {
         eval(blockList)
 
@@ -1293,8 +1462,7 @@ class City(
         d.write("\"type\": \"FeatureCollection\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
-        val propertiesMap = properties.associateBy { it.getKey() }
-        propertiesMap.values.forEach { it.toGEOJson(d) }
+        printProperties(d)
         d.write("},".toByteArray())
         d.write("\"features\": [".toByteArray())
         blocks.forEach { it.toGEOJson(d) }
@@ -1313,6 +1481,7 @@ class ConstructList(
 
     fun toGEOJson(d: OutputStream) {
         vars.clear()
+        vars["nil"] = 0
         construct.toGEOJson(d)
         constructList?.toGEOJson(d)
     }
@@ -1379,6 +1548,10 @@ class Assign(
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         throw Error("Assign can not be used with in/out")
     }
+
+    override fun evaluate() {
+        return
+    }
 }
 
 class Reassign(
@@ -1440,6 +1613,10 @@ class Reassign(
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         throw Error("Reassign can not be used with in/out")
     }
+
+    override fun evaluate() {
+        return
+    }
 }
 
 
@@ -1469,6 +1646,10 @@ class Variable(
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         return (vars[s] as Command).isContainedInRectangle(pr1, pr2)
+    }
+
+    override fun evaluate() {
+        return
     }
 
 
@@ -1686,6 +1867,10 @@ class If(
             return true
         } else throw Error("Invalid")
     }
+
+    override fun evaluate() {
+        return
+    }
 }
 
 class ForLoop(
@@ -1699,6 +1884,7 @@ class ForLoop(
     }
 
     fun eval(blockList: BlockList?){
+        propertyStack.push(properties)
         var bl = blockList
         var block = bl?.block
         while (block != null) {
@@ -1709,16 +1895,19 @@ class ForLoop(
                 eval(block.eval() as BlockList?)
             }
             else if(block is Property){
-                properties.add(block)
+                block.add(properties)
             } else {
                 val newBlock = (block as Copyable).deepCopy() as Block
+                newBlock.evaluate()
                 superTypes.add(newBlock)
             }
             bl = bl?.blockList
             block = bl?.block
         }
+        propertyStack.pop()
     }
     fun eval(commandList: CommandList?){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -1729,7 +1918,7 @@ class ForLoop(
                 eval(command.eval() as CommandList?)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 val newCommand = ((command as Saveable).deepCopy() as Command)
                 (newCommand as Saveable).save()
@@ -1738,9 +1927,10 @@ class ForLoop(
             cl = cl?.comms
             command = cl?.comm
         }
+        propertyStack.pop()
     }
 
-    fun eval(): Pair<MutableList<Property>, MutableList<SuperType>> {
+    fun eval(): Pair<MutableMap<String, Any>, MutableList<SuperType>> {
         a.eval()
         while ((vars[a.v.toString()] as Double) < e.eval()) {
             if(b is BlockList)
@@ -1783,6 +1973,10 @@ class ForLoop(
         } else throw Error("Invalid")
     }
 
+    override fun evaluate() {
+        return
+    }
+
 }
 
 class ForEach(
@@ -1790,11 +1984,11 @@ class ForEach(
     val o: ObjList?
 ): Block() {
     override fun toString(): String {
-        TODO("Not yet implemented")
+        return v.toString()
     }
 
     override fun toGEOJson(d: OutputStream) {
-        TODO("Not yet implemented")
+        return
     }
 
     fun updateCurrent(e: Any){
@@ -1816,7 +2010,8 @@ class ForEach(
         }
     }
 
-    fun eval(commandList: CommandList?, properties: MutableList<Property>, commands: MutableList<Command>){
+    fun eval(commandList: CommandList?, properties: MutableMap<String, Any>, commands: MutableList<Command>){
+        propertyStack.push(properties)
         var cl = commandList
         var command = cl?.comm
         while (command != null) {
@@ -1832,11 +2027,11 @@ class ForEach(
             }
             else if(command is ForLoop){
                 val forResult = command.eval()
-                properties.addAll(forResult.first)
+                properties.putAll(forResult.first)
                 commands.addAll(forResult.second as MutableList<Command>)
             }
             else if(command is Property){
-                properties.add(command)
+                command.add(properties)
             } else {
                 command = if(command is Variable) command.eval() as Command else command
                 val newCommand = ((command as Saveable).deepCopy() as Command)
@@ -1847,10 +2042,13 @@ class ForEach(
             cl = cl?.comms
             command = cl?.comm
         }
+        propertyStack.pop()
     }
     fun eval(blocks: MutableList<Block>){
         blocks.forEach {
             updateCurrent(it)
+            println("Properties ${it.properties}")
+
             println(vars[v.toString()])
             eval(o as CommandList, it.properties, it.commands)
 
@@ -1862,6 +2060,10 @@ class ForEach(
 
     override fun isContainedInRectangle(pr1: Point, pr2: Point): Boolean {
         return true
+    }
+
+    override fun evaluate() {
+        return
     }
 
 }
