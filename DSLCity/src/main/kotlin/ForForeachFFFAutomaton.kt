@@ -1,7 +1,7 @@
 package org.example
 
 object ForForeachFFFAutomaton : DFA {
-    override val states = (1..130).toSet()
+    override val states = (1..133).toSet()
     override val alphabet = 0..255
     override val startState = 1
     override val finalStates = setOf(
@@ -130,7 +130,10 @@ object ForForeachFFFAutomaton : DFA {
         127,
         128,
         129,
-        130
+        130,
+        131,
+        132,
+        133
     )
 
     private val numberOfStates = states.max() + 1 // plus the ERROR_STATE
@@ -315,6 +318,12 @@ object ForForeachFFFAutomaton : DFA {
         setTransition(123, 'c', 124, 5)
         setTransition(124, 'h', 125, 5)
         closeLine(125, 5)
+
+        setTransition(startState, 'g', 131)
+        setTransition(131, 'e', 132, 5)
+        setTransition(132, 't', 133, 5)
+        closeLine(133, 5)
+
     //highlight
         setTransition(startState, 'h', 58)
         setTransition(58, 'i', 59,5)
@@ -539,6 +548,9 @@ object ForForeachFFFAutomaton : DFA {
         setSymbol(128, Symbol.VARIABLE)
         setSymbol(129, Symbol.VARIABLE)
         setSymbol(130, Symbol.POINT)
+        setSymbol(131, Symbol.STRING)
+        setSymbol(132, Symbol.STRING)
+        setSymbol(133, Symbol.GET)
 
 //endregion
 
@@ -597,6 +609,7 @@ fun name(value: Symbol): String {
         Symbol.TRUE -> "true"
         Symbol.FETCH -> "fetch"
         Symbol.POINT -> "point"
+        Symbol.GET -> "get"
         else -> throw Error("INVALID")
     }
 }
