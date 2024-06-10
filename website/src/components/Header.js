@@ -11,7 +11,7 @@ const DropdownMenu = ({ isOpen, children, side}) => {
   : null;
 };
 
-const Header = ({ title, username, onLogout }) => {
+const Header = ({ username, onLogout }) => {
   const [isOpenLeft, setOpenLeft] = useState(false);
   const [isOpenRight, setOpenRight] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);

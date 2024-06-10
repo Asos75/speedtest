@@ -33,6 +33,7 @@ const App = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     setUsername("");
+    window.location.href="/";
   };
 
   return (
@@ -56,7 +57,7 @@ const App = () => {
           <Route path="/user" element={<User />} />
         </Routes>
       </BrowserRouter>
-      <Footer />
+      <Footer username={username}/>
     </>
   );
 };
