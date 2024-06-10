@@ -38,6 +38,10 @@
     color: var(--color-white);
 }
 
+.header-right a{
+    margin: 0 5px;
+}
+
 .header-right-hamburger{ right: 0;}
 
 .header-left{left: 20px;}

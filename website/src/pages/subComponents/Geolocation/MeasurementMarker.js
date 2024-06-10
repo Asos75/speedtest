@@ -18,7 +18,7 @@ const customIcon = new Icon({
 
 const MeasurementMarker = ({ measurement, index }) => {
   // Address state
-  const [address, setAddress] = useState('');
+  // const [address, setAddress] = useState('');
   // Coordinates are stored in reverse order
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const coordinates = [
@@ -47,13 +47,14 @@ const MeasurementMarker = ({ measurement, index }) => {
     return null;
   }
 
+  const speedInMBps = (measurement.speed * 8 / (1024 * 1024)).toFixed(2);
   return (
     <Marker key={index} position={coordinates} icon={customIcon}>
       <Popup>
         <p><b>{measurement.type}</b></p>
         {coordinates && <p>Coordinates: <b>{coordinates.join(', ')}</b></p>}
-        {address && <p>Address: <b>{address}</b></p>}
-        {measurement.speed && <p>Speed: <b>{measurement.speed}</b></p>}
+        {/* {address && <p>Address: <b>{address}</b></p>} */}
+        {measurement.speed && <p>Speed: <b>{speedInMBps} Mb/s</b></p>}
         {measurement.provider && <p>Provider: <b>{measurement.provider}</b></p>}
         {measurement.time && <p>Time: <b>{formatTime(measurement.time)}</b></p>}
       </Popup>

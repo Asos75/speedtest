@@ -19,12 +19,15 @@ const Measurement = ({ measurement, index }) => {
     return null;
   }
 
+  // Calculate speed in Mb/s
+  const speedInMBps = measurement.speed ? (measurement.speed / (1024 * 1024) * 8).toFixed(2) : 'Currently unavailable';
+
   return (
     <div key={index} className="measurement">
       <p><b>{measurement.type}</b> | Coordinates: <b>{coordinates.join(', ')}</b></p>
       {showDetails && (
         <>
-          <p>Speed: <b>{measurement.speed ? measurement.speed : 'Currently unvailable'}</b></p>
+          <p>Speed: <b>{speedInMBps} Mb/s</b></p>
           {measurement.provider && (<p>Provider: <b>{measurement.provider}</b></p>)}
           {measurement.time && (<p>Time: <b>{formatTime(measurement.time)}</b></p>)}
         </>

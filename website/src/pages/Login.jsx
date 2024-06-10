@@ -36,8 +36,7 @@ const Login = () => {
   }
 
   return (
-    <>
-      <div className="backgroundImage"></div>
+    <div className="blueBackground">
       <h2 className="loginTitle">Login Page</h2>
       <form onSubmit={Login} className="registerLoginContainer">
         <h3>Username</h3>
@@ -51,7 +50,7 @@ const Login = () => {
         <button type="submit">Login</button>
       </form>
       <p className="existingAccount">Don't have an account? <a href="/register">Register</a></p>
-    </>
+    </div>
   );
 };
 

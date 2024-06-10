@@ -165,6 +165,14 @@
   margin: 0 0.5rem;
 }
 
+.measurementCurrentPage input{
+  padding-left: 12px;
+  width: 75px;
+  text-align: center;
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+}
+
 .measurementPageSelect{
   display: flex;
   justify-content: center;
