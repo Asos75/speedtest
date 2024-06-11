@@ -65,7 +65,6 @@
 .blueBackground {
   background-color: var(--color-uraniunBlue);
   padding: 50px 0;
-  border-radius: 15px;
 }
 
 .userAddInfo {

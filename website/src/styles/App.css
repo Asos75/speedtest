@@ -1,6 +1,6 @@
 :root{
   /* Main colors */
-  --color-lightBlue: #7ea0b7;
+  --color-lightBlue: #598fb4;
   --color-uraniunBlue: #76a3cf;
   --color-darkerBlue: #253544;
   /* Creator colors */
@@ -46,10 +46,10 @@ body{
 }
 
 .buttonRed{
-  background-color: rgb(154, 0, 0);
-  transition: background-color var(--hover-duration);
-}
-
-.buttonRed:hover{
   background-color: rgb(200, 0, 0);
+  transition: background-color var(--hover-duration);
+  }
+  
+  .buttonRed:hover{
+  background-color: rgb(154, 0, 0);
 }

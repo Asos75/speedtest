@@ -22,6 +22,8 @@
     justify-items: center;
     align-items: start;
     padding: 0 50px;
+    overflow-y: scroll;
+    height: 100vh;
 }
 
 .mobileTowerList h2{

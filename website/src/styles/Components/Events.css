@@ -26,6 +26,8 @@
 .eventList {
   width: 40%;
   padding: 20px;
+  overflow-y: scroll;
+  height: 95vh;
 }
 
 .event {
@@ -55,7 +57,7 @@
 
 .eventList h2 {
   font-size: 2rem;
-  color: var(--color-black);
+  color: var(--color-white);
   margin: 0 0 1rem 0;
   text-align: center;
 }

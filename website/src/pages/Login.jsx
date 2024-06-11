@@ -8,6 +8,7 @@ const Login = () => {
   // States for form fields
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
 
   // Login user to the website
   async function Login(e){
@@ -20,8 +21,14 @@ const Login = () => {
             password: password
         })
     });
+
+    if (!res.ok) {
+      setError(true);
+      return;
+    }
+
     const data = await res.json();
-    console.log("User data: ", data);
+    // console.log("User data: ", data);
     if(data.token){
       // Save the token and username to localStorage or to a cookie
       localStorage.setItem('token', data.token);
@@ -47,6 +54,7 @@ const Login = () => {
         <div>
           <input type="password" name="password" placeholder="Your password" value={password} onChange={(e)=>(setPassword(e.target.value))} required/>
         </div>
+        {error && <p className="error">Invalid username or password</p>}
         <button type="submit">Login</button>
       </form>
       <p className="existingAccount">Don't have an account? <a href="/register">Register</a></p>

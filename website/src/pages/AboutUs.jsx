@@ -52,9 +52,8 @@ const AboutUs = () => {
           His favourite football team is FC Bayern and he is a better chess player than Domen.
           "
           contacts={[
-            { name: 'LinkedIn', url: 'https://linkedin.com/in/andraz', icon: linkedIn },
-            { name: 'Steam', url: 'https://steamcommunity.com/id/andraz', icon: steam },
-            { name: 'Discord', url: 'https://discord.com/users/andraz', icon: discord },
+            { name: 'Github', url: 'https://github.com/DavidRajlic', icon: github },
+            { name: 'LinkedIn', url: 'https://www.linkedin.com/in/david-rajlic-07360a266/', icon: linkedIn }
           ]}
         />
         <ProfileComponent
