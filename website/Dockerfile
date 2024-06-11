@@ -17,8 +17,6 @@ ENV REACT_APP_IPINFO_TOKEN $REACT_APP_IPINFO_TOKEN
 
 RUN npm install --legacy-peer-deps
 
-RUN npm run build
-
 EXPOSE 3000
 
 CMD [ "npm", "start" ]
