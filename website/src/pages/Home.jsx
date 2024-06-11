@@ -9,7 +9,7 @@ return (
     <div className="homePage">
         <div className="oneColumnContainer blueBackground">
                 <div className="homePageDescription">
-                    <p><b>Speedtest Reader</b> allows you to read internet speed test results, 
+                    <p><b>Speedii</b> allows you to read internet speed test results, 
                             data from various internet speed test sites, 
                              creating your own speed test results based on your geographic location and more.
                     </p>
