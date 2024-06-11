@@ -41,7 +41,7 @@ const Event = ({ event, index, selectedEvent, setSelectedEvent }) => {
         <p>Type: <b>{event.type}</b> | Time: <b>{formatTime(new Date(event.time).toLocaleString())}</b></p>
         <p className="eventsContainerStartTime">{getTimeDifference(event.time)}</p>
       </div>
-      <button className="eventContainerButton" onClick={() => setSelectedEvent(index)}>Select Event</button>
+      {/* <button className="eventContainerButton" onClick={() => setSelectedEvent(index)}>Select Event</button> */}
     </div>
   );
 };

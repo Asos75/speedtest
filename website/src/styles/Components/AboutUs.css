@@ -128,7 +128,7 @@
 
 /* EXTRA FOR DAVID TROLLING */
 
-.aboutUsLayout > div:nth-child(2) {
+/*.aboutUsLayout > div:nth-child(2) {
     background: linear-gradient(to right, #f8a5c2, #f8c2a5, #f8eaa5, #a5f8c2, #a5c2f8, #c2a5f8, #f8a5e5);
 }
 
@@ -136,7 +136,7 @@
     background: linear-gradient(to right, #990014, #994D1E, #99992B, #004D13, #0000C2, #4D005B, #990014, #994D1E, #99992B, #004D13, #0000C2, #4D005B);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}
+}*/
 
 
 @media (max-width: 1475px) {
