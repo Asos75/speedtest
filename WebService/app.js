@@ -68,7 +68,7 @@ io.on('connection', (socket) => {
 });
 
 
-
+app.use(cors({ origin: ['http://localhost:3000', 'http://52.178.15.171:4000'] }));
 app.use(logger('dev'));
 //app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
