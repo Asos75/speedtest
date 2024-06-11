@@ -1,7 +1,7 @@
 :root{
   /* Main colors */
   --color-lightBlue: #7ea0b7;
-  --color-uraniunBlue: #a9cef4;
+  --color-uraniunBlue: #76a3cf;
   --color-darkerBlue: #253544;
   /* Creator colors */
   --color-lightGreen: #b4f2b4;
@@ -12,7 +12,8 @@
   --color-white-dark: rgb(240, 240, 240);
   --color-black: black;
   --color-black-light: rgb(35, 35, 35);
-  --color-black-transparent: rgba(0, 0, 0, 0.7);
+  /* --color-black-transparent: rgba(0, 0, 0, 0.7); */
+  --color-black-transparent: #2c2c2c;
   --color-black-more-transparent: rgba(0, 0, 0, 0.6);
   /* Tools | Geolocation | Mobile towers color */
   --color-lightgray: lightgray;

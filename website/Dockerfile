@@ -1,20 +1,24 @@
-# Use an official Node runtime as the base image
-FROM node:14
+FROM node:18-alpine
 
-# Set the working directory in the container to /app
 WORKDIR /app
 
-# Copy package.json and package-lock.json into the directory
 COPY package*.json ./
 
-# Install the application dependencies
-RUN npm install
+COPY ./public ./public
+COPY ./src ./src
 
-# Bundle the app source inside the Docker image
-COPY . .
+ARG REACT_APP_BACKEND_URL
+ARG REACT_APP_FAST_SPEEDTEST_API_TOKEN
+ARG REACT_APP_IPINFO_TOKEN
 
-# Make port 3000 available to the world outside the container
+ENV REACT_APP_BACKEND_URL $REACT_APP_BACKEND_URL
+ENV REACT_APP_FAST_SPEEDTEST_API_TOKEN $REACT_APP_FAST_SPEEDTEST_API_TOKEN
+ENV REACT_APP_IPINFO_TOKEN $REACT_APP_IPINFO_TOKEN
+
+RUN npm install --legacy-peer-deps
+
+RUN npm run build
+
 EXPOSE 3000
 
-# Define the command to run the app
 CMD [ "npm", "start" ]
