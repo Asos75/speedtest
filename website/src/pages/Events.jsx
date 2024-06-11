@@ -38,7 +38,7 @@ const Event = ({ event, index, selectedEvent, setSelectedEvent }) => {
     <div key={index} className={`event ${selectedEvent === index ? 'highlight' : ''}`}>
       <div className="eventsContainerLayout">
         <p><b>{event.name}</b> | Coordinates: <b>{coordinates.join(', ')}</b> | {event.online ? 'Online' : 'Offline'}</p>
-        <p>Type: <b>{event.type}</b> | Time: <b>{formatTime(new Date(event.time).toLocaleString())}</b></p>
+        <p>Description: <b>{event.type}</b> | Time: <b>{formatTime(new Date(event.time).toLocaleString())}</b></p>
         <p className="eventsContainerStartTime">{getTimeDifference(event.time)}</p>
       </div>
       {/* <button className="eventContainerButton" onClick={() => setSelectedEvent(index)}>Select Event</button> */}
@@ -70,7 +70,7 @@ const EventMarker = ({ events, selectedEventIndex, setSelectedEventIndex }) => {
             <>
               <p><b>{events[selectedEventIndex].name}</b></p>
               <p>Coordinates: <b>{coordinates.join(', ')}</b></p>
-              <p>Type: <b>{events[selectedEventIndex].type}</b></p>
+              <p>Description: <b>{events[selectedEventIndex].type}</b></p>
               <p>Time: <b>{formatTime(new Date(events[selectedEventIndex].time).toLocaleString())}</b></p>
               <p>{events[selectedEventIndex].online ? 'Online' : 'Offline'}</p>
             </>

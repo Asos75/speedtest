@@ -6,7 +6,8 @@ import '../styles/Components/AboutUs.css';
 
 // Components
 // Pictures
-import placeholder from '../assets/Creators/placeholder.jpg';
+// import placeholder from '../assets/Creators/placeholder.jpg';
+import andraz from '../assets/Creators/andraz.jpg';
 import david from '../assets/Creators/IMG_4276.jpg';
 import domen from '../assets/Creators/domen.jpg';
 
@@ -35,7 +36,7 @@ const AboutUs = () => {
           He manages Azure and Docker, project hierarchy, overall project documentation and Git in our project. </br/> <br/>
           In his free time he enjoys discussing CS2 pros and skin combinations with Domen while playing BTD6.
           "
-          profilePicture={placeholder}
+          profilePicture={andraz}
           contacts={[
             { name: 'Github', url: 'https://github.com/Asos75', icon: github },
             { name: 'Steam', url: 'https://steamcommunity.com/id/asos75/', icon: steam }
