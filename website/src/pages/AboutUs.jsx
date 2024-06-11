@@ -5,14 +5,21 @@ import React from 'react';
 import '../styles/Components/AboutUs.css';
 
 // Components
-// PLACEHOLDER -> Get pictures later
+// Pictures
 import placeholder from '../assets/Creators/placeholder.jpg';
+import david from '../assets/Creators/IMG_4276.jpg';
+import domen from '../assets/Creators/domen.jpg';
+
+// Icons
 import linkedIn from '../assets/Icons/linkedin.png';
 // Linked in link -> <a href="https://www.flaticon.com/free-icons/linkedin" title="linkedin icons">Linkedin icons created by riajulislam - Flaticon</a>
 import steam from '../assets/Icons/steam.png';
-// Youtube in link -> <a href="https://www.flaticon.com/free-icons/steam" title="steam icons">Steam icons created by Hight Quality Icons - Flaticon</a>
+// Stea in link -> <a href="https://www.flaticon.com/free-icons/steam" title="steam icons">Steam icons created by Hight Quality Icons - Flaticon</a>
 import discord from '../assets/Icons/discord.png';
 // Discord in link -> <a href="https://www.flaticon.com/free-icons/discord" title="discord icons">Discord icons created by Freepik - Flaticon</a>
+import github from '../assets/Icons/github.png';
+// Github in link -> <a href="https://www.flaticon.com/free-icons/github" title="github icons">Github icons created by Freepik - Flaticon</a>
+
 
 const AboutUs = () => {
   return (
@@ -30,21 +37,19 @@ const AboutUs = () => {
           "
           profilePicture={placeholder}
           contacts={[
-            { name: 'LinkedIn', url: 'https://linkedin.com/in/andraz', icon: linkedIn },
-            { name: 'Steam', url: 'https://steamcommunity.com/id/andraz', icon: steam },
-            { name: 'Discord', url: 'https://discord.com/users/andraz', icon: discord },
+            { name: 'Github', url: 'https://github.com/Asos75', icon: github },
+            { name: 'Steam', url: 'https://steamcommunity.com/id/asos75/', icon: steam }
           ]}
         />
         <ProfileComponent
           name="David Rajlič"
-          // role="Backend developer"
-          role="LGBT Supporter"
-          profilePicture={placeholder}
+          role="Backend developer"
+          profilePicture={david}
           description="
           David is an overall programmer that uses Linux. <br />
           His responsibilities are backend infastructure, data parsing and database development. <br /> <br />
           He manages MongoDB, Express server, API endpoints, data integrity and overall backend development. <br /> <br />
-          His favourite football team is FB Bayern and he is a better chess player than Domen.
+          His favourite football team is FC Bayern and he is a better chess player than Domen.
           "
           contacts={[
             { name: 'LinkedIn', url: 'https://linkedin.com/in/andraz', icon: linkedIn },
@@ -55,7 +60,7 @@ const AboutUs = () => {
         <ProfileComponent
           name="Domen Pahole"
           role="Frontend developer"
-          profilePicture={placeholder}
+          profilePicture={domen}
           description="
           The best words to describe him are Frontend Wizard. <br />
           His responsibilites are frontend development, UI/UX design, backend connectivity and optimization. <br /> <br />
@@ -63,9 +68,8 @@ const AboutUs = () => {
           He spends his time working out, sharpening his eye to detail and going to McDonalds.
           "
           contacts={[
-            { name: 'LinkedIn', url: 'https://linkedin.com/in/andraz', icon: linkedIn },
-            { name: 'Steam', url: 'https://steamcommunity.com/id/andraz', icon: steam },
-            { name: 'Discord', url: 'https://discord.com/users/andraz', icon: discord },
+            { name: 'LinkedIn', url: 'https://www.linkedin.com/in/domenpahole/', icon: linkedIn },
+            { name: 'Steam', url: 'https://steamcommunity.com/id/DomenP/', icon: steam }
           ]}
         />
       </div>
