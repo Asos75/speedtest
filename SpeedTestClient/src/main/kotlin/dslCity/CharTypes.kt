@@ -1,4 +1,4 @@
-package org.example
+package dslCity
 
 enum class CharTypes {
     LETTERSUPERCASE,
