@@ -588,12 +588,15 @@ class Circle(
 
         val lat = Math.toRadians(centerY)
         val lon = Math.toRadians(centerX)
+        var firstLon: Double? = null
+        var firstLat: Double? = null
 
         val coordinates = (0 until 360 step 10).map { i ->
             val beta = Math.toRadians(i.toDouble())
             val lat_ = asin(sin(lat) * cos(c) + cos(lat) * sin(c) * cos(beta))
             val lon_ = lon + atan2(sin(beta) * sin(c) * cos(lat), cos(c) - sin(lat) * sin(lat_))
-
+            if(firstLat == null) firstLat = lat_
+            if(firstLon == null) firstLon = lon_
             listOf(Math.toDegrees(lon_), Math.toDegrees(lat_))
         }
 
@@ -603,6 +606,8 @@ class Circle(
                 d.write(",".toByteArray())
             }
         }
+        d.write(",".toByteArray())
+        d.write("[${firstLon?.let { Math.toDegrees(it) }}, ${firstLat?.let { Math.toDegrees(it) }}]".toByteArray())
 
     }
 
@@ -831,6 +836,9 @@ class Road(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
+        if(properties["\"highlighted\""] == "true") {
+            d.write(",\"stroke\":\"#FF0000\"".toByteArray())
+        }
         super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
@@ -939,6 +947,10 @@ class Building(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
+        if(properties["\"highlighted\""] == "true") {
+            d.write(",\"stroke\":\"#FF0000\"".toByteArray())
+            d.write(",\"fill\": \"#FF0000\"".toByteArray())
+        }
         super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
@@ -1045,6 +1057,9 @@ class River(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
+        if(properties["\"highlighted\""] == "true") {
+            d.write(",\"stroke\":\"#FF0000\"".toByteArray())
+        }
         super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
@@ -1149,6 +1164,9 @@ class Tower(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
+        if(properties["\"highlighted\""] == "true") {
+            d.write(",\"marker-color\":\"#FF0000\"".toByteArray())
+        }
         super.printProperties(d)
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
@@ -1250,7 +1268,11 @@ class Measurment(
         d.write("\"type\": \"Feature\",".toByteArray())
         d.write("\"properties\": {".toByteArray())
         d.write("\"name\": $name".toByteArray())
+        if(properties["\"highlighted\""] == "true") {
+            d.write(",\"marker-color\":\"#FF0000\"".toByteArray())
+        }
         super.printProperties(d)
+
         d.write("},".toByteArray())
         d.write("\"geometry\": {".toByteArray())
         d.write("\"type\": \"MultiPoint\",".toByteArray())
