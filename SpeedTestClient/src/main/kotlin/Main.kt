@@ -715,7 +715,7 @@ fun fetchEvents1(url: String): List<Event> {
 
         val date : LocalDate= when(dateInput.length){
             8 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.M.yyyy"))
-            7 -> if(dateInput.get(1) == '.') LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.MM.yyyy")) else LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.M.yyyy"))
+            9 -> if(dateInput.get(1) == '.') LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("d.MM.yyyy")) else LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.M.yyyy"))
             10 -> LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd.MM.yyyy"))
            else -> throw Error("invalid date")
         }

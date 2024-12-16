@@ -7,20 +7,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="57d7f9b2-923e-4272-bb87-f071b8445bf6" name="Changes" comment="SPEED-18 Saving progress">
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/nullnull" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/CharTypes.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Classes.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/DFA.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/ForForeachFFFAutomaton.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Parser.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Scanner.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Symbol.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Token.kt" afterDir="false" />
+    <list default="true" id="57d7f9b2-923e-4272-bb87-f071b8445bf6" name="Changes" comment="SPEED-18 Fixes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out.json" beforeDir="false" afterPath="$PROJECT_DIR$/out.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Classes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Classes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpeedTestClient/src/main/kotlin/dslCity/Lang.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,6 +104,9 @@
       <workItem from="1717499987439" duration="7000" />
       <workItem from="1717668347957" duration="1427000" />
       <workItem from="1717669804490" duration="11000" />
+      <workItem from="1718289638530" duration="3999000" />
+      <workItem from="1718294187699" duration="1988000" />
+      <workItem from="1719175349225" duration="32000" />
     </task>
     <task id="LOCAL-00001" summary="SPEED-18 added if with matching comparators">
       <option name="closed" value="true" />
@@ -179,7 +172,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717338852357</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="SPEED-18 Fixes">
+      <option name="closed" value="true" />
+      <created>1718292537319</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1718292537319</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -206,7 +207,8 @@
     <MESSAGE value="SPEED-18 Enabled Deep copy at block level" />
     <MESSAGE value="SPEED-18 Made it so that property with same name overrides previous value" />
     <MESSAGE value="SPEED-18 Saving progress" />
-    <option name="LAST_COMMIT_MESSAGE" value="SPEED-18 Saving progress" />
+    <MESSAGE value="SPEED-18 Fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="SPEED-18 Fixes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -27,8 +27,6 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.32")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("org.jsoup:jsoup:1.14.3")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")

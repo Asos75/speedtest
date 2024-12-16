@@ -40,9 +40,15 @@ city "Maribor meritve"{
         set("speed", 98014);
     };
 
-      foreach x {
-        if(get("speed") < 70000){
-            output false;
+    let rad = circle((15.640382467744187, 46.55905646707584), 0.075);
+
+    foreach x {
+        if(x in rad){
+            highlight true;
         };
+    };
+
+    building "c" {
+        rad;
     };
 };
