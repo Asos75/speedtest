@@ -40,8 +40,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-
+        supportFragmentManager.beginTransaction()
+            .replace(binding.fragmentContainer.id, SpeedtestFragment())
+            .commit()
 
         val bottomNavigationView = binding.bottomNavigationView
         bottomNavigationView.setOnItemSelectedListener { item ->
