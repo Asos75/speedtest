@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Speedii"
 include(":app")
- 
+include(":app:speedtest")
