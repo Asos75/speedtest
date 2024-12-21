@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 23)
 find_package(OpenSSL REQUIRED)
 
 # Define your executable
-add_executable(BlockChain main.cpp Block.h)
+add_executable(BlockChain main.cpp Block.h BlockChain.h)
 
 # Link OpenSSL libraries
 target_link_libraries(BlockChain

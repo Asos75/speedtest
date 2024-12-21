@@ -1,9 +1,14 @@
 #include <iostream>
-#include "Block.h"
+#include "BlockChain.h"
 
 
 int main() {
-    Block block(1, std::vector<unsigned char>({'a', 'b', 'c'}), 3);
-    
+
+    BlockChain blockChain(1);
+    while(true){
+        Block block = BlockChain::mine(blockChain.chain.size(), "test", blockChain.difficulty);
+        blockChain.add(block);
+        blockChain.printLast();
+    }
     return 0;
 }

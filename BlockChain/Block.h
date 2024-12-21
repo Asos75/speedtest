@@ -1,80 +1,72 @@
-//
-// Created by andra on 19/12/2024.
-//
-
-#ifndef BLOCKCHAIN_BLOCK_H
-#define BLOCKCHAIN_BLOCK_H
-
-
 #include <iostream>
-#include <vector>
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <ctime>
 #include <cstring>
 #include <openssl/sha.h>
+#include <vector>
 
 class Block {
 public:
     int id;
-    std::vector<unsigned char> data;
+    std::string data;
     long timeStamp;
     int nonce;
     int difficulty;
-    std::vector<unsigned char> currentHash;
-    std::vector<unsigned char> previousHash;
+    std::string currentHash;
+    std::string previousHash;
 
     Block() {
         id = 0;
         timeStamp = std::time(nullptr);
         nonce = 0;
         difficulty = 0;
-        currentHash.resize(SHA256_DIGEST_LENGTH);
-        previousHash.resize(SHA256_DIGEST_LENGTH);
+        currentHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
+        previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
     }
 
-    Block(int id, const std::vector<unsigned char>& data, long timeStamp, int nonce, int difficulty, const std::vector<unsigned char>& currentHash, const std::vector<unsigned char>& previousHash)
+    Block(int id, const std::string& data, long timeStamp, int nonce, int difficulty, const std::string& currentHash, const std::string& previousHash)
             : id(id), data(data), timeStamp(timeStamp), nonce(nonce), difficulty(difficulty), currentHash(currentHash), previousHash(previousHash) {}
 
-    Block(int id, const std::vector<unsigned char>& data, int difficulty)
+    Block(int id, const std::string& data, int difficulty)
             : id(id), data(data), difficulty(difficulty) {
         timeStamp = std::time(nullptr);
-        previousHash.resize(SHA256_DIGEST_LENGTH);
+        previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
         nonce = 0;
     }
 
-    std::vector<unsigned char> calculateHash() {
+    std::string calculateHash() {
         std::stringstream ss;
-        ss << id << std::string(data.begin(), data.end()) << nonce << difficulty << timeStamp;
+        ss << id << data << nonce << difficulty << timeStamp;
 
         std::string input = ss.str();
-        std::vector<unsigned char> hash(SHA256_DIGEST_LENGTH);
-        SHA256(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash.data());
+        unsigned char hash[SHA256_DIGEST_LENGTH];
+        SHA256(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
 
-        return hash;
+        return toHex(hash, SHA256_DIGEST_LENGTH);
     }
 
     void print() {
         std::cout << "Id: " << id << std::endl;
-        std::cout << "Data: " << std::string(data.begin(), data.end()) << std::endl;
+        std::cout << "Data: " << data << std::endl;
         std::cout << "Nonce: " << nonce << std::endl;
         std::cout << "Difficulty: " << difficulty << std::endl;
         std::cout << "Timestamp: " << timeStamp << std::endl;
-        std::cout << "Current Hash: " << toHex(currentHash) << std::endl;
-        std::cout << "Previous Hash: " << toHex(previousHash) << std::endl;
+        std::cout << "Current Hash: " << currentHash << std::endl;
+        std::cout << "Previous Hash: " << previousHash << std::endl;
     }
 
-    static std::string toHex(const std::vector<unsigned char>& in) {
+    static std::string toHex(const unsigned char* in, size_t length) {
         std::stringstream ss;
-        for (unsigned char c : in) {
-            ss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+        for (size_t i = 0; i < length; ++i) {
+            ss << std::hex << std::setw(2) << std::setfill('0') << (int)in[i];
         }
         return ss.str();
     }
 
-    static std::vector<unsigned char> fromHex(const std::string& hex) {
-        std::vector<unsigned char> result;
+    static std::string fromHex(const std::string& hex) {
+        std::string result;
         for (size_t i = 0; i < hex.length(); i += 2) {
             std::string byteString = hex.substr(i, 2);
             unsigned char byte = (unsigned char) strtol(byteString.c_str(), nullptr, 16);
@@ -83,6 +75,3 @@ public:
         return result;
     }
 };
-
-
-#endif //BLOCKCHAIN_BLOCK_H
