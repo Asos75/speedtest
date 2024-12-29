@@ -1,6 +1,8 @@
 #include <iostream>
 #include "BlockChain.h"
 
+using namespace std;
+
 
 int main() {
 
@@ -10,5 +12,10 @@ int main() {
         blockChain.add(block);
         blockChain.printLast();
     }
+
+     if (!blockChain.validate()) {
+            cout << "Validation failed!" << endl;
+            break;
+        }
     return 0;
 }

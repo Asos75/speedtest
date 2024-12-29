@@ -4,6 +4,7 @@
 
 #ifndef BLOCKCHAIN_BLOCKCHAIN_H
 #define BLOCKCHAIN_BLOCKCHAIN_H
+using namespace std;
 
 
 #include <vector>
@@ -57,6 +58,35 @@ public:
     }
 
 };
+
+
+ bool validate() {
+      
+        for (int i = 1; i <= chain.size(); i++) {
+            Block currentBlock = chain[i];
+            Block previousBlock = chain[i - 1];
+
+          
+            if (currentBlock.previousHash != previousBlock.currentHash) {
+                cout << "Error: blocks hash mismatch!" << currentBlock.id << endl;
+                return false;
+            }
+
+            if (currentBlock.currentHash != currentBlock.calculateHash()) {
+                cout << "Error: Hash mismatch" << currentBlock.id << endl;
+                return false;
+            }
+
+           
+            if (currentBlock.currentHash.substr(0, difficulty) != string(difficulty, '0')) {
+                cout << "Error: Difficulty mismatch" << currentBlock.id << endl;
+                return false;
+            }
+        }
+
+        cout << "Blockchain is valid!" << endl;
+        return true;
+    };
 
 
 #endif //BLOCKCHAIN_BLOCKCHAIN_H
