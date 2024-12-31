@@ -89,7 +89,7 @@ public:
             if (!valid) return;
 
             if (chain[i].currentHash != chain[i].calculateHash()) {
-                std::cout << "Hash mismatch at block: " << i << std::endl;
+                cout << "Hash mismatch at block: " << i << endl;
                 valid = false;
                 return;
             }
@@ -101,7 +101,7 @@ public:
             if (!valid) return;
 
             if (chain[i].previousHash != chain[i - 1].currentHash) {
-                std::cout << "Link mismatch at block: " << i << std::endl;
+                cout << "Link mismatch at block: " << i << endl;
                 valid = false;
                 return;
             }
