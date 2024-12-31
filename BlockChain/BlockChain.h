@@ -54,7 +54,7 @@ public:
             }
         }
         */
-        }
+    }
 
     void printLast()
     {
@@ -74,59 +74,68 @@ public:
             }
         }
     }
+
+    bool validateParallel(const std::vector<Block> &chain)
+    {
+        if (chain.empty())
+            return true;
+
+        std::atomic<bool> valid(true);
+        std::vector<std::thread> threads;
+
+        threads.emplace_back([&chain, &valid]()
+                             {
+        for (int i = 0; i < chain.size(); ++i) {
+            if (!valid) return;
+
+            if (chain[i].currentHash != chain[i].calculateHash()) {
+                std::cout << "Hash mismatch at block: " << i << std::endl;
+                valid = false;
+                return;
+            }
+        } });
+
+        threads.emplace_back([&chain, &valid]()
+                             {
+        for (int i = 1; i < chain.size(); ++i) {
+            if (!valid) return;
+
+            if (chain[i].previousHash != chain[i - 1].currentHash) {
+                std::cout << "Link mismatch at block: " << i << std::endl;
+                valid = false;
+                return;
+            }
+        } });
+
+        for (auto &t : threads)
+        {
+            t.join();
+        }
+
+        return valid;
+    }
+
+    void changeDifficulty()
+    {
+        if (chain.size() < ADJUST_RATE)
+        {
+            return;
+        }
+
+        long timeExpected = MINING_RATE * ADJUST_RATE;
+        long timeTaken = chain.back().timeStamp - chain[chain.size() - ADJUST_RATE].timeStamp;
+
+        if (timeTaken < timeExpected / 2)
+        {
+            difficulty++;
+        }
+        else if (timeTaken > timeExpected * 2)
+        {
+            difficulty = max(1, difficulty - 1);
+        }
+
+        cout << "New difficulty: " << difficulty << endl;
+    }
 };
-
-bool validate()
-{
-
-    for (int i = 1; i <= chain.size(); i++)
-    {
-        Block currentBlock = chain[i];
-        Block previousBlock = chain[i - 1];
-
-        if (currentBlock.previousHash != previousBlock.currentHash)
-        {
-            cout << "Error: blocks hash mismatch!" << currentBlock.id << endl;
-            return false;
-        }
-
-        if (currentBlock.currentHash != currentBlock.calculateHash())
-        {
-            cout << "Error: Hash mismatch" << currentBlock.id << endl;
-            return false;
-        }
-
-        if (currentBlock.currentHash.substr(0, difficulty) != string(difficulty, '0'))
-        {
-            cout << "Error: Difficulty mismatch" << currentBlock.id << endl;
-            return false;
-        }
-    }
-
-    cout << "Blockchain is valid!" << endl;
-    return true;
-};
-
-void changeDifficulty()
-{
-    if (chain.size() < ADJUST_RATE)
-    {
-        return;
-    }
-
-    long timeExpected = MINING_RATE * ADJUST_RATE;
-    long timeTaken = chain.back().timeStamp - chain[chain.size() - ADJUST_RATE].timeStamp;
-
-    if (timeTaken < timeExpected / 2)
-    {
-        difficulty++;
-    }
-    else if (timeTaken > timeExpected * 2)
-    {
-        difficulty = max(1, difficulty - 1);
-    }
-
-    cout << "New difficulty: " << difficulty << endl;
-}
 
 #endif // BLOCKCHAIN_BLOCKCHAIN_H
