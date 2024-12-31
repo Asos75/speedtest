@@ -12,6 +12,8 @@ import java.util.Map;
 import si.um.feri.speedii.screens.GameScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
+import si.um.feri.speedii.screens.MenuScreen;
+
 public class SpeediiApp extends Game {
 
     private AssetManager assetManager;
@@ -24,12 +26,13 @@ public class SpeediiApp extends Game {
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
 
         assetManager.load(AssetDescriptors.IMAGES);
+        assetManager.load(AssetDescriptors.UI_SKIN);
 
         assetManager.finishLoading();
 
         batch = new SpriteBatch();
 
-        setScreen(new GameScreen(this));
+        setScreen(new MenuScreen(this));
     }
 
     public AssetManager getAssetManager() {
