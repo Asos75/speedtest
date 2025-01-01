@@ -111,14 +111,15 @@ def main():
                 print("Izhod.")
                 done = True
                 break
-            elif key == 49:
+            elif key in [ord('j'), ord('J')]:
                 boxX -= 1
-            elif key == 51:
+            elif key in [ord('l'), ord('L')]:
                 boxX += 1
-            elif key == 53:
+            elif key in [ord('i'), ord('I')]:
                 boxY -= 1
-            elif key == 50:
+            elif key in [ord('k'), ord('K')]:
                 boxY += 1
+
             elif key in [ord('w'), ord('W')]:
                 boxH -= 1
             elif key in [ord('s'), ord('S')]:
