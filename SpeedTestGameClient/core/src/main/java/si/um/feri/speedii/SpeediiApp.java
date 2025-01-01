@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.Map;
 
+import si.um.feri.speedii.connection.MongoDBConnection;
 import si.um.feri.speedii.screens.GameScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
@@ -22,9 +23,9 @@ public class SpeediiApp extends Game {
 
     @Override
     public void create() {
+        MongoDBConnection.connect();
         assetManager = new AssetManager();
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
-
         assetManager.load(AssetDescriptors.IMAGES);
         assetManager.load(AssetDescriptors.UI_SKIN);
 
