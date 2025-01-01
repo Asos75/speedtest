@@ -66,7 +66,6 @@ public class MenuScreen extends ScreenAdapter {
     }
 
     private Actor createUi() {
-        System.out.println("Kul");
         Table table = new Table();
         table.defaults().pad(20);
 
