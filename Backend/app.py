@@ -5,12 +5,36 @@ import numpy as np
 import base64
 from flask import Flask, request, jsonify, render_template_string
 import tensorflow as tf
+from model import build_model  # Import the model architecture from model.py
 
+# Configuration
 MODEL_PATH = "best_tower_model.h5"
 RAW_DIR = "Data/Raw"
+INPUT_SHAPE = (224, 224, 3)
 
-model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+# Initialize Flask app
 app = Flask(__name__)
+
+# Create and load model
+def initialize_model():
+    if os.path.exists(MODEL_PATH):
+        return tf.keras.models.load_model(MODEL_PATH, compile=False)
+    else:
+        model = build_model(input_shape=INPUT_SHAPE)
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+            loss={
+                'class_output': 'binary_crossentropy',
+                'bbox_output': 'huber'
+            },
+            metrics={
+                'class_output': 'accuracy',
+                'bbox_output': 'mae'
+            }
+        )
+        return model
+
+model = initialize_model()
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -58,26 +82,31 @@ def predict():
     image_path = os.path.join(RAW_DIR, random_file)
     
     # Load and prepare image
-    input_size = (224, 224)
     img = cv2.imread(image_path)
     if img is None:
         return "Could not read image", 400
     
+    # Convert BGR to RGB
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     orig_h, orig_w = img.shape[:2]
-    resized_img = cv2.resize(img, input_size)
+    
+    # Resize and preprocess
+    resized_img = cv2.resize(img, INPUT_SHAPE[:2])
     model_input = resized_img.astype('float32') / 255.0
     model_input = np.expand_dims(model_input, axis=0)
 
     # Get predictions
-    predictions = model.predict(model_input)
-    class_conf = float(predictions[0][0])
-    bbox_pred = predictions[0][1:5]
+    class_pred, bbox_pred = model.predict(model_input)
+    class_conf = float(class_pred[0][0])
     
-    # Convert normalized coordinates
-    x1 = int(bbox_pred[0] * orig_w)
-    y1 = int(bbox_pred[1] * orig_h)
-    x2 = int(bbox_pred[2] * orig_w)
-    y2 = int(bbox_pred[3] * orig_h)
+    # Convert normalized coordinates to pixel coordinates
+    x1 = int(bbox_pred[0][0] * orig_w)
+    y1 = int(bbox_pred[0][1] * orig_h)
+    x2 = int(bbox_pred[0][2] * orig_w)
+    y2 = int(bbox_pred[0][3] * orig_h)
+    
+    # Convert back to BGR for OpenCV
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     
     # Draw rectangle
     cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
