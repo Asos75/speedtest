@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-RAW_DIR = 'Data/Raw'
+RAW_DIR = 'Data/Raw/tower'
 PROCESSED_DIR = 'Data/Processed'
 BBOX_FILE = "Data/bounding_boxes_list.json"
 

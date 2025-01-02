@@ -3,7 +3,7 @@ import cv2
 import json
 import re
 
-RAW_DIR = "Data/Raw"
+RAW_DIR = "Data/Raw/tower"
 PROC_DIR = "Data/Processed"
 BBOX_FILE = "Data/bounding_boxes_list.json"
 
