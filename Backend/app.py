@@ -153,15 +153,13 @@ def predict_image():
         return jsonify({"error": "Empty filename"}), 400
 
     try:
-        # Convert FileStorage to BytesIO and load it as a PIL Image
         img = BytesIO(file.read())
         
-        # Use the function directly for prediction
         result, is_tower = predict_tower(img)
         
         return jsonify({
             "result": result,
-            "is_tower": is_tower,  # True if tower detected, False if not
+            "is_tower": is_tower,  
             "image_name": file.filename
         })
     
