@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import base64
 from flask import Flask, request, jsonify, render_template_string
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import tensorflow as tf
 from model import build_model  # Import the model architecture from model.py
 
@@ -11,6 +12,9 @@ from model import build_model  # Import the model architecture from model.py
 MODEL_PATH = "best_tower_model.h5"
 RAW_DIR = "Data/Raw"
 INPUT_SHAPE = (224, 224, 3)
+
+CLASSIFICATOR_MODEL_PATH = "final_tower_detection_model.h5"
+classificator_model = tf.keras.models.load_model(CLASSIFICATOR_MODEL_PATH)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -121,6 +125,49 @@ def predict():
         x1=x1, y1=y1, x2=x2, y2=y2,
         image=img_base64
     )
+
+from io import BytesIO
+
+def predict_tower(img, target_size=(224, 224)):
+    img = load_img(img, target_size=target_size)
+    img_array = img_to_array(img) / 255.0  # Normalize the image
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    prediction = classificator_model.predict(img_array)
+    
+    # If the model predicts > 0.5, return "Tower detected"
+    if prediction[0] > 0.5:
+        return "Tower detected!", True
+    else:
+        return "No tower detected!", False
+
+
+
+@app.route("/predict_image", methods=["POST"])
+def predict_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+    
+    file = request.files['image']
+    
+    if file.filename == '':
+        return jsonify({"error": "Empty filename"}), 400
+
+    try:
+        # Convert FileStorage to BytesIO and load it as a PIL Image
+        img = BytesIO(file.read())
+        
+        # Use the function directly for prediction
+        result, is_tower = predict_tower(img)
+        
+        return jsonify({
+            "result": result,
+            "is_tower": is_tower,  # True if tower detected, False if not
+            "image_name": file.filename
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
