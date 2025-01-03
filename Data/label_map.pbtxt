@@ -1,0 +1,8 @@
+item {
+  id: 1
+  name: 'tower'
+}
+item {
+  id: 0
+  name: 'no_tower'
+}
