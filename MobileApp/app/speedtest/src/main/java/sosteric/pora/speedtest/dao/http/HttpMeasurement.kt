@@ -4,6 +4,7 @@ import Location
 import Measurment
 import SessionManager
 import User
+import android.util.Log
 import dao.MeasurementCrud
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -242,6 +243,7 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
 
         try {
             val response = client.newCall(request).execute()
+            Log.d("MainActivity", "Response: ${response.body?.string()}")
             return response.isSuccessful
         } catch (e: Exception) {
             e.printStackTrace()

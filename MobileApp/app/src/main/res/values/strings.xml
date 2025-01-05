@@ -34,4 +34,8 @@
     <string name="user">User %1$s</string>
     <string name="email">Email %1$s</string>
     <string name="logout">Logout</string>
+    <string name="my_measurements">My Measurements</string>
+    <string name="speed">Speed: %1$s Mbps</string>
+    <string name="provider">Provider: %1$s</string>
+    <string name="date">Date: %1$s</string>
 </resources>

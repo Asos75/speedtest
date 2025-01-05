@@ -48,6 +48,10 @@ class MqttHelper(private val context: Context) {
         }
     }
 
+    fun isConnected(): Boolean {
+        return mqttClient.state.isConnected
+    }
+
     fun subscribeToTopic(topic: String) {
         mqttClient.subscribeWith()
             .topicFilter(topic)

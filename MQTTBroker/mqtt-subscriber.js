@@ -29,17 +29,21 @@ mqttClient.on('message', async (topic_measurement, message) => {
         return;
     }
 
+    // Check if user exists and has an id, otherwise set measuredBy to null
+    const measuredBy = payload.user || null;  // Assuming id is already a string (from Kotlin)
+
     const data = {
         speed: payload.speed,
         type: payload.type,
         provider: payload.provider,
-        time: new Date().toISOString(), 
+        time: new Date().toISOString(),  // Use current time as ISO string
         location: {
-            type: payload.location?.type || "Point",
-            coordinates: payload.location?.coordinates || [0, 0]
+            type: payload.location?.type || "Point",  // Default to "Point" if not present
+            coordinates: payload.location?.coordinates || [0, 0]  // Default to [0,0] if not present
         },
-        measuredBy: null
+        measuredBy: measuredBy  // Send the counter value or null
     };
+    
 
     console.log('Data being sent:', data);
 

@@ -75,12 +75,12 @@ class SpeedtestFragment : Fragment() {
                             provider = "Speedii",
                             location = customLocation,
                             time = LocalDateTime.now(),
-                            user = null
+                            user = app.sessionManager.user
                         )
 
                         // Convert to JSON using Gson
                         val gson = Gson()
-                        val measurementJson = gson.toJson(measurement)
+                        val measurementJson = gson.toJson(measurement.toAlt())
 
                         // Publish the measurement using MqttHelper
                         val mqttHelper = MqttHelper(requireContext())
