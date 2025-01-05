@@ -31,8 +31,8 @@
         <item>Slovenščina</item>
     </string-array>
     <string name="app_logo">Speedii Logo</string>
-    <string name="user">User %1$s</string>
-    <string name="email">Email %1$s</string>
+    <string name="user">User: %1$s</string>
+    <string name="email">Email: %1$s</string>
     <string name="logout">Logout</string>
     <string name="my_measurements">My Measurements</string>
     <string name="speed">Speed: %1$s Mbps</string>
@@ -48,5 +48,7 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="login">Login</string>
     <string name="welcome">Welcome back!</string>
-
+    <string name="measurement_details">Provider: %1$s\nSpeed: %2$.2f Mb/s\nTime: %3$s</string>
+    <string name="measurement">Measurement</string>
+    <string name="back">Back</string>
 </resources>

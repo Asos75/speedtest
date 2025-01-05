@@ -52,6 +52,10 @@ android {
 }
 
 dependencies {
+    // Map
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmdroid.wms)
+
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)

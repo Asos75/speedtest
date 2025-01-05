@@ -30,7 +30,6 @@ import com.google.gson.Gson
 import java.time.LocalDateTime
 import java.util.ArrayList
 
-
 class SpeedtestFragment : Fragment() {
 
     private lateinit var binding: FragmentSpeedtestBinding
@@ -76,6 +75,14 @@ class SpeedtestFragment : Fragment() {
         result.observe(viewLifecycleOwner, {
             binding.textViewMeasure.text = "$it Mbps"
         })
+
+        // Add this block to set the text based on login status
+        val userStatusText = if (app.sessionManager.isLoggedIn()) {
+            "You are logged in as ${app.sessionManager.user!!.username}"
+        } else {
+            "You are using speedii as guest"
+        }
+        binding.userStatusTextView.text = userStatusText
 
         binding.buttonMeasure.setOnClickListener {
             Thread {

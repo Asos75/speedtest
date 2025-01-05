@@ -15,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sosteric.pora.speedii.databinding.FragmentProfileBinding
+import android.graphics.Typeface
+import java.time.format.DateTimeFormatter
+import android.text.Html
 
 class ProfileFragment : Fragment() {
 
@@ -46,7 +49,9 @@ class ProfileFragment : Fragment() {
                 val emailString = getString(R.string.email, app.sessionManager.user!!.email)
 
                 binding.usernameTextView.text = userString
+                binding.usernameTextView.setTypeface(null, Typeface.BOLD)
                 binding.emailTextView.text = emailString
+                binding.emailTextView.setTypeface(null, Typeface.BOLD)
             }
         }
 
@@ -78,15 +83,21 @@ class ProfileFragment : Fragment() {
 
     private fun onItemClick(pos: Int) {
         val measurement = measurements[pos]
-
+        val fragment = MeasurementFragment.newInstance(measurement)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
+            .addToBackStack(null)
+            .commit()
     }
+
     private fun onItemLongClick(pos: Int) {
         val measurement = measurements[pos]
 
         val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
         builder.setTitle("Delete Item")
 
-        builder.setMessage("Are you sure you want to delete ${measurement.provider}?")
+        builder.setMessage(Html.fromHtml("Are you sure you want to delete the measurement from <b>${measurement.provider}</b> " +
+                "with speed <b>${(measurement.speed / 1000000)} Mbps</b> taken on <b>${measurement.time.format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"))}</b>?"))
 
         builder.setPositiveButton("Yes") { dialog, _ ->
             Log.d("MainActivity", "Attempting to delete: ${measurement}")
