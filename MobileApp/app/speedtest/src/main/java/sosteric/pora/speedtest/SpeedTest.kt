@@ -57,12 +57,15 @@ class SpeedTest(
         return showResults()
     }
 
-    fun measureCycle(): Long {
+    fun measureCycle(
+        updateSpeed: (Double) -> Unit,
+        ): Long {
         val results = Array<Long>(10) { 0 }
         //Doing 10 cycles to account for tcp ramp up
         for (i in 0..<10) {
             Log.d("SpeedTestRun", "Cycle $i")
             results[i] = measure()
+            updateSpeed(convertToMbps(results[i]))
         }
         var sum = 0L
         for(i in 3..<10){
@@ -71,8 +74,8 @@ class SpeedTest(
         return sum/7
     }
 
-    fun convertToMbps(res: Long): Long {
-        return res / 1000000
+    fun convertToMbps(res: Long): Double {
+        return res / 1000000.0
     }
 
 }

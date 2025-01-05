@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.gson)
     implementation(libs.bson.v440)
+    implementation (libs.speedviewlib)
     implementation(project(":app:speedtest"))
     implementation(libs.play.services.location)
     testImplementation(libs.junit)

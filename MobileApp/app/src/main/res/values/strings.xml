@@ -38,4 +38,15 @@
     <string name="speed">Speed: %1$s Mbps</string>
     <string name="provider">Provider: %1$s</string>
     <string name="date">Date: %1$s</string>
+    <string name="create_account">Create Account</string>
+    <string name="username">Username</string>
+    <string name="email_hint">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="create_account_button">Create Account</string>
+    <string name="no_account">Don’t have an account? Sign up</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="login">Login</string>
+    <string name="welcome">Welcome back!</string>
+
 </resources>

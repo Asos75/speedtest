@@ -45,6 +45,12 @@ class LoginFragment : Fragment() {
             }
         }
 
+        binding.signUpTextView.setOnClickListener {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, CreateFragment())
+                .commit()
+        }
+
         return binding.root
     }
 }
