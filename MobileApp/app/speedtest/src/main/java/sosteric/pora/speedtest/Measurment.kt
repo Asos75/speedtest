@@ -21,11 +21,13 @@ class Measurment (
         var provider: String,
         var location: Location,
         var time: LocalDateTime,
-        var user: String,
+        var user: String?,
         val id: ObjectId
     )
 
     fun toAlt(): MeasurementAlt {
-        return MeasurementAlt(speed, type, provider, location, time, user!!.id.toString(), id)
+        val currentUser = user
+        val userId = if(user != null) { currentUser!!.id.toString() } else { null }
+        return MeasurementAlt(speed, type, provider, location, time, userId , id)
     }
 }

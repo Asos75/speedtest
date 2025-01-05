@@ -23,10 +23,12 @@ import sosteric.pora.speedii.databinding.FragmentSpeedtestBinding
 import sosteric.pora.speedtest.Type
 import speedTest.SpeedTest
 import Measurment
+import com.github.anastr.speedviewlib.Speedometer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import java.time.LocalDateTime
+import java.util.ArrayList
 
 
 class SpeedtestFragment : Fragment() {
@@ -34,8 +36,9 @@ class SpeedtestFragment : Fragment() {
     private lateinit var binding: FragmentSpeedtestBinding
     private lateinit var app: SpeediiApplication
 
-    private val result = MutableLiveData<Long>()
+    private val result = MutableLiveData<Double>()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var speedometer: Speedometer
 
 
     @SuppressLint("SetTextI18n")
@@ -48,8 +51,27 @@ class SpeedtestFragment : Fragment() {
 
         app = requireActivity().application as SpeediiApplication
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        speedometer = binding.speedometer
+        speedometer.apply {
+            maxSpeed = 1000f
+            withTremble = false
 
+            ticks = arrayListOf(0f, 0.1f, 0.5f, 1f)
+            trembleDegree = 2f
+
+            onPrintTickLabel = { tickPosition, tick ->
+                when (tick) {
+                    0f -> "0"
+                    0.1f -> "100"
+                    0.5f -> "500"
+                    1f -> "1000"
+                    else -> ""
+                }
+            }
+        }
+
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
         result.observe(viewLifecycleOwner, {
             binding.textViewMeasure.text = "$it Mbps"
@@ -58,7 +80,22 @@ class SpeedtestFragment : Fragment() {
         binding.buttonMeasure.setOnClickListener {
             Thread {
                 val speedtest = SpeedTest()
-                val res: Long = speedtest.measureCycle()
+                requireActivity().runOnUiThread() {
+                    speedometer.speedTo(0f)
+                    speedometer.withTremble = true
+                }
+
+                val res: Long = speedtest.measureCycle {
+                    requireActivity().runOnUiThread {
+                        speedometer.speedTo(it.toFloat())
+                    }
+                }
+
+                requireActivity().runOnUiThread {
+                    speedometer.withTremble = false
+                    speedometer.speedTo(res.toFloat() / 1000000)
+                }
+
                 result.postValue(speedtest.convertToMbps(res))
 
                 // Save the measurement
