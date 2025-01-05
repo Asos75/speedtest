@@ -14,9 +14,16 @@ class SpeediiApplication : Application() {
     lateinit var appTheme: String
     lateinit var language: String
 
+    private lateinit var mqttHelper: MqttHelper
+
+
     override fun onCreate() {
         super.onCreate()
         sharedPreferences = getSharedPreferences("sosteric.pora.application", MODE_PRIVATE)
+
+        mqttHelper = MqttHelper(this)  // Create an instance of MqttHelper
+        mqttHelper.connect()  // Connect to the broker
+
 
         appTheme = if(sharedPreferences.contains("appTheme")){
             sharedPreferences.getString("appTheme", "default")!!
