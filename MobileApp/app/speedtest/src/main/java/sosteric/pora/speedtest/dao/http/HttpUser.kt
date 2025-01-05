@@ -2,6 +2,7 @@ package dao.http
 
 import SessionManager
 import User
+import android.util.Log
 import dao.UserCRUD
 import okhttp3.*
 import org.bson.types.ObjectId
@@ -109,7 +110,7 @@ class HttpUser(val sessionManager: SessionManager): UserCRUD{
             .build()
 
         val request = Request.Builder()
-            .url("${ip}/users/")
+            .url("${ip}/users/register")
             .addHeader("authorization", "Bearer ${sessionManager.token}")
             .post(requestBody)
             .build()
