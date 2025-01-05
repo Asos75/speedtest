@@ -32,6 +32,6 @@ router.put('/:id', authenticateToken, adminCheck, measurementController.update);
 /*
  * DELETE
  */
-router.delete('/:id', authenticateToken, adminCheck, measurementController.remove);
+router.delete('/:id', authenticateToken, measurementController.remove);
 
 module.exports = router;
