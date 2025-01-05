@@ -30,4 +30,8 @@
         <item>English</item>
         <item>Slovenščina</item>
     </string-array>
+    <string name="app_logo">Speedii Logo</string>
+    <string name="user">User %1$s</string>
+    <string name="email">Email %1$s</string>
+    <string name="logout">Logout</string>
 </resources>

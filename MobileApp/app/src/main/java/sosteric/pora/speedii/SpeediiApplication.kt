@@ -1,5 +1,6 @@
 package sosteric.pora.speedii
 
+import SessionManager
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -15,7 +16,7 @@ class SpeediiApplication : Application() {
     lateinit var language: String
 
     private lateinit var mqttHelper: MqttHelper
-
+    lateinit var sessionManager: SessionManager
 
     override fun onCreate() {
         super.onCreate()
@@ -24,6 +25,7 @@ class SpeediiApplication : Application() {
         mqttHelper = MqttHelper(this)  // Create an instance of MqttHelper
         mqttHelper.connect()  // Connect to the broker
 
+        sessionManager = SessionManager()
 
         appTheme = if(sharedPreferences.contains("appTheme")){
             sharedPreferences.getString("appTheme", "default")!!

@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
     private val REQUEST_NOTIFICATION_PERMISSION = 1001
 
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
 
     private lateinit var app: SpeediiApplication
 
@@ -60,9 +60,15 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navigation_profile -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(binding.fragmentContainer.id, ProfileFragment())
-                        .commit()
+                    if(app.sessionManager.isLoggedIn()) {
+                        supportFragmentManager.beginTransaction()
+                            .replace(binding.fragmentContainer.id, ProfileFragment())
+                            .commit()
+                    } else {
+                        supportFragmentManager.beginTransaction()
+                            .replace(binding.fragmentContainer.id, LoginFragment())
+                            .commit()
+                    }
                     true
                 }
                 R.id.navigation_settings -> {

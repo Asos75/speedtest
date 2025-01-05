@@ -139,7 +139,7 @@ class SpeedtestFragment : Fragment() {
                             )
                             callback(customLocation)
                         } else {
-                            callback(null) 
+                            callback(null)
                         }
                     }
             } catch (e: SecurityException) {

@@ -21,6 +21,20 @@ class ProfileFragment : Fragment() {
 
         app = requireActivity().application as SpeediiApplication
 
+        if(!app.sessionManager.isLoggedIn()) {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, LoginFragment())
+                .commit()
+        } else {
+            val userString = getString(R.string.user, app.sessionManager.user!!.username)
+            val emailString = getString(R.string.email, app.sessionManager.user!!.email)
+
+            binding.usernameTextView.text = userString
+            binding.emailTextView.text = emailString
+        }
+
+
+
         return binding.root
     }
 }
