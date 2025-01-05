@@ -6,12 +6,14 @@
 #include <cstring>
 #include <openssl/sha.h>
 #include <vector>
+#include <cmath>
+#include <atomic>
 
 class Block {
 public:
     int id;
     std::string data;
-    long timeStamp;
+    time_t timeStamp;
     int nonce;
     int difficulty;
     std::string currentHash;
@@ -36,9 +38,9 @@ public:
         nonce = 0;
     }
 
-    std::string calculateHash() {
+    std::string calculateHash() const{
         std::stringstream ss;
-        ss << id << data << nonce << difficulty << timeStamp;
+        ss << id << data << timeStamp << previousHash << difficulty << nonce;
 
         std::string input = ss.str();
         unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -52,7 +54,7 @@ public:
         std::cout << "Data: " << data << std::endl;
         std::cout << "Nonce: " << nonce << std::endl;
         std::cout << "Difficulty: " << difficulty << std::endl;
-        std::cout << "Timestamp: " << timeStamp << std::endl;
+        std::cout << "Timestamp: " << std::put_time(std::localtime(&timeStamp), "%Y-%m-%d %H:%M:%S") << std::endl;
         std::cout << "Current Hash: " << currentHash << std::endl;
         std::cout << "Previous Hash: " << previousHash << std::endl;
     }
@@ -73,5 +75,43 @@ public:
             result.push_back(byte);
         }
         return result;
+    }
+
+    // Check if the block is valid
+     bool isTimestampValidForward() const {
+        long currentTime = std::time(nullptr);
+        return timeStamp <= (currentTime + 60);
+    }
+
+    bool isTimestampValidBackward(const Block& previousBlock) const {
+        return timeStamp >= (previousBlock.timeStamp - 60);
+    }
+
+    /*uint64_t getBlockDifficulty() const {
+        return static_cast<uint64_t>(std::pow(2, difficulty));
+    }*/
+
+    uint64_t getBlockDifficulty() const {
+        // Using bit shift instead of pow
+        return 1ULL << difficulty;
+    }
+
+    /*
+    bool hasValidHashDifficulty() const {
+        std::string hash = calculateHash();
+        return hash.substr(0, difficulty) == std::string(difficulty, '0');
+    }*/
+
+    bool hasValidHashDifficulty() const {
+        // Check if hash starts with required number of zeros
+        return currentHash.substr(0, difficulty) == std::string(difficulty, '0');
+    }
+
+    static uint64_t calculateChainDifficulty(const std::vector<Block>& chain) {
+        uint64_t totalDifficulty = 0;
+        for (const auto& block : chain) {
+            totalDifficulty += block.getBlockDifficulty();
+        }
+        return totalDifficulty;
     }
 };
