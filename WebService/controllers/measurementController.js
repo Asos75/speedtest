@@ -295,18 +295,31 @@ module.exports = {
     /**
      * measurementController.remove()
      */
-    remove: function (req, res) {
+    remove: async function (req, res) {
         var id = req.params.id;
-
-        MeasurementModel.findByIdAndRemove(id, function (err, measurement) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when deleting the measurement.',
-                    error: err
-                });
+    
+        try {
+            // Find the measurement by its ID
+            const measurement = await MeasurementModel.findById(id);
+    
+            // If measurement not found
+            if (!measurement) {
+                return res.status(404).json({ message: 'Measurement not found' });
             }
-
-            return res.status(204).json();
-        });
+    
+            // Check if the user is an admin or the user who made the measurement
+            if (req.user && (req.user.userId === measurement.measuredBy.toString() || req.user.admin === true)) {
+                // Proceed to remove the measurement
+                await MeasurementModel.findByIdAndRemove(id);
+                return res.status(204).json();  // Successfully deleted, no content to return
+            } else {
+                return res.status(403).json({ message: 'Forbidden: Only admins or the user who created the measurement can delete it' });
+            }
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when deleting the measurement.',
+                error: err
+            });
+        }
     }
 };
