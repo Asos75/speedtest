@@ -46,6 +46,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        // TODO - Instantly change language when it's changed (either restart app or use a language change listener)
         val languageOptions = resources.getStringArray(R.array.language_options)
         val languageKeys = resources.getStringArray(R.array.language_keys)
         val languageAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, languageOptions)

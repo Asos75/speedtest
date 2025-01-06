@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Speedii</string>
+    <string name="speedtest">Geschwindigkeitstest</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Einstellungen</string>
+    <string name="tower">Turm</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_dark_mode">Dunkles Thema</string>
+    <string name="settings_mode">App-Thema</string>
+    <string-array name="mode_keys">
+        <item>standard</item>
+        <item>hell</item>
+        <item>dunkel</item>
+    </string-array>
+    <string-array name="mode_options">
+        <item>Standard</item>
+        <item>Hell</item>
+        <item>Dunkel</item>
+    </string-array>
+    <string-array name="language_keys">
+        <item>standard</item>
+        <item>de</item>
+        <item>en</item>
+        <item>sl</item>
+    </string-array>
+    <string-array name="language_options">
+        <item>Standard</item>
+        <item>Deutsch</item>
+        <item>English</item>
+        <item>Slovenščina</item>
+    </string-array>
+    <string name="app_logo">Speedii-Logo</string>
+    <string name="user">Benutzer: %1$s</string>
+    <string name="email">E-Mail: %1$s</string>
+    <string name="logout">Abmelden</string>
+    <string name="my_measurements">Meine Messungen</string>
+    <string name="speed">Geschwindigkeit: %1$s Mbps</string>
+    <string name="provider">Anbieter: %1$s</string>
+    <string name="date">Datum: %1$s</string>
+    <string name="create_account">Konto erstellen</string>
+    <string name="username">Benutzername</string>
+    <string name="email_hint">E-Mail</string>
+    <string name="password">Passwort</string>
+    <string name="confirm_password">Passwort bestätigen</string>
+    <string name="create_account_button">Konto erstellen</string>
+    <string name="no_account">Kein Konto? Anmelden</string>
+    <string name="forgot_password">Passwort vergessen?</string>
+    <string name="login">Anmelden</string>
+    <string name="welcome">Willkommen zurück!</string>
+    <string name="measurement_details">Anbieter: %1$s\nGeschwindigkeit: %2$.2f Mb/s\nZeit: %3$s</string>
+    <string name="measurement">Messung</string>
+    <string name="back">Zurück</string>
+</resources>

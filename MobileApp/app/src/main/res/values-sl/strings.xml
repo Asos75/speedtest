@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Speedii</string>
+    <string name="speedtest">Hitrostni test</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Nastavitve</string>
+    <string name="tower">Stolp</string>
+    <string name="settings_title">Nastavitve</string>
+    <string name="settings_language">Jezik</string>
+    <string name="settings_dark_mode">Temna tema</string>
+    <string name="settings_mode">Tema aplikacije</string>
+    <string-array name="mode_keys">
+        <item>privzeto</item>
+        <item>svetlo</item>
+        <item>temno</item>
+    </string-array>
+    <string-array name="mode_options">
+        <item>Privzeto</item>
+        <item>Svetlo</item>
+        <item>Temno</item>
+    </string-array>
+    <string-array name="language_keys">
+        <item>privzeto</item>
+        <item>de</item>
+        <item>en</item>
+        <item>sl</item>
+    </string-array>
+    <string-array name="language_options">
+        <item>Privzeto</item>
+        <item>Deutsch</item>
+        <item>English</item>
+        <item>Slovenščina</item>
+    </string-array>
+    <string name="app_logo">Logotip Speedii</string>
+    <string name="user">Uporabnik: %1$s</string>
+    <string name="email">E-pošta: %1$s</string>
+    <string name="logout">Odjava</string>
+    <string name="my_measurements">Moje meritve</string>
+    <string name="speed">Hitrost: %1$s Mbps</string>
+    <string name="provider">Ponudnik: %1$s</string>
+    <string name="date">Datum: %1$s</string>
+    <string name="create_account">Ustvari račun</string>
+    <string name="username">Uporabniško ime</string>
+    <string name="email_hint">E-pošta</string>
+    <string name="password">Geslo</string>
+    <string name="confirm_password">Potrdi geslo</string>
+    <string name="create_account_button">Ustvari račun</string>
+    <string name="no_account">Nimate računa? Prijavite se</string>
+    <string name="forgot_password">Ste pozabili geslo?</string>
+    <string name="login">Prijava</string>
+    <string name="welcome">Dobrodošli nazaj!</string>
+    <string name="measurement_details">Ponudnik: %1$s\nHitrost: %2$.2f Mb/s\nČas: %3$s</string>
+    <string name="measurement">Meritev</string>
+    <string name="back">Nazaj</string>
+</resources>
