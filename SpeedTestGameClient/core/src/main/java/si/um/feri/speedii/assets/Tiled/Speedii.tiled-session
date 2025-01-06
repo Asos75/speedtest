@@ -1,0 +1,50 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+        ".",
+        "Maps"
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "EasyMap.tmx": {
+            "scale": 1,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 546.5,
+                "y": 330.5
+            }
+        },
+        "MangoPunch.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Maps/MangoPunch.tsx": {
+            "scaleInDock": 1
+        },
+        "Maps/VeryEasyMap.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 569.5,
+                "y": 236.5
+            }
+        },
+        "VeryEasyMap.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 675.9999999999999,
+                "y": 225.99999999999994
+            }
+        }
+    },
+    "openFiles": [
+    ],
+    "project": "",
+    "recentFiles": [
+        "Maps/VeryEasyMap.tmx",
+        "VeryEasyMap.tmx",
+        "MangoPunch.tsx",
+        "EasyMap.tmx"
+    ]
+}

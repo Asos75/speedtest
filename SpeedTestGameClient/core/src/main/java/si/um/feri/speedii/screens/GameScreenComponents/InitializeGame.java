@@ -40,9 +40,9 @@ public class InitializeGame {
         quitButton = new TextButton("Quit", skin);
 
         Table topTable = new Table();
-        topTable.add(locationLabel).left().pad(10).expandX().fillX();
-        topTable.add(uploadSpeedLabel).center().pad(10).expandX().fillX();
-        topTable.add(downloadSpeedLabel).right().pad(10).expandX().fillX();
+        topTable.add(locationLabel).left().pad(10).expandX();
+        topTable.add(uploadSpeedLabel).center().pad(10).expandX();
+        topTable.add(downloadSpeedLabel).right().pad(10).expandX();
 
         Table leftTable = new Table();
         leftTable.add(healthLabel).left().pad(10).expandX().fillX();
@@ -55,12 +55,14 @@ public class InitializeGame {
         buttonTable.add(pauseButton).pad(10).expandX().fillX();
         buttonTable.add(quitButton).pad(10).expandX().fillX();
 
-        table.top().left();
+        table.setFillParent(true);
+        table.top();
         table.add(topTable).expandX().fillX().colspan(2);
         table.row();
         table.add(leftTable).expand().fill();
         table.row();
-        table.add(buttonTable).bottom().right().expand().fill();
+        //table.add(buttonTable).bottom().expand().fill().colspan(2);
+        table.add(buttonTable).expandX().fillX().bottom().right().colspan(2);
     }
 
     public Table getTable() {

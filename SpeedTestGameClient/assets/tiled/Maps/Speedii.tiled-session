@@ -1,0 +1,51 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "EasyMap.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "EasyMap.tmx": {
+            "scale": 1,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 546.5,
+                "y": 330.5
+            }
+        },
+        "MangoPunch.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Maps/MangoPunch.tsx": {
+            "scaleInDock": 1
+        },
+        "VeryEasyMap.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 675.9999999999999,
+                "y": 225.99999999999994
+            }
+        }
+    },
+    "last.externalTilesetPath": "C:/Users/Domi/Desktop/Sola/3.letnik 1.polovica/RRI - Razvoj Računalniških Iger/SkupinskaPraksa/SpeedTestGameClient/core/src/main/java/si/um/feri/speedii/assets/Tiled",
+    "last.imagePath": "C:/Users/Domi/Desktop/Sola/3.letnik 1.polovica/RRI - Razvoj Računalniških Iger/SkupinskaPraksa/SpeedTestGameClient/core/src/main/java/si/um/feri/speedii/assets/Tiled",
+    "map.height": 20,
+    "map.lastUsedFormat": "tmx",
+    "map.width": 35,
+    "openFiles": [
+        "EasyMap.tmx"
+    ],
+    "project": "Speedii.tiled-project",
+    "recentFiles": [
+        "VeryEasyMap.tmx",
+        "MangoPunch.tsx",
+        "EasyMap.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}
