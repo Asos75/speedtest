@@ -5,11 +5,15 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Vector2;
+
 import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 
 public class LoadMap {
-
     private TiledMap map;
+    // Path
+    private Vector2 startPoint;
+    private Vector2 endPoint;
 
     public void loadMap(DIFFICULTY difficulty) {
         String mapFile = getMapFile(difficulty);
@@ -44,17 +48,30 @@ public class LoadMap {
         MapLayer fieldLayer = map.getLayers().get("Field");
     }
 
+    public MapLayer loadLayer(String name) {
+        return map.getLayers().get(name);
+    }
+
     private void loadGameObjects() {
         MapLayer gameLogicLayer = map.getLayers().get("GameLogic");
-        for (MapObject object : gameLogicLayer.getObjects()) {
-            String objectName = object.getName();
-            if ("SpawnPoint".equals(objectName)) {
-                // Process spawn point
-            } else if ("EndPoint".equals(objectName)) {
-                // Process end point
+        if (gameLogicLayer != null) {
+            for (MapObject object : gameLogicLayer.getObjects()) {
+                if (object.getName().equals("SpawnPoint")) {
+                    float x = object.getProperties().get("x", Float.class);
+                    float y = object.getProperties().get("y", Float.class);
+                    startPoint = new Vector2(x, y);
+                } else if (object.getName().equals("EndPoint")) {
+                    float x = object.getProperties().get("x", Float.class);
+                    float y = object.getProperties().get("y", Float.class);
+                    endPoint = new Vector2(x, y);
+                }
             }
         }
     }
+
+    public Vector2 getStartPoint() { return startPoint;}
+
+    public Vector2 getEndPoint() { return endPoint;}
 
     // Each tile is 32 px
     public int getMapWidth()  {return map.getProperties().get("width", Integer.class) * 32; }
