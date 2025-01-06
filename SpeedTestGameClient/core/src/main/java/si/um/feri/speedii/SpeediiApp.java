@@ -33,7 +33,9 @@ public class SpeediiApp extends Game {
 
         batch = new SpriteBatch();
 
-        setScreen(new MapScreen());
+        //setScreen(new MapScreen());
+        setScreen(new GameScreen(this));
+        //(new MenuScreen(SpeediiApp.this));
     }
 
     public AssetManager getAssetManager() {
