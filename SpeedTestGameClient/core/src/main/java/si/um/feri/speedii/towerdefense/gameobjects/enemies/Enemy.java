@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import si.um.feri.speedii.towerdefense.logic.GameLogic;
+
 public class Enemy {
     public enum Type {
         BASIC, REGENATIVE, DEFENSE, BOSS
@@ -21,13 +23,17 @@ public class Enemy {
     private Animation<TextureRegion> idleAnimation;
     private float stateTime;
     private Vector2 position;
+    private Vector2 direction;
+    private GameLogic gameLogic;
 
-    public Enemy(int health, float speed, Type type, String texturePath) {
+    public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic) {
         this.health = health;
         this.speed = speed;
         this.type = type;
         this.stateTime = 0f;
+        this.gameLogic = gameLogic;
         this.position = new Vector2();
+        this.direction = new Vector2(1, 0); // Start moving right
 
         // Load the sprite sheet as a texture
         Texture texture = new Texture(texturePath);
@@ -60,11 +66,51 @@ public class Enemy {
 
     public void setType(Type type) { this.type = type; }
 
-    public void update(float delta) { stateTime += delta; }
+    public void update(float delta) {
+        stateTime += delta;
+
+        boolean directionChanged = false;
+
+        for (Vector2 point : gameLogic.goUpPoints) {
+            if (position.epsilonEquals(point, 5.0f)) { // Increased tolerance value
+                direction.set(0, 1); // Move up
+                directionChanged = true;
+                System.out.println("Moving up at point: " + point);
+                break;
+            }
+        }
+        if (!directionChanged) {
+            for (Vector2 point : gameLogic.goRightPoints) {
+                if (position.epsilonEquals(point, 5.0f)) { // Increased tolerance value
+                    direction.set(1, 0); // Move right
+                    directionChanged = true;
+                    System.out.println("Moving right at point: " + point);
+                    break;
+                }
+            }
+        }
+        if (!directionChanged) {
+            for (Vector2 point : gameLogic.goDownPoints) {
+                if (position.epsilonEquals(point, 5.0f)) { // Increased tolerance value
+                    direction.set(0, -1); // Move down
+                    directionChanged = true;
+                    System.out.println("Moving down at point: " + point);
+                    break;
+                }
+            }
+        }
+        if (position.epsilonEquals(gameLogic.endPoint, 5.0f)) { // Increased tolerance value
+            direction.set(0, 0); // Stop moving
+            System.out.println("Reached end point: " + gameLogic.endPoint);
+        }
+
+        position.mulAdd(direction, speed * delta);
+    }
 
     public void draw(SpriteBatch spriteBatch, float x, float y) {
         TextureRegion currentFrame = idleAnimation.getKeyFrame(stateTime);
-        spriteBatch.draw(currentFrame, x, y);
+        float scale = 2.0f; // Adjust the scale factor as needed
+        spriteBatch.draw(currentFrame, x, y, currentFrame.getRegionWidth() * scale, currentFrame.getRegionHeight() * scale);
     }
 
     public void setPosition(float x, float y) {

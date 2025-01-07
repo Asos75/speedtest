@@ -3,33 +3,77 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "EasyMap.tmx",
+    "activeFile": "VeryEasyMap.tmx",
     "expandedProjectPaths": [
         "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "EasyMap.tmx": {
-            "scale": 1,
-            "selectedLayer": 3,
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 0.75,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 546.5,
-                "y": 330.5
+                "x": 599.3333333333334,
+                "y": 407.33333333333326
+            }
+        },
+        "HardMap.tmx": {
+            "expandedObjectLayers": [
+                7,
+                5,
+                6
+            ],
+            "scale": 0.75,
+            "selectedLayer": 6,
+            "viewCenter": {
+                "x": 602,
+                "y": 457.99999999999994
             }
         },
         "MangoPunch.tsx": {
-            "scaleInDock": 1,
+            "scaleInDock": 1.5,
             "scaleInEditor": 1
         },
         "Maps/MangoPunch.tsx": {
             "scaleInDock": 1
         },
+        "MediumMap.tmx": {
+            "expandedObjectLayers": [
+                7,
+                5,
+                6
+            ],
+            "scale": 1,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 481.5,
+                "y": 390.5
+            }
+        },
         "VeryEasyMap.tmx": {
+            "expandedObjectLayers": [
+                5
+            ],
             "scale": 0.75,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 675.9999999999999,
-                "y": 225.99999999999994
+                "x": 795.3333333333333,
+                "y": -479.33333333333326
+            }
+        },
+        "VeryHardMap.tmx": {
+            "expandedObjectLayers": [
+                5,
+                6
+            ],
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 542,
+                "y": 344.66666666666674
             }
         }
     },
@@ -39,13 +83,14 @@
     "map.lastUsedFormat": "tmx",
     "map.width": 35,
     "openFiles": [
-        "EasyMap.tmx"
+        "VeryEasyMap.tmx"
     ],
     "project": "Speedii.tiled-project",
     "recentFiles": [
+        "EasyMap.tmx",
+        "MediumMap.tmx",
         "VeryEasyMap.tmx",
-        "MangoPunch.tsx",
-        "EasyMap.tmx"
+        "MangoPunch.tsx"
     ],
     "tileset.lastUsedFormat": "tsx"
 }

@@ -30,8 +30,11 @@ import com.badlogic.gdx.math.Vector2;
 // Enemy
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class GameScreen implements Screen {
+import java.util.List;
 
+import si.um.feri.speedii.towerdefense.logic.GameLogic;
+
+public class GameScreen implements Screen {
     //private final SpeediiApp app;
     //private final AssetManager assetManager;
     private LoadMap loadMap;
@@ -49,6 +52,12 @@ public class GameScreen implements Screen {
 
     private EnemySpawner enemySpawner;
     private Enemy enemy;
+    private GameLogic gameLogic;
+
+    private static final float CAMERA_VIEWPORT_WIDTH = 35 * 32;
+    private static final float CAMERA_VIEWPORT_HEIGHT = 20 * 32;
+
+    private boolean isRoundActive = true;
 
     public GameScreen(/*final SpeediiApp app*/) {
         //this.app = app;
@@ -64,32 +73,41 @@ public class GameScreen implements Screen {
 
         // Load map
         loadMap = new LoadMap();
-        loadMap.loadMap(DIFFICULTY.VERY_EASY); // Example usage with VERY_EASY difficulty
+        //loadMap.loadMap(DIFFICULTY.VERY_EASY); // Example usage with VERY_EASY difficulty
+        loadMap.loadMap(DIFFICULTY.EASY);
+
+        // Initialize sprite batch
+        spriteBatch = new SpriteBatch();
+
+        // Initialize game logic
+        Vector2 spawnPoint = loadMap.getStartPoint();
+        Vector2 endPoint = loadMap.getEndPoint();
+        List<Vector2> goRightPoints = loadMap.getGoRightPoints();
+        List<Vector2> goUpPoints = loadMap.getGoUpPoints();
+        List<Vector2> goDownPoints = loadMap.getGoDownPoints();
+        gameLogic = new GameLogic(spawnPoint, goUpPoints, goRightPoints, goDownPoints, endPoint);
+
+        // Log the results of gameLogic
+        System.out.println("Spawn point: " + gameLogic.spawnPoint);
+        System.out.println("End point: " + gameLogic.endPoint);
+        System.out.println("Go right points: " + gameLogic.goRightPoints);
+        System.out.println("Go up points: " + gameLogic.goUpPoints);
+        System.out.println("Go down points: " + gameLogic.goDownPoints);
+
+        // Initialize enemy spawner
+        enemySpawner = new EnemySpawner(loadMap, gameLogic);
+        enemy = enemySpawner.spawnEnemy();
 
         // Initialize map renderer
-        // This value is hard coded scaling so it's like a plan B if transform matrix doesn't work (1/0.66f full screen)
-        mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap(), 1/0.66f);
-        //mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap(), 1f);
+        mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap());
         camera = new OrthographicCamera();
-        //camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.setToOrtho(false, loadMap.getMapWidth(), loadMap.getMapHeight());
-
-        // Scale the map renderer to fit the screen
-        /*float scaleX = (float) Gdx.graphics.getWidth() / loadMap.getMapWidth();
-        float scaleY = (float) Gdx.graphics.getHeight() / loadMap.getMapHeight();
-        mapRenderer.getBatch().getTransformMatrix().scale(scaleX, scaleY, 1);*/
+        camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
+        camera.update();
 
         // Initialize game
         initializeGame = new InitializeGame();
         initializeGame.getTable().setFillParent(true);
         stage.addActor(initializeGame.getTable());
-
-        // Initialize sprite batch
-        spriteBatch = new SpriteBatch();
-
-        // Initialize enemy spawner
-        enemySpawner = new EnemySpawner(loadMap);
-        enemy = enemySpawner.spawnEnemy();
     }
 
     @Override
@@ -113,7 +131,9 @@ public class GameScreen implements Screen {
         spriteBatch.begin();
 
         if (enemy != null) {
-            enemy.update(delta);
+            if (isRoundActive) {
+                enemy.update(delta);
+            }
             enemy.draw(spriteBatch, enemy.getX(), enemy.getY());
         }
 
@@ -169,12 +189,8 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         gameViewport.update(width, height, true);
         stage.getViewport().update(width, height, true);
-        camera.setToOrtho(false, width, height);
-
-        // Scale the map renderer to fit the new screen size
-        /*float scaleX = (float) width / loadMap.getMapWidth();
-        float scaleY = (float) height / loadMap.getMapHeight();
-        mapRenderer.getBatch().getTransformMatrix().scale(scaleX, scaleY, 1);*/
+        //camera.setToOrtho(false, width, height);
+        camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
     }
 
     @Override

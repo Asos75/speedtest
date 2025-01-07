@@ -49,7 +49,7 @@ public class InitializeGame {
         leftTable.row();
         leftTable.add(waveLabel).left().pad(10).expandX().fillX();
         leftTable.row();
-        leftTable.add(enemiesRemainingLabel).left().pad(10).expandX().fillX();
+        leftTable.add(enemiesRemainingLabel).left().pad(10).expandX().fillX().padBottom(400);
 
         Table buttonTable = new Table();
         buttonTable.add(pauseButton).pad(10).expandX().fillX();
@@ -57,12 +57,12 @@ public class InitializeGame {
 
         table.setFillParent(true);
         table.top();
-        table.add(topTable).expandX().fillX().colspan(2);
+        table.add(topTable).expandX().fill();
         table.row();
         table.add(leftTable).expand().fill();
         table.row();
         //table.add(buttonTable).bottom().expand().fill().colspan(2);
-        table.add(buttonTable).expandX().fillX().bottom().right().colspan(2);
+        table.add(buttonTable).expandX().fill().bottom().right().colspan(2);
     }
 
     public Table getTable() {

@@ -69,8 +69,8 @@ public class MenuScreen extends ScreenAdapter {
         Table table = new Table();
         table.defaults().pad(20);
 
-      //  TextureRegion menuBackground = gameplayAtlas.findRegion(RegionNames.BACKGROUND);
-     //   table.setBackground(new TextureRegionDrawable(menuBackground));
+        //TextureRegion menuBackground = gameplayAtlas.findRegion(RegionNames.BACKGROUND);
+        //table.setBackground(new TextureRegionDrawable(menuBackground));
 
         TextButton playButton = new TextButton("Play", skin);
         playButton.addListener(new ClickListener() {

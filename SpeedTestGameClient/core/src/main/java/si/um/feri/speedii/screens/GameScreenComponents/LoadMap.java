@@ -7,6 +7,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 
 public class LoadMap {
@@ -14,6 +17,10 @@ public class LoadMap {
     // Path
     private Vector2 startPoint;
     private Vector2 endPoint;
+    // Path angles
+    private List<Vector2> goRightPoints = new ArrayList<>();
+    private List<Vector2> goUpPoints = new ArrayList<>();
+    private List<Vector2> goDownPoints = new ArrayList<>();
 
     public void loadMap(DIFFICULTY difficulty) {
         String mapFile = getMapFile(difficulty);
@@ -29,13 +36,13 @@ public class LoadMap {
             case VERY_EASY:
                 return "Tiled/Maps/VeryEasyMap.tmx";
             case EASY:
-                // Add other map files for different difficulties
+                return "Tiled/Maps/EasyMap.tmx";
             case MEDIUM:
-                // Add other map files for different difficulties
+                return "Tiled/Maps/MediumMap.tmx";
             case HARD:
-                // Add other map files for different difficulties
+                return "Tiled/Maps/HardMap.tmx";
             case VERY_HARD:
-                // Add other map files for different difficulties
+                return "Tiled/Maps/VeryHardMap.tmx";
             default:
                 throw new IllegalArgumentException("Unknown difficulty: " + difficulty);
         }
@@ -56,14 +63,26 @@ public class LoadMap {
         MapLayer gameLogicLayer = map.getLayers().get("GameLogic");
         if (gameLogicLayer != null) {
             for (MapObject object : gameLogicLayer.getObjects()) {
-                if (object.getName().equals("SpawnPoint")) {
-                    float x = object.getProperties().get("x", Float.class);
-                    float y = object.getProperties().get("y", Float.class);
-                    startPoint = new Vector2(x, y);
-                } else if (object.getName().equals("EndPoint")) {
-                    float x = object.getProperties().get("x", Float.class);
-                    float y = object.getProperties().get("y", Float.class);
-                    endPoint = new Vector2(x, y);
+                float x = object.getProperties().get("x", Float.class);
+                float y = object.getProperties().get("y", Float.class);
+                Vector2 point = new Vector2(x, y);
+
+                switch (object.getName()) {
+                    case "SpawnPoint":
+                        startPoint = point;
+                        break;
+                    case "EndPoint":
+                        endPoint = point;
+                        break;
+                    case "GoRight":
+                        goRightPoints.add(point);
+                        break;
+                    case "GoUp":
+                        goUpPoints.add(point);
+                        break;
+                    case "GoDown":
+                        goDownPoints.add(point);
+                        break;
                 }
             }
         }
@@ -73,9 +92,11 @@ public class LoadMap {
 
     public Vector2 getEndPoint() { return endPoint;}
 
-    // Each tile is 32 px
-    public int getMapWidth()  {return map.getProperties().get("width", Integer.class) * 32; }
-    public int getMapHeight() {return map.getProperties().get("height", Integer.class) * 32;}
+    public List<Vector2> getGoRightPoints() { return goRightPoints; }
+
+    public List<Vector2> getGoUpPoints() { return goUpPoints; }
+
+    public List<Vector2> getGoDownPoints() { return goDownPoints; }
 
     public TiledMap getMap() {
         return map;
