@@ -45,6 +45,7 @@ class ProfileFragment : Fragment() {
                 measurements = withContext(Dispatchers.IO) {
                     HttpMeasurement(app.sessionManager).getByUser(app.sessionManager.user!!)
                 }
+                Log.d("ProfileFragment", "Measurements: $measurements")
                 val userString = getString(R.string.user, app.sessionManager.user!!.username)
                 val emailString = getString(R.string.email, app.sessionManager.user!!.email)
 
@@ -69,6 +70,7 @@ class ProfileFragment : Fragment() {
         lifecycleScope.launch {
             measurements = withContext(Dispatchers.IO) {
                 HttpMeasurement(app.sessionManager).getByUser(app.sessionManager.user!!)
+
             }
             recyclerView.adapter = MeasurementAdapter(
                 measurements,
@@ -103,8 +105,15 @@ class ProfileFragment : Fragment() {
             Log.d("MainActivity", "Attempting to delete: ${measurement}")
 
             lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
+                val success = withContext(Dispatchers.IO) {
                     HttpMeasurement(app.sessionManager).delete(measurement)
+                }
+                if(success) {
+                    lifecycleScope.launch {
+                        measurements = withContext(Dispatchers.IO) {
+                            HttpMeasurement(app.sessionManager).getByUser(app.sessionManager.user!!)
+                        }
+                    }
                 }
             }
             dialog.dismiss()

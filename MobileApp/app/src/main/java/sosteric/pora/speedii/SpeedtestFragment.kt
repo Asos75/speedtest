@@ -27,8 +27,13 @@ import com.github.anastr.speedviewlib.Speedometer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import dao.http.HttpMeasurement
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import sosteric.pora.speedtest.IPInfo
+import java.io.IOException
 import java.time.LocalDateTime
-import java.util.ArrayList
 
 class SpeedtestFragment : Fragment() {
 
@@ -52,7 +57,7 @@ class SpeedtestFragment : Fragment() {
 
         speedometer = binding.speedometer
         speedometer.apply {
-            maxSpeed = 1000f
+            maxSpeed = 100f
             withTremble = false
 
             ticks = arrayListOf(0f, 0.1f, 0.5f, 1f)
@@ -61,14 +66,13 @@ class SpeedtestFragment : Fragment() {
             onPrintTickLabel = { tickPosition, tick ->
                 when (tick) {
                     0f -> "0"
-                    0.1f -> "100"
-                    0.5f -> "500"
-                    1f -> "1000"
+                    0.1f -> "10"
+                    0.5f -> "50"
+                    1f -> "100"
                     else -> ""
                 }
             }
         }
-
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
@@ -105,32 +109,47 @@ class SpeedtestFragment : Fragment() {
 
                 result.postValue(speedtest.convertToMbps(res))
 
-                // Save the measurement
-                val type: Type = checkNetworkType(requireContext()) ?: return@Thread
+                // Get 'org' from ipinfo.io
+                IPInfo.getOrgFromIpInfo { org ->
+                    val provider = org ?: "Unknown"  // Default to "Unknown" if org is null
 
-                getLastLocation { customLocation ->
-                    if (customLocation != null) {
-                        println("Latitude: ${customLocation.coordinates[1]}, Longitude: ${customLocation.coordinates[0]}")
+                    Log.d("SpeedtestFragment", "Provider: $provider")
+                    val type: Type = checkNetworkType(requireContext()) ?: return@getOrgFromIpInfo
 
-                        // Create the measurement
-                        val measurement = Measurment(
-                            speed = res,
-                            type = type,
-                            provider = "Speedii",
-                            location = customLocation,
-                            time = LocalDateTime.now(),
-                            user = app.sessionManager.user
-                        )
+                    getLastLocation { customLocation ->
+                        if (customLocation != null) {
+                            println("Latitude: ${customLocation.coordinates[1]}, Longitude: ${customLocation.coordinates[0]}")
 
-                        // Convert to JSON using Gson
-                        val gson = Gson()
-                        val measurementJson = gson.toJson(measurement.toAlt())
+                            // Create the measurement with provider set to the 'org' value
+                            val measurement = Measurment(
+                                speed = res,
+                                type = type,
+                                provider = provider,  // Use the fetched 'org' value as the provider
+                                location = customLocation,
+                                time = LocalDateTime.now(),
+                                user = app.sessionManager.user
+                            )
 
-                        // Publish the measurement using MqttHelper
-                        val mqttHelper = MqttHelper(requireContext())
-                        mqttHelper.publishMessage("measurements/speed", measurementJson)
-                    } else {
-                        println("Location is null or failed to retrieve")
+                            // Convert to JSON using Gson
+                            val gson = Gson()
+                            val measurementJson = gson.toJson(measurement.toAlt())
+
+                            // Publish the measurement using MqttHelper
+                            val mqttHelper = MqttHelper(requireContext())
+                            if (mqttHelper.isConnected()) {
+                                Log.d("SpeedtestFragment", "Publishing measurement to MQTT")
+                                mqttHelper.publishMessage("measurements/speed", measurementJson)
+                            } else {
+                                Log.d("SpeedtestFragment", "Publishing measurement to HTTP")
+                                lifecycleScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        HttpMeasurement(app.sessionManager).insert(measurement)
+                                    }
+                                }
+                            }
+                        } else {
+                            println("Location is null or failed to retrieve")
+                        }
                     }
                 }
             }.start()
@@ -163,7 +182,7 @@ class SpeedtestFragment : Fragment() {
                 } else if (activeNetworkInfo.type == ConnectivityManager.TYPE_MOBILE) {
                     Type.data
                 } else {
-                   null
+                    null
                 }
             }
         }
@@ -195,4 +214,6 @@ class SpeedtestFragment : Fragment() {
             callback(null)
         }
     }
+
+
 }

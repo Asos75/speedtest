@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.textservice.SpellCheckerSession.SpellCheckerSessionParams
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import sosteric.pora.speedii.databinding.ActivityMainBinding
 import sosteric.pora.speedii.ui.theme.SpeediiTheme
+import sosteric.pora.speedtest.IPInfo
 
 class MainActivity : AppCompatActivity() {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -31,7 +33,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         supportActionBar?.hide()
 

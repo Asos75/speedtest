@@ -30,12 +30,15 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
             .build()
 
         client.newCall(request).execute().use { response ->
+
+
             if (!response.isSuccessful) {
                 println("Failed to execute request: ${response.code}")
                 return emptyList()
             }
 
             val responseBody = response.body?.string()
+
             responseBody?.let {
                 val jsonArray = JSONArray(it)
                 val measurements = mutableListOf<Measurment>()
@@ -48,7 +51,6 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
 
                 return measurements
             }
-
             return emptyList()
         }
 
@@ -158,10 +160,14 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
             put("time", obj.time.format(DateTimeFormatter.ISO_DATE_TIME))
             put("location", JSONObject().apply {
                 put("type", "Point")
-                put("coordinates", obj.location.coordinates)
+                val coordinatesArray = JSONArray()
+                obj.location.coordinates.forEach { coordinatesArray.put(it) }
+                put("coordinates", coordinatesArray)
             })
             obj.user?.let { put("measuredBy", it.id) }
         }
+
+        Log.d("HttpMeasurement", "Request body: $requestBody")
 
         val request = Request.Builder()
             .url("${ip}/measurements")
@@ -189,7 +195,6 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
             }
             jsonArray.put(jsonObject)
         }
-
         val jsonMeasurements = JSONObject().apply {
             put("measurements", jsonArray)
         }

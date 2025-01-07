@@ -12,7 +12,7 @@ class Measurment (
     var time: LocalDateTime,
     var user: User?,
     val id: ObjectId = ObjectId()
-): Parcelable {
+) : Parcelable {
     override fun toString(): String {
         return "$speed, $type, $provider, ${location.coordinates[0]}, ${location.coordinates[1]}, $time, $user"
     }
