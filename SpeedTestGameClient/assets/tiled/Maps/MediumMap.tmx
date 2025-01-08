@@ -97,18 +97,18 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="5" name="GameObject">
+ <objectgroup id="5" name="GameLogic">
   <object id="1" name="SpawnPoint" x="6" y="290" width="59" height="59"/>
   <object id="2" name="EndPoint" x="1054" y="290" width="59" height="59"/>
   <object id="3" name="IntersectionGoUpGoDown" x="294" y="294" width="50" height="50"/>
   <object id="4" name="GoRight" x="615" y="295" width="50" height="50"/>
  </objectgroup>
  <objectgroup id="6" name="Teleport1">
-  <object id="7" name="TeleportEnter" x="290" y="66" width="60" height="28"/>
+  <object id="7" name="TeleportEnterDown" x="290" y="66" width="60" height="28"/>
   <object id="8" name="TeleportLeaveGoDown" x="610" y="66" width="60" height="28"/>
  </objectgroup>
  <objectgroup id="7" name="Teleport2">
-  <object id="9" name="TeleportEnter" x="290" y="546" width="60" height="28"/>
-  <object id="10" name="TeleportEnterGoUp" x="610" y="546" width="60" height="28"/>
+  <object id="9" name="TeleportEnterUp" x="290" y="546" width="60" height="28"/>
+  <object id="10" name="TeleportLeaveGoUp" x="610" y="546" width="60" height="28"/>
  </objectgroup>
 </map>

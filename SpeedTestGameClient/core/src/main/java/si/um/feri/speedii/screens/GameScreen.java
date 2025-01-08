@@ -30,6 +30,7 @@ import com.badlogic.gdx.math.Vector2;
 // Enemy
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.Arrays;
 import java.util.List;
 
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
@@ -73,8 +74,11 @@ public class GameScreen implements Screen {
 
         // Load map
         loadMap = new LoadMap();
-        //loadMap.loadMap(DIFFICULTY.VERY_EASY); // Example usage with VERY_EASY difficulty
-        loadMap.loadMap(DIFFICULTY.EASY);
+        //loadMap.loadMap(DIFFICULTY.VERY_EASY);
+        //loadMap.loadMap(DIFFICULTY.EASY);
+        loadMap.loadMap(DIFFICULTY.MEDIUM);
+        //loadMap.loadMap(DIFFICULTY.HARD);
+        //loadMap.loadMap(DIFFICULTY.VERY_HARD);
 
         // Initialize sprite batch
         spriteBatch = new SpriteBatch();
@@ -82,10 +86,17 @@ public class GameScreen implements Screen {
         // Initialize game logic
         Vector2 spawnPoint = loadMap.getStartPoint();
         Vector2 endPoint = loadMap.getEndPoint();
+
         List<Vector2> goRightPoints = loadMap.getGoRightPoints();
         List<Vector2> goUpPoints = loadMap.getGoUpPoints();
         List<Vector2> goDownPoints = loadMap.getGoDownPoints();
-        gameLogic = new GameLogic(spawnPoint, goUpPoints, goRightPoints, goDownPoints, endPoint);
+
+        Vector2 intersection = loadMap.getIntersection();
+
+        Vector2[] teleportEnterDown = loadMap.getTeleportEnterDown();
+        Vector2[] teleportEnterUp = loadMap.getTeleportEnterUp();
+
+        gameLogic = new GameLogic(spawnPoint, goUpPoints, goRightPoints, goDownPoints,intersection, teleportEnterDown, teleportEnterUp, endPoint);
 
         // Log the results of gameLogic
         System.out.println("Spawn point: " + gameLogic.spawnPoint);
@@ -93,6 +104,9 @@ public class GameScreen implements Screen {
         System.out.println("Go right points: " + gameLogic.goRightPoints);
         System.out.println("Go up points: " + gameLogic.goUpPoints);
         System.out.println("Go down points: " + gameLogic.goDownPoints);
+        System.out.println("Intersection: " + gameLogic.intersection);
+        System.out.println("Teleport enter down: " + Arrays.toString(gameLogic.teleportEnterDown));
+        System.out.println("Teleport enter up: " + Arrays.toString(gameLogic.teleportEnterUp));
 
         // Initialize enemy spawner
         enemySpawner = new EnemySpawner(loadMap, gameLogic);

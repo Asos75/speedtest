@@ -72,36 +72,55 @@ public class Enemy {
         boolean directionChanged = false;
 
         for (Vector2 point : gameLogic.goUpPoints) {
-            if (position.epsilonEquals(point, 5.0f)) { // Increased tolerance value
+            if (position.epsilonEquals(point, 5.0f)) {
                 direction.set(0, 1); // Move up
                 directionChanged = true;
-                System.out.println("Moving up at point: " + point);
+                //System.out.println("Moving up at point: " + point);
                 break;
             }
         }
         if (!directionChanged) {
             for (Vector2 point : gameLogic.goRightPoints) {
-                if (position.epsilonEquals(point, 5.0f)) { // Increased tolerance value
+                if (position.epsilonEquals(point, 5.0f)) {
                     direction.set(1, 0); // Move right
-                    directionChanged = true;
-                    System.out.println("Moving right at point: " + point);
+                    //directionChanged = true;
+                    //System.out.println("Moving right at point: " + point);
                     break;
                 }
             }
         }
         if (!directionChanged) {
             for (Vector2 point : gameLogic.goDownPoints) {
-                if (position.epsilonEquals(point, 5.0f)) { // Increased tolerance value
+                if (position.epsilonEquals(point, 5.0f)) {
                     direction.set(0, -1); // Move down
                     directionChanged = true;
-                    System.out.println("Moving down at point: " + point);
+                    //System.out.println("Moving down at point: " + point);
                     break;
                 }
             }
         }
-        if (position.epsilonEquals(gameLogic.endPoint, 5.0f)) { // Increased tolerance value
-            direction.set(0, 0); // Stop moving
-            System.out.println("Reached end point: " + gameLogic.endPoint);
+        if (!directionChanged && position.epsilonEquals(gameLogic.intersection, 5.0f)) {
+            // 50 / 50 chance to go up or down
+            if (Math.random() < 0.5) {
+                direction.set(0, 1); // Move up
+            } else {
+                direction.set(0, -1); // Move down
+            }
+            directionChanged = true;
+        }
+
+        if (position.epsilonEquals(gameLogic.endPoint, 5.0f)) {
+            direction.set(0, 0);
+        }
+
+        if (!directionChanged && position.epsilonEquals(gameLogic.teleportEnterDown[0], 5.0f)) {
+            position.set(gameLogic.teleportEnterDown[1]);
+            direction.set(0, -1); // Move down
+        }
+
+        if (!directionChanged && position.epsilonEquals(gameLogic.teleportEnterUp[0], 5.0f)) {
+            position.set(gameLogic.teleportEnterUp[1]);
+            direction.set(0, 1); // Move up
         }
 
         position.mulAdd(direction, speed * delta);

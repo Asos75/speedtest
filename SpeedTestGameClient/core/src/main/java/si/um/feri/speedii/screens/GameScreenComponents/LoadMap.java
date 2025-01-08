@@ -21,6 +21,11 @@ public class LoadMap {
     private List<Vector2> goRightPoints = new ArrayList<>();
     private List<Vector2> goUpPoints = new ArrayList<>();
     private List<Vector2> goDownPoints = new ArrayList<>();
+    // Intersection
+    private Vector2 intersection;
+    // Teleportation
+    private Vector2[] teleportEnterDown = new Vector2[2];
+    private Vector2[] teleportEnterUp = new Vector2[2];
 
     public void loadMap(DIFFICULTY difficulty) {
         String mapFile = getMapFile(difficulty);
@@ -83,6 +88,46 @@ public class LoadMap {
                     case "GoDown":
                         goDownPoints.add(point);
                         break;
+                    case "IntersectionGoUpGoDown":
+                        intersection = point;
+                        break;
+                }
+            }
+        }
+
+        MapLayer gameTeleportLayer1 = map.getLayers().get("Teleport1");
+        if (gameTeleportLayer1 != null) {
+            for (MapObject object : gameTeleportLayer1.getObjects()) {
+                System.out.println("Object name: " + object.getName());
+                float x = object.getProperties().get("x", Float.class);
+                float y = object.getProperties().get("y", Float.class);
+                Vector2 point = new Vector2(x, y);
+
+                switch (object.getName()) {
+                    case "TeleportEnterDown":
+                        teleportEnterDown[0] = point;
+                        break;
+                    case "TeleportLeaveGoDown":
+                        teleportEnterDown[1] = point;
+                        break;
+                }
+            }
+        }
+
+        MapLayer gameTeleportLayer2 = map.getLayers().get("Teleport2");
+        if (gameTeleportLayer2 != null) {
+            for (MapObject object : gameTeleportLayer2.getObjects()) {
+                float x = object.getProperties().get("x", Float.class);
+                float y = object.getProperties().get("y", Float.class);
+                Vector2 point = new Vector2(x, y);
+
+                switch (object.getName()) {
+                    case "TeleportEnterUp":
+                        teleportEnterUp[0] = point;
+                        break;
+                    case "TeleportLeaveGoUp":
+                        teleportEnterUp[1] = point;
+                        break;
                 }
             }
         }
@@ -97,6 +142,12 @@ public class LoadMap {
     public List<Vector2> getGoUpPoints() { return goUpPoints; }
 
     public List<Vector2> getGoDownPoints() { return goDownPoints; }
+
+    public Vector2 getIntersection() { return intersection; }
+
+    public Vector2[] getTeleportEnterDown() { return teleportEnterDown; }
+
+    public Vector2[] getTeleportEnterUp() { return teleportEnterUp; }
 
     public TiledMap getMap() {
         return map;
