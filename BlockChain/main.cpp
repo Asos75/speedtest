@@ -4,9 +4,10 @@
 using namespace std;
 
 int main() {
+
     BlockChain blockChain(1);
     bool running = true;
-    
+
     while(running) {
         Block block = BlockChain::mine(blockChain.chain.size(), "test", blockChain.difficulty);
         if (!blockChain.add(block)) {
@@ -21,4 +22,5 @@ int main() {
         }
     }
     return 0;
+
 }
