@@ -28,16 +28,16 @@ public:
             return false;
         }
         
-        if (chain.empty()){
-            block.previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
+        if (block.previousHash != chain.back().currentHash) {
+            std::cout << "Invalid previous hash" << std::endl;
+            return false;
         }
-        else{
-            block.previousHash = chain.back().currentHash;
-            if (!block.isTimestampValidBackward(chain.back())) {
-                std::cout << "Invalid backward timestamp" << std::endl;
-                return false;
-            }
+
+        if (!block.isTimestampValidBackward(chain.back())) {
+            std::cout << "Invalid backward timestamp" << std::endl;
+            return false;
         }
+
 
         if (!block.hasValidHashDifficulty()) {
             std::cout << "Invalid hash difficulty" << std::endl;
@@ -72,8 +72,14 @@ public:
         chain.back().print();
     }
 
-    static Block mine(int id, std::string data, int difficulty){
-        Block block(id, data, difficulty);
+    static Block mine(vector<Block>& chain, std::string data, int difficulty){
+        Block block(chain.size(), data, difficulty);
+        if(chain.empty()){
+            block.previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
+        }
+        else{
+            block.previousHash = chain.back().currentHash;
+        }
         while (true){
             block.nonce++;
             block.currentHash = block.calculateHash();
@@ -96,10 +102,12 @@ public:
             for (size_t i = 0; i < chain.size(); i++) {
                 if (!valid) return;
                 if (!chain[i].isTimestampValidForward()) {
+                    std::cout << "Invalid forward timestamp" << std::endl;
                     valid = false;
                     return;
                 }
                 if (i > 0 && !chain[i].isTimestampValidBackward(chain[i-1])) {
+                    std::cout << "Invalid backward timestamp" << std::endl;
                     valid = false;
                     return;
                 }
@@ -111,6 +119,7 @@ public:
             for (const auto& block : chain) {
                 if (!valid) return;
                 if (!block.hasValidHashDifficulty()) {
+                    std::cout << "Invalid hash difficulty" << std::endl;
                     valid = false;
                     return;
                 }
@@ -120,9 +129,11 @@ public:
         threads.emplace_back([&chain, &valid](){
         for (int i = 0; i < chain.size(); ++i) {
             if (!valid) return;
-
-            if (chain[i].currentHash != chain[i].calculateHash()) {
+            auto calculatedHash = chain[i].calculateHash();
+            if (chain[i].currentHash != calculatedHash) {
                 cout << "Hash mismatch at block: " << i << endl;
+                cout << "Expected: " << calculatedHash << endl;
+                cout << "Actual:   " << chain[i].currentHash << endl;
                 valid = false;
                 return;
             }

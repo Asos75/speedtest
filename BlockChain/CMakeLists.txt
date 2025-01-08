@@ -14,7 +14,7 @@ find_package(OpenSSL REQUIRED)
 include_directories(${ASIO_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 # Define your executable
-add_executable(BlockChain main.cpp Block.h BlockChain.h)
+add_executable(BlockChain main.cpp Block.h BlockChain.h P2PClient.h P2PClient.cpp)
 
 # Link OpenSSL libraries
 target_link_libraries(BlockChain
@@ -30,6 +30,7 @@ endif()
 # Link Winsock library (for Windows)
 if(WIN32)
     target_link_libraries(BlockChain ws2_32)
+    add_definitions(-D_WIN32_WINNT=0x0601)  # for Windows 7 or higher
 endif()
 
 # Optionally, specify OpenSSL library path if not automatically detected
