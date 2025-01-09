@@ -27,13 +27,13 @@ public:
             std::cout << "Invalid forward timestamp" << std::endl;
             return false;
         }
-        
-        if (block.previousHash != chain.back().currentHash) {
+
+        if (!chain.empty() && block.previousHash != chain.back().currentHash) {
             std::cout << "Invalid previous hash" << std::endl;
             return false;
         }
 
-        if (!block.isTimestampValidBackward(chain.back())) {
+        if (!chain.empty() && !block.isTimestampValidBackward(chain.back())) {
             std::cout << "Invalid backward timestamp" << std::endl;
             return false;
         }
@@ -47,21 +47,6 @@ public:
         chain.push_back(block);
         changeDifficulty();
         return true;
-        /*
-         if (chain.size() % ADJUST_RATE == 0)
-        {
-            long timeExpected = MINING_RATE * ADJUST_RATE;
-            long timeTaken = chain.back().timeStamp - chain[chain.size() - ADJUST_RATE].timeStamp;
-            if (timeTaken < timeExpected / 2)
-            {
-                difficulty++;
-            }
-            else if (timeTaken > timeExpected * 2)
-            {
-                difficulty--;
-            }
-        }
-        */
     }
 
     uint64_t getTotalDifficulty() const {
@@ -87,6 +72,39 @@ public:
                 return block;
             }
         }
+    }
+
+    static Block mineParallel(vector<Block>& chain, std::string data, int difficulty, int numThreads){
+
+        std::atomic_int nonce = 0;
+        std::atomic_bool found = false;
+        std::vector<std::thread> threads;
+
+        Block foundBlock;
+
+        for(int i = 0; i < numThreads; i++){
+            threads.emplace_back([&chain, &data, &nonce, &found, &foundBlock, difficulty](){
+                Block block(chain.size(), data, difficulty);
+                if(chain.empty()){
+                    block.previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
+                }
+                else{
+                    block.previousHash = chain.back().currentHash;
+                }
+                while (!found){
+                    int n = nonce++;
+                    block.nonce = n;
+                    block.currentHash = block.calculateHash();
+                    if (!found && block.currentHash.substr(0, difficulty) == std::string(difficulty, '0')){
+                        found = true;
+                        foundBlock = block;
+                        return;
+                    }
+                }
+            });
+        }
+
+        return foundBlock;
     }
 
     bool validateParallel(const std::vector<Block> &chain){
