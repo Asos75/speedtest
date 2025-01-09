@@ -9,9 +9,9 @@ using namespace std;
 
 class BlockChain{
 private:
-    static const int MINING_RATE = 50000;
-    static const int ADJUST_RATE = 10;
-    static const int MAX_TIME_DIFF = 60000;
+    static const int MINING_RATE = 10;
+    static const int ADJUST_RATE = 5;
+    static const int MAX_TIME_DIFF = 60;
 
 public:
     std::vector<Block> chain;
@@ -74,7 +74,7 @@ public:
         }
     }
 
-
+//unused function replaced by MiningPool.h
     static Block mineParallel(std::vector<Block>& chain, const std::string& data, int difficulty, int numThreads) {
         std::atomic<bool> found(false);        // Flag to indicate if a valid block is found
         std::atomic<uint64_t> nonce(0);        // Shared nonce counter
@@ -197,19 +197,22 @@ public:
 
     void changeDifficulty()
     {
-        if (chain.size() < ADJUST_RATE)
-        {
-            return;
-        }
+        if (chain.size() < ADJUST_RATE) return;
 
-        long timeExpected = MINING_RATE * ADJUST_RATE;
+        const long timeExpected = MINING_RATE * ADJUST_RATE;
+
         long timeTaken = chain.back().timeStamp - chain[chain.size() - ADJUST_RATE].timeStamp;
+        std::cout << "Adjusting difficulty..." << std::endl;
+        std::cout << "Previous block timestamp: " << chain[chain.size() - ADJUST_RATE].timeStamp << " (" << std::put_time(std::localtime(&chain[chain.size() - ADJUST_RATE].timeStamp), "%Y-%m-%d %H:%M:%S") << ")" << std::endl;
+        std::cout << "Current block timestamp: " << chain.back().timeStamp << " (" << std::put_time(std::localtime(&chain.back().timeStamp), "%Y-%m-%d %H:%M:%S") << ")" << std::endl;
+        std::cout << "Time taken: " << timeTaken << std::endl;
+        std::cout << "Time expected: " << timeExpected << std::endl;
 
         if (timeTaken < timeExpected / 2)
         {
             difficulty++;
         }
-        else if (timeTaken > timeExpected * 2)
+        else if ((timeTaken > timeExpected * 2) && difficulty > 1)
         {
             difficulty = max(1, difficulty - 1);
         }
