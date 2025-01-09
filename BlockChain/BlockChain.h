@@ -9,7 +9,7 @@ using namespace std;
 
 class BlockChain{
 private:
-    static const int MINING_RATE = 10000;
+    static const int MINING_RATE = 50000;
     static const int ADJUST_RATE = 10;
     static const int MAX_TIME_DIFF = 60000;
 
@@ -74,38 +74,56 @@ public:
         }
     }
 
-    static Block mineParallel(vector<Block>& chain, std::string data, int difficulty, int numThreads){
 
-        std::atomic_int nonce = 0;
-        std::atomic_bool found = false;
-        std::vector<std::thread> threads;
+    static Block mineParallel(std::vector<Block>& chain, const std::string& data, int difficulty, int numThreads) {
+        std::atomic<bool> found(false);        // Flag to indicate if a valid block is found
+        std::atomic<uint64_t> nonce(0);        // Shared nonce counter
+        std::vector<std::thread> threads;     // Thread pool
+        Block resultBlock;                     // Placeholder for the found block
+        std::mutex resultMutex;                // Mutex to protect access to resultBlock
 
-        Block foundBlock;
+        // Define the mining task for each thread
+        auto miningTask = [&](int threadId) {
+            std::cout << "Thread " << threadId << " started" << std::endl;
+            Block block(chain.size(), data, difficulty);
 
-        for(int i = 0; i < numThreads; i++){
-            threads.emplace_back([&chain, &data, &nonce, &found, &foundBlock, difficulty](){
-                Block block(chain.size(), data, difficulty);
-                if(chain.empty()){
-                    block.previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0');
-                }
-                else{
-                    block.previousHash = chain.back().currentHash;
-                }
-                while (!found){
-                    int n = nonce++;
-                    block.nonce = n;
-                    block.currentHash = block.calculateHash();
-                    if (!found && block.currentHash.substr(0, difficulty) == std::string(difficulty, '0')){
+            // Initialize the block's previous hash
+            if (chain.empty()) {
+                block.previousHash = std::string(SHA256_DIGEST_LENGTH * 2, '0'); // Genesis block
+            } else {
+                block.previousHash = chain.back().currentHash;
+            }
+
+            while (!found) {
+                uint64_t currentNonce = nonce++; // Increment shared nonce atomically
+                block.nonce = currentNonce;
+                block.currentHash = block.calculateHash();
+
+                // Check if the hash meets the difficulty criteria
+                if (block.currentHash.substr(0, difficulty) == std::string(difficulty, '0')) {
+                    std::lock_guard<std::mutex> lock(resultMutex); // Protect resultBlock access
+                    if (!found) { // Double-check to ensure only one thread sets the result
                         found = true;
-                        foundBlock = block;
-                        return;
+                        resultBlock = block;
                     }
+                    break;
                 }
-            });
+            }
+        };
+
+        // Launch threads
+        for (int i = 0; i < numThreads; ++i) {
+            threads.emplace_back(miningTask, i);
         }
 
-        return foundBlock;
+        // Wait for all threads to complete
+        for (auto& t : threads) {
+            t.join();
+        }
+
+        return resultBlock;
     }
+
 
     bool validateParallel(const std::vector<Block> &chain){
         if (chain.empty())

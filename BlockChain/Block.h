@@ -9,6 +9,9 @@
 #include <cmath>
 #include <atomic>
 
+#ifndef BLOCKCHAIN_BLOCK_H
+#define BLOCKCHAIN_BLOCK_H
+
 class Block {
 public:
     int id;
@@ -114,3 +117,5 @@ public:
         return totalDifficulty;
     }
 };
+
+#endif //BLOCKCHAIN_BLOCK_H

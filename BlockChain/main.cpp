@@ -1,10 +1,14 @@
 #include <iostream>
 #include "BlockChain.h"
 #include "P2PClient.h"
+#include "MiningPool.h"
 
 using namespace std;
 
-#define BLOCKCHAIN_TEST
+#define BLOCKCHAIN_PARALLEL_TEST
+
+
+
 
 int main() {
 
@@ -13,8 +17,7 @@ int main() {
     bool running = true;
 
     while(running) {
-        Block block = BlockChain::mine(blockChain.chain, "test", blockChain.difficulty);
-
+        Block block = BlockChain::mineParallel(blockChain.chain, "Hello, World!", blockChain.difficulty, 8);
         if (!blockChain.add(block)) {
             cout << "Failed to add block!" << endl;
             continue;
@@ -28,6 +31,24 @@ int main() {
         }
 
     }
+    return 0;
+#endif
+
+#ifdef BLOCKCHAIN_PARALLEL_TEST
+
+    int difficulty = 4;
+    int numThreads = 16;
+
+    BlockChain blockChain(difficulty);
+
+    MiningPool pool(blockChain, numThreads);
+
+    for(int i = 0; i < 100; i++){
+        pool.enqueue("Data: " + std::to_string(i));
+    }
+
+
+
     return 0;
 #endif
 
