@@ -14,8 +14,8 @@ public:
     int id;
     std::string data;
     time_t timeStamp;
-    int nonce;
-    int difficulty;
+    unsigned int nonce;
+    unsigned int difficulty;
     std::string currentHash;
     std::string previousHash;
 
@@ -77,7 +77,6 @@ public:
         return result;
     }
 
-    // Check if the block is valid
      bool isTimestampValidForward() const {
         long currentTime = std::time(nullptr);
         return timeStamp <= (currentTime + 60);

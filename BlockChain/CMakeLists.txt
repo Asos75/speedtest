@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 # Set paths to external libraries
 # Asio headers are located in /asio/include
-set(ASIO_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/asio-1.30.2/include")
+set(ASIO_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include")
 
 # Find OpenSSL package
 find_package(OpenSSL REQUIRED)

@@ -114,7 +114,7 @@ public:
         std::atomic<bool> valid(true);
         std::vector<std::thread> threads;
 
-        
+
         // Add timestamp validation thread
         threads.emplace_back([&chain, &valid]() {
             for (size_t i = 0; i < chain.size(); i++) {
