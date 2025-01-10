@@ -80,7 +80,7 @@ public:
         return result;
     }
 
-     bool isTimestampValidForward() const {
+    bool isTimestampValidForward() const {
         long currentTime = std::time(nullptr);
         return timeStamp <= (currentTime + 60);
     }
@@ -89,20 +89,10 @@ public:
         return timeStamp >= (previousBlock.timeStamp - 60);
     }
 
-    /*uint64_t getBlockDifficulty() const {
-        return static_cast<uint64_t>(std::pow(2, difficulty));
-    }*/
-
     uint64_t getBlockDifficulty() const {
         // Using bit shift instead of pow
         return 1ULL << difficulty;
     }
-
-    /*
-    bool hasValidHashDifficulty() const {
-        std::string hash = calculateHash();
-        return hash.substr(0, difficulty) == std::string(difficulty, '0');
-    }*/
 
     bool hasValidHashDifficulty() const {
         // Check if hash starts with required number of zeros
@@ -116,6 +106,59 @@ public:
         }
         return totalDifficulty;
     }
+
+    // Serialize the Block into a byte array
+    void serialize(char* buffer) const {
+        size_t offset = 0;
+
+        // Serialize basic data types
+        memcpy(buffer + offset, &id, sizeof(id));
+        offset += sizeof(id);
+        size_t dataLength = data.size();
+        memcpy(buffer + offset, &dataLength, sizeof(dataLength));
+        offset += sizeof(dataLength);
+        memcpy(buffer + offset, data.c_str(), dataLength);
+        offset += dataLength;
+
+        memcpy(buffer + offset, &timeStamp, sizeof(timeStamp));
+        offset += sizeof(timeStamp);
+        memcpy(buffer + offset, &nonce, sizeof(nonce));
+        offset += sizeof(nonce);
+        memcpy(buffer + offset, &difficulty, sizeof(difficulty));
+        offset += sizeof(difficulty);
+
+        // Serialize hashes
+        memcpy(buffer + offset, currentHash.c_str(), currentHash.size() + 1);
+        offset += currentHash.size() + 1;
+        memcpy(buffer + offset, previousHash.c_str(), previousHash.size() + 1);
+    }
+
+    // Deserialize the byte array into a Block object
+    void deserialize(const char* buffer) {
+        size_t offset = 0;
+
+        // Deserialize basic data types
+        memcpy(&id, buffer + offset, sizeof(id));
+        offset += sizeof(id);
+        size_t dataLength;
+        memcpy(&dataLength, buffer + offset, sizeof(dataLength));
+        offset += sizeof(dataLength);
+        data.assign(buffer + offset, dataLength);
+        offset += dataLength;
+
+        memcpy(&timeStamp, buffer + offset, sizeof(timeStamp));
+        offset += sizeof(timeStamp);
+        memcpy(&nonce, buffer + offset, sizeof(nonce));
+        offset += sizeof(nonce);
+        memcpy(&difficulty, buffer + offset, sizeof(difficulty));
+        offset += sizeof(difficulty);
+
+        // Deserialize hashes
+        currentHash.assign(buffer + offset);
+        offset += currentHash.size() + 1;
+        previousHash.assign(buffer + offset);
+    }
+
 };
 
 #endif //BLOCKCHAIN_BLOCK_H
