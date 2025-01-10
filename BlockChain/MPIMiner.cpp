@@ -5,6 +5,7 @@
 #include <vector>
 
 //DEBUG OPTIONS
+#define DEBUG
 #define PRINT_FREQUENCY 50000
 
 
@@ -12,8 +13,8 @@
 #define STOP_MINING_TAG 2
 
 
-void mainProcess(int size) {
-    int currentDifficulty = INITIAL_DIFFICULTY;
+void mainProcess(int size, unsigned int difficulty) {
+    int currentDifficulty = difficulty;
     BlockChain blockchain(currentDifficulty);
 
     while (true) {
@@ -104,7 +105,7 @@ void workerProcess(int rank) {
                 std::cout << "Worker process " << rank << " is mining " << data << " with nonce: " << minedBlock.nonce << "\n";
             }
 #endif
-            
+
             minedBlock.nonce = startNonce++;
             minedBlock.currentHash = minedBlock.calculateHash();
 
@@ -129,10 +130,42 @@ void workerProcess(int rank) {
     }
 }
 
+void printHelp() {
+    std::cout << "Usage: MPIMiner [options]\n";
+    std::cout << "Options:\n";
+    std::cout << "  -h               Display this help message\n";
+    std::cout << "  -t <threads>     Number of threads to use for mining\n";
+    std::cout << "  -d <difficulty>  Difficulty of the blockchain\n";
+}
+
 
 
 
 int main(int argc, char* argv[]) {
+
+    unsigned int threads = 1;
+    unsigned int difficulty = 5;
+
+    for (int i = 2; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg == "-t" && i + 1 < argc) {
+            threads = std::stoi(argv[i + 1]);
+            i++;
+        }
+        else if (arg == "-d" && i + 1 < argc) {
+            difficulty = std::stoi(argv[i + 1]);
+            i++;
+        }
+        else if(arg == "-h") {
+            printHelp();
+            exit(0);
+        }
+        else {
+            std::cerr << "Unknown or incomplete argument: " << arg << std::endl;
+            exit(1);
+        }
+    }
+
     // Initialize MPI
     MPI_Init(&argc, &argv);
 
@@ -146,7 +179,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (worldRank == 0) {
-        mainProcess(worldSize);
+        mainProcess(worldSize, difficulty);
     } else {
         workerProcess(worldRank);
     }
