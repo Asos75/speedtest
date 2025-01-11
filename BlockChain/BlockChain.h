@@ -37,6 +37,10 @@ public:
 
     void loadFromFile(const std::string &filename);
     void saveToFile(const std::string &filename) const;
+
+    std::string serialize() const;
+
+    void deserialize(const std::string &jsonString);
 };
 
 #endif // BLOCKCHAIN_BLOCKCHAIN_H

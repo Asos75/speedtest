@@ -10,6 +10,7 @@ var adminCheck = require('../middleware/adminCheck.js');
  */
 router.get('/blockchain', measurementController.getBlockChain);  // Route for retrieving the blockchain in JSON format
 router.get('/nextMeasurement', measurementController.getNextMeasurement);  // Route for fetching the next measurement in JSON format
+router.get('/confirmMined', measurementController.confirmMined);
 /*
  * GET
  */
@@ -29,7 +30,7 @@ router.get('/:id', measurementController.show);
  */
 router.post('/', measurementController.create);
 router.post('/createMany', authenticateToken, adminCheck, measurementController.createMany);
-router.post('/blockchain', measurementController.saveBlockChain);  // Route for uploading and saving blockchain
+router.post('/blockchain', measurementController.saveBlockChain);
 
 /*
  * PUT

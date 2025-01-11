@@ -233,4 +233,14 @@ void BlockChain::loadFromFile(const std::string& filename) {
     }
 }
 
+std::string BlockChain::serialize() const {
+    nlohmann::json j;
+    to_json(j, *this); // Serialize the BlockChain object to JSON
+    return j.dump(4);  // Return the JSON as a pretty-printed string (4 spaces indentation)
+}
+
+void BlockChain::deserialize(const std::string& jsonString) {
+    nlohmann::json j = nlohmann::json::parse(jsonString); // Parse the JSON string
+    from_json(j, *this); // Deserialize the JSON into the BlockChain object
+}
 

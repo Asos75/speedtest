@@ -1,8 +1,10 @@
 #include <mpi.h>
+#include <curl/curl.h>
 #include "BlockChain.h"
 #include <iostream>
 #include <string>
 #include <vector>
+
 
 //DEBUG OPTIONS
 #define DEBUG_
@@ -23,20 +25,77 @@ const int TAG_BLOCK = 300;
 const int TAG_OPERATIONS = 400;
 
 
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userData) {
+    size_t totalSize = size * nmemb;
+    userData->append((char*)contents, totalSize);
+    return totalSize;
+}
+
+std::string httpGet(const std::string& url) {
+    CURL* curl = curl_easy_init();
+    std::string response;
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+        curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+    }
+    return response;
+}
+
+void httpPost(const std::string& url, const std::string& jsonData) {
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonData.c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, jsonData.size());
+
+        struct curl_slist* headers = nullptr;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        CURLcode res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << "\n";
+        }
+
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+}
+
 void mainProcess(int size, unsigned int difficulty) {
+    const std::string BASE_URL = "http://192.168.1.102:5000";
+
     int currentDifficulty = difficulty;
     BlockChain blockchain(currentDifficulty);
 
-    blockchain.loadFromFile("blockchain.json");
+    // Load blockchain from server
+    std::string blockchainJson = httpGet(BASE_URL + "/measurements/blockchain");
 
-    if (blockchain.chain.empty()) {
-        std::cout << "No previous blockchain found. Starting a new one.\n";
+// Check if the response is empty
+    if (blockchainJson.empty()) {
+        std::cout << "No previous blockchain found on the server. Starting a new one.\n";
+        // Initialize an empty blockchain
+        blockchain = BlockChain(currentDifficulty);
     } else {
-        std::cout << "Loaded existing blockchain with " << blockchain.chain.size() << " blocks.\n";
+        try {
+            blockchain.deserialize(blockchainJson);
+            std::cout << "Loaded existing blockchain with " << blockchain.chain.size() << " blocks.\n";
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing blockchain data: " << e.what() << "\n";
+            // Optionally: Start a new blockchain if parsing fails
+            blockchain = BlockChain(currentDifficulty);
+        }
     }
 
 
+
     while (true) {
+
+
         auto start = std::chrono::system_clock::now();
         std::string previousHash = blockchain.chain.empty() ? std::string(SHA256_DIGEST_LENGTH * 2, '0') : blockchain.chain.back().currentHash;
         std::string data = "Block data: " + std::to_string(blockchain.chain.size() + 1);
@@ -85,8 +144,6 @@ void mainProcess(int size, unsigned int difficulty) {
             } else {
                 std::cout << "Blockchain is invalid\n";
             }
-            blockchain.saveToFile("blockchain.json");
-
             for (int i = 1; i < size; ++i) {
                 int stopMessage = 1;
                 if (i != senderRank) {
@@ -111,6 +168,11 @@ void mainProcess(int size, unsigned int difficulty) {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
         std::cout << "Operations/s: " << (float)totalOperations / ((float)duration / 1000) << "\n";
+
+        if(receivedBlock.hasValidHashDifficulty()){
+            blockchainJson = blockchain.serialize();
+            httpPost(BASE_URL + "/measurements/blockchain", blockchainJson);
+        }
 
     }
 }

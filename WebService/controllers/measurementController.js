@@ -1,33 +1,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const multer = require('multer');
 
 const blockchainQueue = []; 
 
-const blockchainFilePath = path.join(__dirname, 'blockchain.json');
-
+const blockchainFilePath = path.join(__dirname, '..', 'blockchain', 'blockchain.json'); 
 
 var MeasurementModel = require('../models/measurementModel.js');
 const turf = require('@turf/turf');
 
-function getNextMeasurement() {
-    return blockchainQueue.length > 0 ? blockchainQueue.shift() : null;
-}
-
-function addBlockToBlockchain(minedBlock) {
-    blockchain.push(minedBlock);
-}
-
-// Set up multer storage configuration
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './uploads/');  // Save to 'uploads' folder
-    },
-    filename: function (req, file, cb) {
-        cb(null, 'blockchain.json');  // Save file as blockchain.json
-    }
-});
 
 
 
@@ -281,49 +262,84 @@ module.exports = {
      * Client uploads a new blockchain in JSON format to replace the existing blockchain.json.
      */
     saveBlockChain: function (req, res) {
-        upload.single('blockchainFile')(req, res, function (err) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error during file upload',
-                    error: err
-                });
+    
+        if (!req.body) {
+            return res.status(400).json({
+                message: 'No data received in request body'
+            });
+        }
+    
+        try {
+            // The blockchain data is now expected to be in req.body
+            const blockchainData = req.body;  // This is the JSON content sent in the body
+    
+            const blockchainFilePath = path.join(__dirname, '..', 'blockchain', 'blockchain.json');
+            console.log('Target file path:', blockchainFilePath);
+    
+            // Check that the target directory exists
+            const targetDir = path.dirname(blockchainFilePath);
+            if (!fs.existsSync(targetDir)) {
+                console.log('Creating target directory...');
+                fs.mkdirSync(targetDir, { recursive: true });
             }
-
-            try {
-                // The uploaded file is saved as blockchain.json in the uploads folder
-                const uploadedFilePath = path.join(__dirname, 'uploads', 'blockchain.json');
-
-                // Move the uploaded file to the desired location (overwrite the old blockchain file)
-                fs.renameSync(uploadedFilePath, blockchainFilePath);
-
-                return res.status(200).json({
-                    message: 'Blockchain successfully replaced.'
-                });
-            } catch (err) {
-                return res.status(500).json({
-                    message: 'Error saving blockchain file',
-                    error: err
-                });
-            }
-        });
+    
+            // Convert the blockchain data back into a JSON string
+            const jsonString = JSON.stringify(blockchainData, null, 2);  // Pretty-print with indentation
+    
+            // Write the JSON string to the target file
+            fs.writeFileSync(blockchainFilePath, jsonString);
+            console.log('Blockchain data successfully written to file!');
+    
+            return res.status(200).json({
+                message: 'Blockchain successfully replaced.'
+            });
+        } catch (err) {
+            console.error('Error saving blockchain file:', err);
+            return res.status(500).json({
+                message: 'Error saving blockchain file',
+                error: err
+            });
+        }
     },
+    
+    
+    
 
     /**
      * Returns the next measurement from the queue in JSON format.
      */
     getNextMeasurement: function (req, res) {
         if (blockchainQueue.length > 0) {
-            // Get the first measurement from the queue
-            const nextMeasurement = blockchainQueue.shift();
-    
-            return res.status(200).json(nextMeasurement);  // Return the next measurement as JSON
+            // Peek at the first measurement in the queue
+            const nextMeasurement = blockchainQueue[0];
+
+            return res.status(200).json(nextMeasurement); // Return the next measurement as JSON
         } else {
             return res.status(200).json({
                 message: 'No measurements available in the queue'
-            });  // Return success with a message indicating the queue is empty
+            }); // Return success with a message indicating the queue is empty
         }
     },
-    
+
+    /**
+     * Confirm that the measurement was mined
+     */
+
+    confirmMined: function (req, res) {
+        if (blockchainQueue.length > 0) {
+            // Remove the first measurement from the queue
+            const confirmedMeasurement = blockchainQueue.shift();
+
+            return res.status(200).json({
+                message: 'Measurement successfully mined and removed from the queue',
+                confirmedMeasurement
+            }); // Confirm success and return the removed measurement
+        } else {
+            return res.status(400).json({
+                message: 'No measurements available to confirm'
+            }); // Return an error if the queue is empty
+        }
+    },
 
 
     createMany: function (req, res){

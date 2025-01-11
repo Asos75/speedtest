@@ -31,7 +31,7 @@ class SpeedTest(
         duration = Duration.between(startTime, endTime).toMillis()
         val bitsLoaded = downloadSize * 8
         val speedBps = bitsLoaded / duration!!
-        return speedBps
+        return speedBps * 1000
     }
 
     fun measure(imgAddress: String, downloadSize: Long) {
