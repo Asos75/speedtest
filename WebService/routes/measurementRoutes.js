@@ -4,6 +4,12 @@ var measurementController = require('../controllers/measurementController.js');
 var authenticateToken = require('../middleware/authenticateToken.js');
 var adminCheck = require('../middleware/adminCheck.js');
 
+
+/*
+ * Blockchain Routes
+ */
+router.get('/blockchain', measurementController.getBlockChain);  // Route for retrieving the blockchain in JSON format
+router.get('/nextMeasurement', measurementController.getNextMeasurement);  // Route for fetching the next measurement in JSON format
 /*
  * GET
  */
@@ -22,7 +28,8 @@ router.get('/:id', measurementController.show);
  * POST
  */
 router.post('/', measurementController.create);
-router.post('/createMany', authenticateToken, adminCheck, measurementController.createMany)
+router.post('/createMany', authenticateToken, adminCheck, measurementController.createMany);
+router.post('/blockchain', measurementController.saveBlockChain);  // Route for uploading and saving blockchain
 
 /*
  * PUT
@@ -34,4 +41,7 @@ router.put('/:id', authenticateToken, adminCheck, measurementController.update);
  */
 router.delete('/:id', authenticateToken, measurementController.remove);
 
+
+
 module.exports = router;
+
