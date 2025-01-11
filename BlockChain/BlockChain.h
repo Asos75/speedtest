@@ -6,6 +6,9 @@
 #include <atomic>
 #include <mutex>
 #include "Block.h"
+#include "libs/json.hpp"
+#include <fstream>
+
 
 class BlockChain {
 private:
@@ -28,6 +31,12 @@ public:
 
     bool validateParallel(const std::vector<Block>& chain);
     void changeDifficulty();
+
+    friend void to_json(nlohmann::json& j, const BlockChain& blockchain);
+    friend void from_json(const nlohmann::json& j, BlockChain& blockchain);
+
+    void loadFromFile(const std::string &filename);
+    void saveToFile(const std::string &filename) const;
 };
 
 #endif // BLOCKCHAIN_BLOCKCHAIN_H

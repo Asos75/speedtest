@@ -184,8 +184,53 @@ void BlockChain::changeDifficulty() {
     if (timeTaken < timeExpected / 2) {
         difficulty++;
     } else if ((timeTaken > timeExpected * 2) && difficulty > 1) {
-        difficulty = std::max(1, difficulty - 1);
+        difficulty = std::max(4, difficulty - 1);
     }
+
 
     std::cout << "New difficulty: " << difficulty << std::endl;
 }
+
+// BlockChain JSON Serialization and Deserialization
+
+void to_json(nlohmann::json& j, const BlockChain& blockchain) {
+    j = nlohmann::json{
+            {"difficulty", blockchain.difficulty},
+            {"chain", blockchain.chain}
+    };
+}
+
+void from_json(const nlohmann::json& j, BlockChain& blockchain) {
+    j.at("difficulty").get_to(blockchain.difficulty);
+
+    blockchain.chain.clear();
+    for (const auto& block_json : j.at("chain")) {
+        Block block = block_json.get<Block>();
+        blockchain.chain.push_back(block);
+    }
+}
+
+
+void BlockChain::saveToFile(const std::string& filename) const {
+    nlohmann::json j;
+    to_json(j, *this);
+
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        file << j.dump(4);
+        file.close();
+    }
+}
+
+void BlockChain::loadFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (file.is_open()) {
+        nlohmann::json j;
+        file >> j;
+        file.close();
+
+        from_json(j, *this);
+    }
+}
+
+

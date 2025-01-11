@@ -131,3 +131,26 @@ void Block::deserialize(const char* buffer) {
     offset += currentHash.size() + 1;
     previousHash.assign(buffer + offset);
 }
+
+void to_json(nlohmann::json& j, const Block& block) {
+    j = nlohmann::json{
+            {"id", block.id},
+            {"data", block.data},
+            {"timeStamp", block.timeStamp},
+            {"nonce", block.nonce},
+            {"difficulty", block.difficulty},
+            {"currentHash", block.currentHash},
+            {"previousHash", block.previousHash}
+    };
+}
+
+// Free function to deserialize JSON to Block
+void from_json(const nlohmann::json& j, Block& block) {
+    j.at("id").get_to(block.id);
+    j.at("data").get_to(block.data);
+    j.at("timeStamp").get_to(block.timeStamp);
+    j.at("nonce").get_to(block.nonce);
+    j.at("difficulty").get_to(block.difficulty);
+    j.at("currentHash").get_to(block.currentHash);
+    j.at("previousHash").get_to(block.previousHash);
+}

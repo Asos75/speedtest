@@ -27,6 +27,15 @@ void mainProcess(int size, unsigned int difficulty) {
     int currentDifficulty = difficulty;
     BlockChain blockchain(currentDifficulty);
 
+    blockchain.loadFromFile("blockchain.json");
+
+    if (blockchain.chain.empty()) {
+        std::cout << "No previous blockchain found. Starting a new one.\n";
+    } else {
+        std::cout << "Loaded existing blockchain with " << blockchain.chain.size() << " blocks.\n";
+    }
+
+
     while (true) {
         auto start = std::chrono::system_clock::now();
         std::string previousHash = blockchain.chain.empty() ? std::string(SHA256_DIGEST_LENGTH * 2, '0') : blockchain.chain.back().currentHash;
@@ -69,6 +78,14 @@ void mainProcess(int size, unsigned int difficulty) {
             std::cout << "<-------------------------------------------->\n";
             blockchain.printLast();
             std::cout << "<-------------------------------------------->\n";
+
+
+            if(blockchain.validateParallel(blockchain.chain)){
+                std::cout << "Blockchain is valid\n";
+            } else {
+                std::cout << "Blockchain is invalid\n";
+            }
+            blockchain.saveToFile("blockchain.json");
 
             for (int i = 1; i < size; ++i) {
                 int stopMessage = 1;
@@ -115,7 +132,7 @@ void miningTask(unsigned int threadId, unsigned int blockId, char* data, unsigne
         if(operations % 1000000 == 0){
             std::cout << "Thread: " << threadId << " Operations: " << operations << std::endl;
         }
-        if (block.hasValidHashDifficulty()) {
+        if (!stopMiningFlag && block.hasValidHashDifficulty()) {
             minedBlock = block;
             stopMiningFlag = true;
             break;
@@ -161,7 +178,6 @@ void workerProcess(int rank, unsigned int numThreads) {
         std::vector <std::thread> threads;
         uint32_t chunkSize = endNonce - (startNonce + 1);
         if(numThreads > 1) chunkSize = (endNonce == UINT_MAX) ? (UINT_MAX - (startNonce + 1) + 1) / numThreads : (endNonce - (startNonce + 1) + 1) / numThreads;
-        std::cout << "Chunk size: " << chunkSize << "\n";
         uint32_t start = startNonce;
         uint32_t end = start + chunkSize;
 
