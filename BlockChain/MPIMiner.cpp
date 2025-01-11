@@ -5,12 +5,22 @@
 #include <vector>
 
 //DEBUG OPTIONS
-#define DEBUG
+#define DEBUG_
 #define PRINT_FREQUENCY 50000
 
-
-#define INITIAL_DIFFICULTY 5
+#define INITIAL_DIFFICULTY 6
 #define STOP_MINING_TAG 2
+#define OPERATION_TAG 1
+
+const int TAG_DIFFICULTY = 100;
+const int TAG_PREVIOUS_HASH = 101;
+const int TAG_DATA = 102;
+const int TAG_BLOCK_ID = 103;
+const int TAG_START_NONCE = 104;
+const int TAG_END_NONCE = 105;
+const int TAG_STOP_MINING = 200;
+const int TAG_BLOCK = 300;
+const int TAG_OPERATIONS = 400;
 
 
 void mainProcess(int size, unsigned int difficulty) {
@@ -18,6 +28,7 @@ void mainProcess(int size, unsigned int difficulty) {
     BlockChain blockchain(currentDifficulty);
 
     while (true) {
+        auto start = std::chrono::system_clock::now();
         std::string previousHash = blockchain.chain.empty() ? std::string(SHA256_DIGEST_LENGTH * 2, '0') : blockchain.chain.back().currentHash;
         std::string data = "Block data: " + std::to_string(blockchain.chain.size() + 1);
 
@@ -25,10 +36,13 @@ void mainProcess(int size, unsigned int difficulty) {
         uint32_t startNonce = 0;
         uint32_t endNonce = rangeSize;
 
+        unsigned int id = blockchain.chain.empty() ? 0 : blockchain.chain.back().id + 1;
+
         for (int i = 1; i < size; ++i) {
             MPI_Send(&blockchain.difficulty, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
             MPI_Send(previousHash.c_str(), previousHash.size() + 1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
             MPI_Send(data.c_str(), data.size() + 1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
+            MPI_Send(&id, 1, MPI_UINT32_T, i, 0, MPI_COMM_WORLD);
 
             MPI_Send(&startNonce, 1, MPI_UINT32_T, i, 0, MPI_COMM_WORLD);
             MPI_Send(&endNonce, 1, MPI_UINT32_T, i, 0, MPI_COMM_WORLD);
@@ -52,83 +66,145 @@ void mainProcess(int size, unsigned int difficulty) {
         if (receivedBlock.hasValidHashDifficulty() && receivedBlock.previousHash == previousHash) {
             blockchain.add(receivedBlock);
             std::cout << "Block added by process " << senderRank << " with hash: " << receivedBlock.currentHash << "\n";
+            std::cout << "<-------------------------------------------->\n";
+            blockchain.printLast();
+            std::cout << "<-------------------------------------------->\n";
 
             for (int i = 1; i < size; ++i) {
                 int stopMessage = 1;
                 if (i != senderRank) {
+#ifdef DEBUG
                     std::cout << "Sending stop message to process " << i << "\n";
+#endif
                     MPI_Send(&stopMessage, 1, MPI_INT, i, STOP_MINING_TAG, MPI_COMM_WORLD);
                 }
             }
         } else {
             std::cerr << "Received invalid block from process " << senderRank << "\n";
         }
+
+        int totalOperations = 0;
+        for (int i = 1; i < size; ++i) {
+            int operations;
+            MPI_Recv(&operations, 1, MPI_INT, i, TAG_OPERATIONS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            totalOperations += operations;
+        }
+
+        auto end = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        std::cout << "Operations/s: " << (float)totalOperations / ((float)duration / 1000) << "\n";
+
     }
 }
 
+void miningTask(unsigned int threadId, unsigned int blockId, char* data, unsigned int difficulty, std::string& previousHash, uint32_t startNonce, uint32_t endNonce, std::atomic<bool>& stopMiningFlag, Block& minedBlock, std::atomic<uint64_t>& operationsInThread){
+    char* localData = new char[256];
+    for(int i = 0; i < 256; i++){
+        localData[i] = data[i];
+    }
+    Block block(blockId, localData, difficulty);
+    block.previousHash = previousHash;
 
-void workerProcess(int rank) {
+    uint64_t operations = 0;
+
+    while (startNonce <= endNonce && !stopMiningFlag) {
+        block.nonce = startNonce++;
+        block.currentHash = block.calculateHash();
+        operations++;
+        if(operations % 1000000 == 0){
+            std::cout << "Thread: " << threadId << " Operations: " << operations << std::endl;
+        }
+        if (block.hasValidHashDifficulty()) {
+            minedBlock = block;
+            stopMiningFlag = true;
+            break;
+        }
+    }
+
+    operationsInThread.fetch_add(operations, std::memory_order_relaxed);
+
+}
+
+
+void workerProcess(int rank, unsigned int numThreads) {
     while (true) {
         int difficulty;
         char previousHash[SHA256_DIGEST_LENGTH * 2 + 1];
         char data[256];
         uint32_t startNonce, endNonce;
         int stopMining = 0;
+        int operations = 0;
+        unsigned int blockId;
+
+        std::atomic<bool> stopMiningFlag(false);
+        std::atomic<uint64_t> operationsInThread(0);
+
+
 
         MPI_Recv(&difficulty, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(previousHash, sizeof(previousHash), MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(data, sizeof(data), MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&blockId, 1, MPI_UINT32_T, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(&startNonce, 1, MPI_UINT32_T, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(&endNonce, 1, MPI_UINT32_T, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         previousHash[SHA256_DIGEST_LENGTH * 2] = '\0';
         std::string previousHashStr(previousHash);
-        Block minedBlock(rank, data, difficulty);
+        Block minedBlock(blockId, data, difficulty);
         minedBlock.previousHash = previousHashStr;
 
 #ifdef DEBUG
         std::cout << "Worker process " << rank << " started mining for: " << data << " on range: " << startNonce << " - " << endNonce << "\n";
 #endif
 
-        while (startNonce <= endNonce) {
+        std::vector <std::thread> threads;
+        uint32_t chunkSize = endNonce - (startNonce + 1);
+        if(numThreads > 1) chunkSize = (endNonce == UINT_MAX) ? (UINT_MAX - (startNonce + 1) + 1) / numThreads : (endNonce - (startNonce + 1) + 1) / numThreads;
+        std::cout << "Chunk size: " << chunkSize << "\n";
+        uint32_t start = startNonce;
+        uint32_t end = start + chunkSize;
+
+        for(int i = 0; i < numThreads; i++){
+              threads.emplace_back(miningTask, i, blockId, std::ref(data), difficulty, std::ref(previousHashStr), start, end, std::ref(stopMiningFlag), std::ref(minedBlock), std::ref(operationsInThread));
+              start = end + 1;
+              end = (i == numThreads - 2) ? endNonce : end + chunkSize;
+        }
+
+
+        while (!stopMiningFlag) {
             MPI_Iprobe(0, STOP_MINING_TAG, MPI_COMM_WORLD, &stopMining, MPI_STATUS_IGNORE);
-
             if (stopMining) {
-                // Assuming stop message is an int
                 MPI_Recv(&stopMining, sizeof(int), MPI_INT, 0, STOP_MINING_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                std::cout << "Worker process " << rank << " received stop message\n";
-                break;
-            }
-
+                stopMiningFlag = true;
 #ifdef DEBUG
-            if(minedBlock.nonce % PRINT_FREQUENCY == 0){
-                std::cout << "Worker process " << rank << " is mining " << data << " with nonce: " << minedBlock.nonce << "\n";
-            }
+                std::cout << "Worker process " << rank << " received stop message\n";
 #endif
-
-            minedBlock.nonce = startNonce++;
-            minedBlock.currentHash = minedBlock.calculateHash();
-
-            if (minedBlock.hasValidHashDifficulty()) {
                 break;
             }
         }
 
+        for (auto& t : threads) {
+            if(t.joinable()) {
+                t.join();
+            }
+        }
 
+        operations = operationsInThread;
 
         if (!stopMining && minedBlock.hasValidHashDifficulty()) {
             char blockBuffer[1024];
             minedBlock.serialize(blockBuffer);
-
             MPI_Send(blockBuffer, sizeof(blockBuffer), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
         }
 
+        MPI_Send(&operations, 1, MPI_INT, 0, TAG_OPERATIONS, MPI_COMM_WORLD);
         if (stopMining) {
             stopMining = 0;
         }
-
     }
 }
+
 
 void printHelp() {
     std::cout << "Usage: MPIMiner [options]\n";
@@ -144,9 +220,9 @@ void printHelp() {
 int main(int argc, char* argv[]) {
 
     unsigned int threads = 1;
-    unsigned int difficulty = 5;
+    unsigned int difficulty = INITIAL_DIFFICULTY;
 
-    for (int i = 2; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "-t" && i + 1 < argc) {
             threads = std::stoi(argv[i + 1]);
@@ -181,7 +257,7 @@ int main(int argc, char* argv[]) {
     if (worldRank == 0) {
         mainProcess(worldSize, difficulty);
     } else {
-        workerProcess(worldRank);
+        workerProcess(worldRank, threads);
     }
 
     // Finalize MPI

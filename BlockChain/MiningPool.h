@@ -12,7 +12,6 @@
 #include <barrier>
 #include "Block.h"
 
-
 class MiningPool {
 private:
     BlockChain& blockChain;
@@ -60,13 +59,16 @@ public:
 
                     {
                         std::unique_lock<std::mutex> lock(queueMutex);
+                        // Wait for new data to arrive in the queue or for stop signal
                         condition.wait(lock, [this]() {
                             return !data_queue.empty() || stop;
                         });
 
+                        // If stop signal is received and the queue is empty, break out of the loop
                         if (stop && data_queue.empty())
                             return;
 
+                        // Get the next task from the queue
                         data = data_queue.front();
                     }
 
@@ -77,7 +79,6 @@ public:
                     } else {
                         block.previousHash = blockChain.chain.back().currentHash;
                     }
-
 
                     while (!blockFound) {
                         block.nonce = currentNonce.fetch_add(1);
@@ -130,6 +131,7 @@ public:
     }
 
     ~MiningPool() {
+        // Instead of immediately stopping, just notify threads to stop when all tasks are processed
         {
             std::unique_lock<std::mutex> lock(queueMutex);
             stop = true;

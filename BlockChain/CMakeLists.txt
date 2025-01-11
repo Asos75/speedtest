@@ -14,7 +14,7 @@ find_package(OpenSSL REQUIRED)
 include_directories(${ASIO_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 # Define your executable
-add_executable(BlockChain main.cpp Block.h BlockChain.h P2PClient.h P2PClient.cpp MiningPool.h MPIMiner.cpp mpihello.cpp BlockChain.cpp Block.cpp)
+add_executable(BlockChain main.cpp Block.h BlockChain.h P2PClient.h P2PClient.cpp MiningPool.h BlockChain.cpp Block.cpp)
 
 # Link OpenSSL libraries
 target_link_libraries(BlockChain

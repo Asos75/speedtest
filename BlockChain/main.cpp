@@ -38,7 +38,7 @@ int main() {
 #ifdef BLOCKCHAIN_PARALLEL_TEST
 
     int difficulty = 4;
-    int numThreads = 16;
+    int numThreads = 1;
 
     BlockChain blockChain(difficulty);
 
