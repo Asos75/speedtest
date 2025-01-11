@@ -1,5 +1,35 @@
+
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+
+const blockchainQueue = []; 
+
+const blockchainFilePath = path.join(__dirname, 'blockchain.json');
+
+
 var MeasurementModel = require('../models/measurementModel.js');
 const turf = require('@turf/turf');
+
+function getNextMeasurement() {
+    return blockchainQueue.length > 0 ? blockchainQueue.shift() : null;
+}
+
+function addBlockToBlockchain(minedBlock) {
+    blockchain.push(minedBlock);
+}
+
+// Set up multer storage configuration
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');  // Save to 'uploads' folder
+    },
+    filename: function (req, file, cb) {
+        cb(null, 'blockchain.json');  // Save file as blockchain.json
+    }
+});
+
+
 
 /**
  * Vrne točke znotraj določenega radija okoli dane točke.
@@ -225,10 +255,76 @@ module.exports = {
                     error: err
                 });
             }
-
+            
+            blockchainQueue.push(measurement);
             return res.status(201).json(measurement);
         });
     },
+
+     /**
+     * Returns the current blockchain in JSON format.
+     */
+     getBlockChain: function (req, res) {
+        try {
+            // Read the blockchain JSON file and send its content
+            const blockchain = fs.readFileSync(blockchainFilePath, 'utf-8');
+            return res.status(200).json(JSON.parse(blockchain));  // Send the blockchain as JSON
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error reading blockchain file',
+                error: err
+            });
+        }
+    },
+
+    /**
+     * Client uploads a new blockchain in JSON format to replace the existing blockchain.json.
+     */
+    saveBlockChain: function (req, res) {
+        upload.single('blockchainFile')(req, res, function (err) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error during file upload',
+                    error: err
+                });
+            }
+
+            try {
+                // The uploaded file is saved as blockchain.json in the uploads folder
+                const uploadedFilePath = path.join(__dirname, 'uploads', 'blockchain.json');
+
+                // Move the uploaded file to the desired location (overwrite the old blockchain file)
+                fs.renameSync(uploadedFilePath, blockchainFilePath);
+
+                return res.status(200).json({
+                    message: 'Blockchain successfully replaced.'
+                });
+            } catch (err) {
+                return res.status(500).json({
+                    message: 'Error saving blockchain file',
+                    error: err
+                });
+            }
+        });
+    },
+
+    /**
+     * Returns the next measurement from the queue in JSON format.
+     */
+    getNextMeasurement: function (req, res) {
+        if (blockchainQueue.length > 0) {
+            // Get the first measurement from the queue
+            const nextMeasurement = blockchainQueue.shift();
+    
+            return res.status(200).json(nextMeasurement);  // Return the next measurement as JSON
+        } else {
+            return res.status(200).json({
+                message: 'No measurements available in the queue'
+            });  // Return success with a message indicating the queue is empty
+        }
+    },
+    
+
 
     createMany: function (req, res){
         var measurements = req.body.measurements;
@@ -295,18 +391,31 @@ module.exports = {
     /**
      * measurementController.remove()
      */
-    remove: function (req, res) {
+    remove: async function (req, res) {
         var id = req.params.id;
-
-        MeasurementModel.findByIdAndRemove(id, function (err, measurement) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when deleting the measurement.',
-                    error: err
-                });
+    
+        try {
+            // Find the measurement by its ID
+            const measurement = await MeasurementModel.findById(id);
+    
+            // If measurement not found
+            if (!measurement) {
+                return res.status(404).json({ message: 'Measurement not found' });
             }
-
-            return res.status(204).json();
-        });
+    
+            // Check if the user is an admin or the user who made the measurement
+            if (req.user && (req.user.userId === measurement.measuredBy.toString() || req.user.admin === true)) {
+                // Proceed to remove the measurement
+                await MeasurementModel.findByIdAndRemove(id);
+                return res.status(204).json();  // Successfully deleted, no content to return
+            } else {
+                return res.status(403).json({ message: 'Forbidden: Only admins or the user who created the measurement can delete it' });
+            }
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when deleting the measurement.',
+                error: err
+            });
+        }
     }
 };
