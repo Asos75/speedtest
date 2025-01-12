@@ -39,10 +39,13 @@ class SpeedtestFragment : Fragment() {
 
     private lateinit var binding: FragmentSpeedtestBinding
     private lateinit var app: SpeediiApplication
+  //  val resultFragment = ResultFragment()
 
     private val result = MutableLiveData<Double>()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var speedometer: Speedometer
+
+     var speedResult = 0.1;
 
 
     @SuppressLint("SetTextI18n")
@@ -78,6 +81,7 @@ class SpeedtestFragment : Fragment() {
 
         result.observe(viewLifecycleOwner, {
             binding.textViewMeasure.text = "$it Mbps"
+            speedResult = it
         })
 
         // Add this block to set the text based on login status
@@ -87,6 +91,7 @@ class SpeedtestFragment : Fragment() {
             "You are using speedii as guest"
         }
         binding.userStatusTextView.text = userStatusText
+
 
         binding.buttonMeasure.setOnClickListener {
             Thread {
@@ -115,6 +120,18 @@ class SpeedtestFragment : Fragment() {
 
                     Log.d("SpeedtestFragment", "Provider: $provider")
                     val type: Type = checkNetworkType(requireContext()) ?: return@getOrgFromIpInfo
+                    val resultBundle = Bundle().apply {
+
+                        putDouble("speed_result", speedResult)
+                    }
+
+                    // Preklopi na ResultFragment z argumenti
+                    val resultFragment = ResultFragment().apply {
+                        arguments = resultBundle
+                    }
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, resultFragment)
+                        .commit()
 
                     getLastLocation { customLocation ->
                         if (customLocation != null) {
@@ -144,6 +161,10 @@ class SpeedtestFragment : Fragment() {
                                 lifecycleScope.launch {
                                     withContext(Dispatchers.IO) {
                                         HttpMeasurement(app.sessionManager).insert(measurement)
+
+                                        parentFragmentManager.beginTransaction()
+                                            .replace(R.id.fragmentContainer, ResultFragment())
+                                            .commit()
                                     }
                                 }
                             }
