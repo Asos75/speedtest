@@ -66,7 +66,9 @@ void httpPost(const std::string& url, const std::string& jsonData) {
     }
 }
 
-void mainProcess(int size, unsigned int difficulty) {
+void mainProcess(int size, unsigned int difficulty, bool fakeData) {
+
+    char data[512];
     const std::string BASE_URL = "http://192.168.1.102:5000";
 
     int currentDifficulty = difficulty;
@@ -91,14 +93,32 @@ void mainProcess(int size, unsigned int difficulty) {
         }
     }
 
+    long prevCumDiff = blockchain.getCumulativeDifficulty();
+
 
 
     while (true) {
 
 
-        auto start = std::chrono::system_clock::now();
         std::string previousHash = blockchain.chain.empty() ? std::string(SHA256_DIGEST_LENGTH * 2, '0') : blockchain.chain.back().currentHash;
-        std::string data = "Block data: " + std::to_string(blockchain.chain.size() + 1);
+        std::string measurementJson;
+
+        if(!fakeData){
+            measurementJson = httpGet(BASE_URL + "/measurements/nextMeasurement");
+
+            if (measurementJson.empty() || measurementJson.find("No measurements available") != std::string::npos) {
+                std::cout << "No measurements available. Waiting for 30 seconds...\n";
+                std::this_thread::sleep_for(std::chrono::seconds(30));
+                continue;
+            }
+        } else {
+            // Fake data for testing
+            measurementJson = "{measurement: \"" + std::to_string(rand()) + "\"}";
+        }
+
+
+        auto start = std::chrono::system_clock::now();
+
 
         uint32_t rangeSize = UINT_MAX / (size - 1);
         uint32_t startNonce = 0;
@@ -109,7 +129,7 @@ void mainProcess(int size, unsigned int difficulty) {
         for (int i = 1; i < size; ++i) {
             MPI_Send(&blockchain.difficulty, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
             MPI_Send(previousHash.c_str(), previousHash.size() + 1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
-            MPI_Send(data.c_str(), data.size() + 1, MPI_CHAR, i, 0, MPI_COMM_WORLD);
+            MPI_Send(measurementJson.c_str(), sizeof(data), MPI_CHAR, i, 0, MPI_COMM_WORLD);
             MPI_Send(&id, 1, MPI_UINT32_T, i, 0, MPI_COMM_WORLD);
 
             MPI_Send(&startNonce, 1, MPI_UINT32_T, i, 0, MPI_COMM_WORLD);
@@ -169,9 +189,15 @@ void mainProcess(int size, unsigned int difficulty) {
 
         std::cout << "Operations/s: " << (float)totalOperations / ((float)duration / 1000) << "\n";
 
-        if(receivedBlock.hasValidHashDifficulty()){
+        long currentCumDiff = blockchain.getCumulativeDifficulty();
+
+        std::cout << "Current cumulative difficulty: " << currentCumDiff << " previous: " << prevCumDiff << "\n";
+
+        if(receivedBlock.hasValidHashDifficulty() && currentCumDiff > prevCumDiff){
             blockchainJson = blockchain.serialize();
             httpPost(BASE_URL + "/measurements/blockchain", blockchainJson);
+            httpGet(BASE_URL + "/measurements/confirmMined");
+            std::cout << "Block added to blockchain\n";
         }
 
     }
@@ -210,7 +236,7 @@ void workerProcess(int rank, unsigned int numThreads) {
     while (true) {
         int difficulty;
         char previousHash[SHA256_DIGEST_LENGTH * 2 + 1];
-        char data[256];
+        char data[512];
         uint32_t startNonce, endNonce;
         int stopMining = 0;
         int operations = 0;
@@ -299,6 +325,7 @@ int main(int argc, char* argv[]) {
 
     unsigned int threads = 1;
     unsigned int difficulty = INITIAL_DIFFICULTY;
+    bool fakeData = false;
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -309,6 +336,9 @@ int main(int argc, char* argv[]) {
         else if (arg == "-d" && i + 1 < argc) {
             difficulty = std::stoi(argv[i + 1]);
             i++;
+        }
+        else if(arg == "-f") {
+            fakeData = true;
         }
         else if(arg == "-h") {
             printHelp();
@@ -333,7 +363,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (worldRank == 0) {
-        mainProcess(worldSize, difficulty);
+        mainProcess(worldSize, difficulty, fakeData);
     } else {
         workerProcess(worldRank, threads);
     }

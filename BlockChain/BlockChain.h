@@ -14,7 +14,6 @@ class BlockChain {
 private:
     static const int MINING_RATE = 10;
     static const int ADJUST_RATE = 5;
-    static const int MAX_TIME_DIFF = 60;
 
 public:
     std::vector<Block> chain;
@@ -31,6 +30,7 @@ public:
 
     bool validateParallel(const std::vector<Block>& chain);
     void changeDifficulty();
+    long getCumulativeDifficulty() const;
 
     friend void to_json(nlohmann::json& j, const BlockChain& blockchain);
     friend void from_json(const nlohmann::json& j, BlockChain& blockchain);

@@ -244,3 +244,11 @@ void BlockChain::deserialize(const std::string& jsonString) {
     from_json(j, *this); // Deserialize the JSON into the BlockChain object
 }
 
+long BlockChain::getCumulativeDifficulty() const {
+    long cumulativeDifficulty = 0;
+    for (const auto& block : chain) {
+        cumulativeDifficulty += pow(2, block.difficulty);
+    }
+    return cumulativeDifficulty;
+}
+
