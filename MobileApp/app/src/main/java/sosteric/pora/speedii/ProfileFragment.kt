@@ -62,6 +62,8 @@ class ProfileFragment : Fragment() {
                 .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, LoginFragment())
                 .commit()
         }
+
+
         
         val recyclerView = binding.measurementsRecyclerView
         

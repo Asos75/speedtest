@@ -1,9 +1,15 @@
 package sosteric.pora.speedii
 
 import Measurment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import dao.http.HttpMeasurement
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sosteric.pora.speedii.databinding.ItemMeasurementBinding
 import sosteric.pora.speedtest.Type
 import java.time.format.DateTimeFormatter
@@ -57,6 +63,9 @@ class MeasurementAdapter(
                     else -> R.drawable.ic_unknown
                 }
             )
+            binding.deleteBtn.setOnClickListener {
+                onItemLongClick(adapterPosition)
+            }
             binding.speedTextView.text = speedText
             binding.providerTextView.text = providerText
             binding.timeTextView.text = dateText
