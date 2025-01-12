@@ -50,5 +50,6 @@
     <string name="welcome">Dobrodošli nazaj!</string>
     <string name="measurement_details">Ponudnik: %1$s\nHitrost: %2$.2f Mb/s\nČas: %3$s</string>
     <string name="measurement">Meritev</string>
+    <string name="show_result">Prikazujem rezultat</string>
     <string name="back">Nazaj</string>
 </resources>

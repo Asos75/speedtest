@@ -50,5 +50,6 @@
     <string name="welcome">Welcome back!</string>
     <string name="measurement_details">Provider: %1$s\nSpeed: %2$.2f Mb/s\nTime: %3$s</string>
     <string name="measurement">Measurement</string>
+    <string name="show_result">Displaying results</string>
     <string name="back">Back</string>
 </resources>
