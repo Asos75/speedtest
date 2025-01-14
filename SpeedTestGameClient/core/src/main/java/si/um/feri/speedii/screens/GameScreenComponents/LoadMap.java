@@ -1,5 +1,6 @@
 package si.um.feri.speedii.screens.GameScreenComponents;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -14,6 +15,8 @@ import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 
 public class LoadMap {
     private TiledMap map;
+    private MapLayer fieldLayer;
+
     // Path
     private Vector2 startPoint;
     private Vector2 endPoint;
@@ -65,11 +68,12 @@ public class LoadMap {
         MapLayer backgroundLayer = map.getLayers().get("Background");
         MapLayer pathLayer = map.getLayers().get("Path");
         MapLayer borderLayer = map.getLayers().get("Border");
-        MapLayer fieldLayer = map.getLayers().get("Field");
+        fieldLayer = map.getLayers().get("Field");
+        Gdx.app.log("LoadMap", "Loaded Field layer with " + fieldLayer.getObjects().getCount() + " objects");
     }
 
-    public MapLayer loadLayer(String name) {
-        return map.getLayers().get(name);
+    public MapLayer getFieldLayer() {
+        return fieldLayer;
     }
 
     private void loadGameObjects() {

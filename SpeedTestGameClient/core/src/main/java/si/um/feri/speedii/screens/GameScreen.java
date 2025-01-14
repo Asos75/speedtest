@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -19,6 +21,7 @@ import si.um.feri.speedii.screens.GameScreenComponents.InitializeGame;
 // Map
 import si.um.feri.speedii.screens.GameScreenComponents.LoadMap;
 import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
+import si.um.feri.speedii.towerdefense.gameobjects.TileHoverHandler;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.Enemy;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.EnemySpawner;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -30,9 +33,9 @@ import com.badlogic.gdx.math.Vector2;
 // Enemy
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
 
 public class GameScreen implements Screen {
@@ -52,7 +55,9 @@ public class GameScreen implements Screen {
     private SpriteBatch spriteBatch;
 
     private EnemySpawner enemySpawner;
-    private Enemy enemy;
+    private List<Enemy> enemies = new ArrayList<>();
+    private float spawnTimer = 0f;
+    private int enemyCount = 0;
     private GameLogic gameLogic;
 
     private static final float CAMERA_VIEWPORT_WIDTH = 35 * 32;
@@ -60,10 +65,9 @@ public class GameScreen implements Screen {
 
     private boolean isRoundActive = true;
 
-    public GameScreen(/*final SpeediiApp app*/) {
-        //this.app = app;
-        //this.assetManager = app.getAssetManager();
-    }
+    private TileHoverHandler tileHoverHandler;
+
+    public GameScreen() {}
 
     @Override
     public void show() {
@@ -125,7 +129,15 @@ public class GameScreen implements Screen {
 
         // Initialize enemy spawner
         enemySpawner = new EnemySpawner(loadMap, gameLogic);
-        enemy = enemySpawner.spawnEnemy();
+        spawnEnemies();
+
+        // Initialize TileHoverHandler
+        MapLayer fieldLayer = loadMap.getFieldLayer();
+        if (fieldLayer instanceof TiledMapTileLayer) {
+            tileHoverHandler = new TileHoverHandler((TiledMapTileLayer) fieldLayer, camera);
+        } else {
+            Gdx.app.log("GameScreen", "Field layer not found or is not a TiledMapTileLayer");
+        }
 
         // Initialize map renderer
         mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap());
@@ -137,6 +149,48 @@ public class GameScreen implements Screen {
         initializeGame = new InitializeGame();
         initializeGame.getTable().setFillParent(true);
         stage.addActor(initializeGame.getTable());
+    }
+
+    private void spawnEnemies() {
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                Enemy enemy = enemySpawner.spawnEnemy();
+                if (enemy != null) {
+                    enemies.add(enemy);
+                }
+            }
+        }, 0f);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                Enemy enemy = enemySpawner.spawnEnemy();
+                if (enemy != null) {
+                    enemies.add(enemy);
+                }
+            }
+        }, 0.4f);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                Enemy enemy = enemySpawner.spawnEnemy();
+                if (enemy != null) {
+                    enemies.add(enemy);
+                }
+            }
+        }, 0.6f);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                Enemy enemy = enemySpawner.spawnEnemy();
+                if (enemy != null) {
+                    enemies.add(enemy);
+                }
+            }
+        }, 1.1f);
     }
 
     @Override
@@ -159,15 +213,21 @@ public class GameScreen implements Screen {
         // Begin the sprite batch
         spriteBatch.begin();
 
-        if (enemy != null) {
+        // Update and draw enemies
+        for (Enemy enemy : enemies) {
             if (isRoundActive) {
                 enemy.update(delta);
             }
             enemy.draw(spriteBatch, enemy.getX(), enemy.getY());
+            enemy.renderHealthBar(spriteBatch);
         }
 
         // End the sprite batch
         spriteBatch.end();
+
+        if (tileHoverHandler != null) {
+            tileHoverHandler.render();
+        }
 
         stage.act(delta);
         stage.draw();
@@ -220,6 +280,7 @@ public class GameScreen implements Screen {
         stage.getViewport().update(width, height, true);
         //camera.setToOrtho(false, width, height);
         camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
+        camera.update();
     }
 
     @Override
@@ -235,5 +296,8 @@ public class GameScreen implements Screen {
     public void dispose() {
         shapeRenderer.dispose();
         stage.dispose();
+        if (tileHoverHandler != null) {
+            tileHoverHandler.dispose();
+        }
     }
 }

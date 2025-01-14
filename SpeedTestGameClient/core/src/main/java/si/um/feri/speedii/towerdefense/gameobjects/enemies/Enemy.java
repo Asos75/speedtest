@@ -7,6 +7,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+// Healthbar
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Gdx;
+
 import java.util.List;
 
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
@@ -25,6 +31,7 @@ public class Enemy {
     private Vector2 position;
     private Vector2 direction;
     private GameLogic gameLogic;
+    private Texture healthBarTexture;
 
     // Constructor to initialize enemy attributes
     public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic) {
@@ -35,6 +42,7 @@ public class Enemy {
         this.gameLogic = gameLogic;
         this.position = new Vector2();
         this.direction = new Vector2(1, 0); // Start moving right
+        this.healthBarTexture = new Texture("assets/images/white_pixel.png");
 
         loadAnimation(texturePath);
     }
@@ -149,7 +157,30 @@ public class Enemy {
         spriteBatch.draw(currentFrame, x, y, currentFrame.getRegionWidth() * scale, currentFrame.getRegionHeight() * scale);
     }
 
+    // Health logic
+    public void renderHealthBar(SpriteBatch uiBatch) {
+        if (health > 100) {
+            uiBatch.setColor(Color.GOLD);
+        } else if (health > 70) {
+            uiBatch.setColor(Color.GREEN);
+        } else if (health > 40) {
+            uiBatch.setColor(Color.ORANGE);
+        } else {
+            uiBatch.setColor(Color.RED);
+        }
+        float healthBarWidth = 80;
+        float healthBarHeight = 10;
+        float healthBarX = position.x - 10;
+        float healthBarY = position.y + 50;
+        uiBatch.draw(healthBarTexture, healthBarX, healthBarY, health > 100 ? healthBarWidth : healthBarWidth * (health / 100f), healthBarHeight);
+        uiBatch.setColor(Color.WHITE);
+    }
+
     public void setPosition(float x, float y) { this.position.set(x, y); }
     public float getX() { return position.x; }
     public float getY() { return position.y; }
+
+    public void dispose() {
+        healthBarTexture.dispose();
+    }
 }
