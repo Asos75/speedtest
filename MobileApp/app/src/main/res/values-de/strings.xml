@@ -36,6 +36,7 @@
     <string name="logout">Abmelden</string>
     <string name="my_measurements">Meine Messungen</string>
     <string name="speed">Geschwindigkeit: %1$s Mbps</string>
+    <string name="location">Standort: %1$s </string>
     <string name="provider">Anbieter: %1$s</string>
     <string name="date">Datum: %1$s</string>
     <string name="create_account">Konto erstellen</string>

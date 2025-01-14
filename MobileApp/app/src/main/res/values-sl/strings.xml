@@ -36,6 +36,7 @@
     <string name="logout">Odjava</string>
     <string name="my_measurements">Moje meritve</string>
     <string name="speed">Hitrost: %1$s Mbps</string>
+    <string name="location">Lokacija: %1$s </string>
     <string name="provider">Ponudnik: %1$s</string>
     <string name="date">Datum: %1$s</string>
     <string name="create_account">Ustvari račun</string>

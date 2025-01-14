@@ -8,7 +8,7 @@
     <item
         android:id="@+id/navigation_tower"
         android:icon="@drawable/tower"
-        android:title="@string/tower" />
+        android:title="@string/tower"/>
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/profile"
