@@ -1,7 +1,9 @@
 package sosteric.pora.speedii
 
 import Measurment
+import MobileTower
 import PaddingItemDecoration
+import User
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +20,7 @@ import sosteric.pora.speedii.databinding.FragmentProfileBinding
 import android.graphics.Typeface
 import java.time.format.DateTimeFormatter
 import android.text.Html
+import dao.http.HttpMobileTower
 
 class ProfileFragment : Fragment() {
 
@@ -25,6 +28,7 @@ class ProfileFragment : Fragment() {
     private lateinit var app: SpeediiApplication
 
     private lateinit var measurements: List<Measurment>
+    private lateinit var mobileTowers: List<MobileTower>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +49,9 @@ class ProfileFragment : Fragment() {
                 measurements = withContext(Dispatchers.IO) {
                     HttpMeasurement(app.sessionManager).getByUser(app.sessionManager.user!!)
                 }
+                mobileTowers = withContext(Dispatchers.IO) {
+                    HttpMobileTower(app.sessionManager).getByLocator(app.sessionManager.user!!)
+                }
                 Log.d("ProfileFragment", "Measurements: $measurements")
                 val userString = getString(R.string.user, app.sessionManager.user!!.username)
                 val emailString = getString(R.string.email, app.sessionManager.user!!.email)
@@ -63,23 +70,38 @@ class ProfileFragment : Fragment() {
                 .commit()
         }
 
-
-        
         val recyclerView = binding.measurementsRecyclerView
-        
+
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        
+
         lifecycleScope.launch {
             measurements = withContext(Dispatchers.IO) {
                 HttpMeasurement(app.sessionManager).getByUser(app.sessionManager.user!!)
 
             }
+
             recyclerView.adapter = MeasurementAdapter(
                 measurements,
                 { item -> onItemClick(item) },
                 { item -> onItemLongClick(item) }
             )
             recyclerView.addItemDecoration(PaddingItemDecoration(8))
+        }
+
+        val recyclerViewMobile = binding.mobileTowerRecyclerView
+
+        recyclerViewMobile.layoutManager = LinearLayoutManager(requireContext())
+
+        lifecycleScope.launch {
+            mobileTowers = withContext(Dispatchers.IO) {
+                HttpMobileTower(app.sessionManager).getByLocator(app.sessionManager.user!!)
+
+            }
+
+            recyclerViewMobile.adapter = MobileTowerAdapter(
+                mobileTowers
+            )
+            recyclerViewMobile.addItemDecoration(PaddingItemDecoration(8))
         }
 
         return binding.root
