@@ -17,11 +17,16 @@ class ResultFragment : Fragment() {
     ): View? {
         binding = FragmentResultBinding.inflate(inflater, container, false)
 
-        // Pridobi rezultat iz argumentov
         val result = arguments?.getDouble("speed_result", 0.0) ?: 0.0
+        val provider = arguments?.getString("provider", "Unknown") ?: 0.0
 
-        // Prikaz rezultata v UI
-        binding.textViewResult.text = "Speed: ${result} Mbps"
+        binding.textViewResult.text = "Speed: ${result} ${provider} Mbps"
+
+        binding.buttonBackToTest.setOnClickListener {
+             parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, SpeedtestFragment())
+                .commit()
+        }
 
         return binding.root
     }

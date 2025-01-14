@@ -123,6 +123,7 @@ class SpeedtestFragment : Fragment() {
                     val resultBundle = Bundle().apply {
 
                         putDouble("speed_result", speedResult)
+                        putString("provider:", provider)
                     }
 
                     // Preklopi na ResultFragment z argumenti
@@ -161,10 +162,6 @@ class SpeedtestFragment : Fragment() {
                                 lifecycleScope.launch {
                                     withContext(Dispatchers.IO) {
                                         HttpMeasurement(app.sessionManager).insert(measurement)
-
-                                        parentFragmentManager.beginTransaction()
-                                            .replace(R.id.fragmentContainer, ResultFragment())
-                                            .commit()
                                     }
                                 }
                             }
