@@ -8,9 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="57d7f9b2-923e-4272-bb87-f071b8445bf6" name="Changes" comment="SPEED-18 Fixes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out.json" beforeDir="false" afterPath="$PROJECT_DIR$/out.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpeedTestGameClient/.gradle/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../SpeedTestGameClient/.gradle/config.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpeedTestGameClient/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpeedTestGameClient/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpeedTestGameClient/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpeedTestGameClient/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpeedTestGameClient/core/src/main/java/si/um/feri/speedii/SpeediiApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpeedTestGameClient/core/src/main/java/si/um/feri/speedii/SpeediiApp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,23 +43,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.Build DSLCity.executor&quot;: &quot;Run&quot;,
-    &quot;Kotlin.MainKt.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Build DSLCity.executor": "Run",
+    "Kotlin.MainKt.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/andra/Documents/GitHub/speedtest/SpeedTestClient",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.MainKt" />
@@ -107,6 +109,7 @@
       <workItem from="1718289638530" duration="3999000" />
       <workItem from="1718294187699" duration="1988000" />
       <workItem from="1719175349225" duration="32000" />
+      <workItem from="1736881635305" duration="34000" />
     </task>
     <task id="LOCAL-00001" summary="SPEED-18 added if with matching comparators">
       <option name="closed" value="true" />
