@@ -1,6 +1,7 @@
 package dao.http
 
 import Location
+import Measurment
 import MobileTower
 import SessionManager
 import User
@@ -87,6 +88,44 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
             return null
         }
     }
+
+
+    fun getByLocator(user: User): List<MobileTower> {
+        val url = "$ip/mobile"
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                println("Failed to execute request: ${response.code}")
+                return emptyList()
+            }
+
+            val responseBody = response.body?.string()
+
+            responseBody?.let {
+                val jsonArray = JSONArray(it)
+                val mobileTowers = mutableListOf<MobileTower>()
+
+                for (i in 0 until jsonArray.length()) {
+                    val jsonObject = jsonArray.getJSONObject(i)
+                    val mobileTower = parseMobileTower(jsonObject)
+
+                    // Filtriraj towerje glede na locator
+                    if (mobileTower.locator?.id == user.id) {
+                        mobileTowers.add(mobileTower)
+                    }
+                }
+
+                return mobileTowers
+            }
+
+            return emptyList()
+        }
+    }
+
 
     override fun getAll(): List<MobileTower> {
         val url = "$ip/mobile"
