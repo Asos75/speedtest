@@ -103,7 +103,7 @@
   <object id="6" name="GoRight" x="898" y="290" width="59" height="59"/>
  </objectgroup>
  <objectgroup id="6" name="TeleportIntersection1">
-  <object id="3" name="TeleportIntersectionEnter" x="418" y="290" width="59" height="59"/>
+  <object id="3" name="TeleportIntersectionEnterGoUpGoDown" x="418" y="290" width="59" height="59"/>
   <object id="4" name="TeleportIntersectionGoDown" x="898" y="130" width="59" height="59"/>
   <object id="5" name="TeleportIntersectionGoUp" x="898" y="450" width="59" height="59"/>
  </objectgroup>

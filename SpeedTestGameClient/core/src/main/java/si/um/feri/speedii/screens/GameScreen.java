@@ -76,9 +76,9 @@ public class GameScreen implements Screen {
         loadMap = new LoadMap();
         //loadMap.loadMap(DIFFICULTY.VERY_EASY);
         //loadMap.loadMap(DIFFICULTY.EASY);
-        loadMap.loadMap(DIFFICULTY.MEDIUM);
+        //loadMap.loadMap(DIFFICULTY.MEDIUM);
         //loadMap.loadMap(DIFFICULTY.HARD);
-        //loadMap.loadMap(DIFFICULTY.VERY_HARD);
+        loadMap.loadMap(DIFFICULTY.VERY_HARD);
 
         // Initialize sprite batch
         spriteBatch = new SpriteBatch();
@@ -91,22 +91,37 @@ public class GameScreen implements Screen {
         List<Vector2> goUpPoints = loadMap.getGoUpPoints();
         List<Vector2> goDownPoints = loadMap.getGoDownPoints();
 
+        // MEDIUM MAP
         Vector2 intersection = loadMap.getIntersection();
-
         Vector2[] teleportEnterDown = loadMap.getTeleportEnterDown();
         Vector2[] teleportEnterUp = loadMap.getTeleportEnterUp();
 
-        gameLogic = new GameLogic(spawnPoint, goUpPoints, goRightPoints, goDownPoints,intersection, teleportEnterDown, teleportEnterUp, endPoint);
+        // HARD MAP
+        Vector2 teleportIntersectionEnterGoRight = loadMap.getTeleportIntersectionEnterGoRight();
+        List<Vector2> teleportIntersectionGoRight = loadMap.getTeleportIntersectionGoRight();
+        List<Vector2> teleportIntersectionEnter = loadMap.getTeleportIntersectionEnter();
+        Vector2 teleportIntersectionLeave = loadMap.getTeleportIntersectionLeave();
+
+        // VERY HARD MAP
+        Vector2 teleportIntersectionGoDown = loadMap.getTeleportIntersectionGoDown();
+        Vector2 teleportIntersectionGoUp = loadMap.getTeleportIntersectionGoUp();
+        Vector2 teleportIntersectionEnterGoUpGoDown = loadMap.getTeleportIntersectionEnterGoUpGoDown();
+
+        gameLogic = new GameLogic(spawnPoint, goUpPoints, goRightPoints, goDownPoints, intersection, teleportEnterDown, teleportEnterUp, endPoint,
+                teleportIntersectionEnterGoRight, teleportIntersectionGoRight, teleportIntersectionEnter, teleportIntersectionLeave,
+                teleportIntersectionEnterGoUpGoDown, teleportIntersectionGoDown, teleportIntersectionGoUp);
 
         // Log the results of gameLogic
-        System.out.println("Spawn point: " + gameLogic.spawnPoint);
-        System.out.println("End point: " + gameLogic.endPoint);
-        System.out.println("Go right points: " + gameLogic.goRightPoints);
-        System.out.println("Go up points: " + gameLogic.goUpPoints);
-        System.out.println("Go down points: " + gameLogic.goDownPoints);
-        System.out.println("Intersection: " + gameLogic.intersection);
-        System.out.println("Teleport enter down: " + Arrays.toString(gameLogic.teleportEnterDown));
-        System.out.println("Teleport enter up: " + Arrays.toString(gameLogic.teleportEnterUp));
+        if (false) {
+            System.out.println("Spawn point: " + gameLogic.spawnPoint);
+            System.out.println("End point: " + gameLogic.endPoint);
+            System.out.println("Go right points: " + gameLogic.goRightPoints);
+            System.out.println("Go up points: " + gameLogic.goUpPoints);
+            System.out.println("Go down points: " + gameLogic.goDownPoints);
+            System.out.println("Intersection: " + gameLogic.intersection);
+            System.out.println("Teleport enter down: " + Arrays.toString(gameLogic.teleportEnterDown));
+            System.out.println("Teleport enter up: " + Arrays.toString(gameLogic.teleportEnterUp));
+        }
 
         // Initialize enemy spawner
         enemySpawner = new EnemySpawner(loadMap, gameLogic);
