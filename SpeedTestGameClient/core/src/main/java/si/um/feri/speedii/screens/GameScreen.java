@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import si.um.feri.speedii.SpeediiApp;
@@ -21,6 +22,7 @@ import si.um.feri.speedii.screens.GameScreenComponents.InitializeGame;
 // Map
 import si.um.feri.speedii.screens.GameScreenComponents.LoadMap;
 import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
+import si.um.feri.speedii.towerdefense.config.GameDataManager;
 import si.um.feri.speedii.towerdefense.gameobjects.TileHoverHandler;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.Enemy;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.EnemySpawner;
@@ -48,6 +50,7 @@ public class GameScreen implements Screen {
 
     private Stage stage;
     private InitializeGame initializeGame;
+    private GameDataManager gameDataManager;
 
     private OrthogonalTiledMapRenderer mapRenderer;
     private OrthographicCamera camera;
@@ -73,9 +76,11 @@ public class GameScreen implements Screen {
     public void show() {
 
         // Start game
-        gameViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        gameViewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer = new ShapeRenderer();
+
         stage = new Stage(gameViewport);
+        Gdx.input.setInputProcessor(stage);
 
         // Load map
         loadMap = new LoadMap();
@@ -116,21 +121,18 @@ public class GameScreen implements Screen {
                 teleportIntersectionEnterGoRight, teleportIntersectionGoRight, teleportIntersectionEnter, teleportIntersectionLeave,
                 teleportIntersectionEnterGoUpGoDown, teleportIntersectionGoDown, teleportIntersectionGoUp);
 
-        // Log the results of gameLogic
-        if (false) {
-            System.out.println("Spawn point: " + gameLogic.spawnPoint);
-            System.out.println("End point: " + gameLogic.endPoint);
-            System.out.println("Go right points: " + gameLogic.goRightPoints);
-            System.out.println("Go up points: " + gameLogic.goUpPoints);
-            System.out.println("Go down points: " + gameLogic.goDownPoints);
-            System.out.println("Intersection: " + gameLogic.intersection);
-            System.out.println("Teleport enter down: " + Arrays.toString(gameLogic.teleportEnterDown));
-            System.out.println("Teleport enter up: " + Arrays.toString(gameLogic.teleportEnterUp));
-        }
+        // Initialize game data manager
+        gameDataManager = new GameDataManager();
 
         // Initialize enemy spawner
         enemySpawner = new EnemySpawner(loadMap, gameLogic);
         spawnEnemies();
+
+        // Initialize map renderer
+        mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap());
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
+        camera.update();
 
         // Initialize TileHoverHandler
         MapLayer fieldLayer = loadMap.getFieldLayer();
@@ -140,14 +142,8 @@ public class GameScreen implements Screen {
             Gdx.app.log("GameScreen", "Field layer not found or is not a TiledMapTileLayer");
         }
 
-        // Initialize map renderer
-        mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap());
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
-        camera.update();
-
         // Initialize game
-        initializeGame = new InitializeGame();
+        initializeGame = new InitializeGame(gameDataManager);
         initializeGame.getTable().setFillParent(true);
         stage.addActor(initializeGame.getTable());
     }
@@ -277,9 +273,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        gameViewport.update(width, height, true);
+        /*gameViewport.update(width, height, true);
         stage.getViewport().update(width, height, true);
         //camera.setToOrtho(false, width, height);
+        camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
+        camera.update();*/
+        gameViewport.update(width, height, true);
+        stage.getViewport().update(width, height, true);
         camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
         camera.update();
     }

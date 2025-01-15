@@ -34,17 +34,17 @@ public class ShopScreen {
 
         TextureAtlas atlas = assetManager.get(AssetDescriptors.IMAGES);
 
-        Image routerIcon = new Image(atlas.findRegion(RegionNames.ROUTER));
+        //Image routerIcon = new Image(atlas.findRegion(RegionNames.ROUTER));
         Image cellTowerIcon = new Image(atlas.findRegion(RegionNames.CELL_TOWER));
         Image switchIcon = new Image(atlas.findRegion(RegionNames.SWITCH));
 
         float iconSize = GameConfig.SHOP_ICON_SIZE;
 
-        routerIcon.setSize(iconSize, iconSize);
+        //routerIcon.setSize(iconSize, iconSize);
         cellTowerIcon.setSize(iconSize, iconSize);
         switchIcon.setSize(iconSize, iconSize);
 
-        table.add(routerIcon).size(iconSize).pad(10).row();
+        //table.add(routerIcon).size(iconSize).pad(10).row();
         table.add(cellTowerIcon).size(iconSize).pad(10).row();
         table.add(switchIcon).size(iconSize).pad(10).row();
 

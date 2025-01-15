@@ -7,28 +7,38 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class TileHoverHandler {
     private TiledMapTileLayer fieldLayer;
     private ShapeRenderer shapeRenderer;
     private Rectangle hoveredTile;
+    private OrthographicCamera camera;
 
     public TileHoverHandler(TiledMapTileLayer fieldLayer, OrthographicCamera camera) {
         this.fieldLayer = fieldLayer;
         this.shapeRenderer = new ShapeRenderer();
+        this.camera = camera;
         //Gdx.app.log("TileHoverHandler", "Initialized with field layer: " + fieldLayer.getName());
     }
 
     public void render() {
-        Vector2 mousePos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+        //camera = new OrthographicCamera();
+        Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mousePos);
+        //Vector2 mousePos = new Vector2(Gdx.input.getX(), Gdx.input.getY());
         hoveredTile = null;
 
-        int tileX = (int) (mousePos.x / fieldLayer.getTileWidth());
-        int tileY = (int) ((Gdx.graphics.getHeight() - mousePos.y) / fieldLayer.getTileHeight());
+        float tileWidth = fieldLayer.getTileWidth();
+        float tileHeight = fieldLayer.getTileHeight();
+
+        // Calculate the tile coordinates
+        int tileX = (int) (mousePos.x / tileWidth);
+        int tileY = (int) (mousePos.y / tileHeight);
 
         TiledMapTileLayer.Cell cell = fieldLayer.getCell(tileX, tileY);
         if (cell != null) {
-            hoveredTile = new Rectangle(tileX * fieldLayer.getTileWidth(), tileY * fieldLayer.getTileHeight(), fieldLayer.getTileWidth(), fieldLayer.getTileHeight());
+            hoveredTile = new Rectangle(tileX * tileWidth, tileY * tileHeight, tileWidth, tileHeight);
         }
 
         if (hoveredTile != null) {
