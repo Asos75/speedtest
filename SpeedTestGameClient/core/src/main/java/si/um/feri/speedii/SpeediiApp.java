@@ -41,11 +41,11 @@ public class SpeediiApp extends Game {
     public void create() {
         MongoDBConnection.connect();
 
-        SessionManager sessionManager = new SessionManager();
-        HttpUser httpUser = new HttpUser(sessionManager);
-        boolean successful = httpUser.authenticate("admin", "admin");
-        System.out.println("Successful: " + successful);
-        System.out.println("Session: " + sessionManager);
+        //SessionManager sessionManager = new SessionManager();
+        //HttpUser httpUser = new HttpUser(sessionManager);
+        //boolean successful = httpUser.authenticate("admin", "admin");
+        //System.out.println("Successful: " + successful);
+        //System.out.println("Session: " + sessionManager);
 
         assetManager = new AssetManager();
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
@@ -56,9 +56,8 @@ public class SpeediiApp extends Game {
 
         batch = new SpriteBatch();
 
-        setScreen(new MapScreen(sessionManager));
-        //setScreen(new GameScreen(this));
-        //setScreen(new GameScreen());
+        //setScreen(new MapScreen(sessionManager));
+        setScreen(new GameScreen());
         //new MenuScreen(this);
 
         /*
