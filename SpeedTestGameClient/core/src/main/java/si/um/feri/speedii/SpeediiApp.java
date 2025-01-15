@@ -26,6 +26,7 @@ import si.um.feri.speedii.dao.MeasurementCRUD;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpUser;
 import si.um.feri.speedii.screens.GameScreen;
+import si.um.feri.speedii.screens.LoginScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.screens.MenuScreen;
@@ -92,6 +93,7 @@ public class SpeediiApp extends Game {
         }
 
  */
+
     }
 
     public AssetManager getAssetManager() {
