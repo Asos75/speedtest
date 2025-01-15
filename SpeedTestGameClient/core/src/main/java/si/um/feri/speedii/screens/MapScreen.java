@@ -6,6 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
@@ -21,11 +24,18 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.io.IOException;
+import java.util.List;
 
+import javax.xml.parsers.SAXParser;
+
+import si.um.feri.speedii.classes.Measurement;
+import si.um.feri.speedii.classes.SessionManager;
+import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.Geolocation;
 import si.um.feri.speedii.utils.MapRasterTiles;
 import si.um.feri.speedii.utils.ZoomXY;
+import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener {
     private ShapeRenderer shapeRenderer;
@@ -43,6 +53,26 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     // test marker
     private final Geolocation MARKER_GEOLOCATION = new Geolocation(46.559070, 15.638100);
+
+    // MapOverlay instance
+    private MapOverlay mapOverlay;
+    private SessionManager sessionManager;
+
+    private BitmapFont font;
+    private SpriteBatch spriteBatch;
+    private String speedInfo;
+    private Vector2 speedInfoPosition;
+
+    public MapScreen(SessionManager sessionManager) {
+        Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
+
+        this.sessionManager = sessionManager;
+
+        this.font = new BitmapFont();
+        this.spriteBatch = new SpriteBatch();
+        this.speedInfo = "";
+        this.speedInfoPosition = new Vector2();
+    }
 
     @Override
     public void show() {
@@ -87,6 +117,12 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         Gdx.input.setInputProcessor(new GestureDetector(this));
 
+        // Initialize MapOverlay
+        mapOverlay = new MapOverlay(); // Adjust grid size as needed
+
+        // Example measurements, replace with actual data
+        List<Measurement> measurements = getMeasurements();
+        mapOverlay.calculateAverageSpeeds(measurements, beginTile);
     }
 
     @Override
@@ -102,6 +138,30 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         drawMarkers();
 
+        mapOverlay.drawGrid(shapeRenderer, camera);
+
+        if (!speedInfo.isEmpty()) {
+            // Calculate the scale factor based on the window size
+            float scaleFactor = Math.min(Gdx.graphics.getWidth() / 100f, Gdx.graphics.getHeight() / 100f);
+
+            // Set the font scale
+            font.getData().setScale(scaleFactor);
+
+            GlyphLayout layout = new GlyphLayout(font, speedInfo);
+            float textWidth = layout.width;
+            float textHeight = layout.height;
+
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.rect(speedInfoPosition.x, speedInfoPosition.y - textHeight, textWidth, textHeight);
+            shapeRenderer.end();
+
+            spriteBatch.setProjectionMatrix(camera.combined);
+            spriteBatch.begin();
+            font.draw(spriteBatch, speedInfo, speedInfoPosition.x, speedInfoPosition.y);
+            spriteBatch.end();
+        }
     }
 
     private void drawMarkers() {
@@ -137,9 +197,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
-        System.out.println("touchDown");
         touchPosition.set(x, y, 0);
         camera.unproject(touchPosition);
+        speedInfo = "";
         return false;
     }
 
@@ -150,6 +210,18 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean longPress(float x, float y) {
+        touchPosition.set(x, y, 0);
+        camera.unproject(touchPosition);
+
+        int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
+        speedInfo = "Speed: " + speed;
+        if(speed == -1) {
+            return false;
+        }
+
+        speedInfoPosition.set(touchPosition.x, touchPosition.y);
+
+        System.out.println("Speed: " + speed);
         return false;
     }
 
@@ -208,8 +280,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             camera.translate(0, 3, 0);
         }
 
-
-
         camera.zoom = MathUtils.clamp(camera.zoom, 0.5f, 2f);
 
         float effectiveViewportWidth = camera.viewportWidth * camera.zoom;
@@ -219,4 +289,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         camera.position.y = MathUtils.clamp(camera.position.y, effectiveViewportHeight / 2f, Constants.MAP_HEIGHT - effectiveViewportHeight / 2f);
     }
 
+    private List<Measurement> getMeasurements() {
+        HttpMeasurement httpMeasurement = new HttpMeasurement(sessionManager);
+        List<Measurement> measurements = null;
+        try {
+            measurements = httpMeasurement.getAll();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return measurements;
+
+    }
 }

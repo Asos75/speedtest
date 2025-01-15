@@ -39,6 +39,13 @@ public class SpeediiApp extends Game {
     @Override
     public void create() {
         MongoDBConnection.connect();
+
+        SessionManager sessionManager = new SessionManager();
+        HttpUser httpUser = new HttpUser(sessionManager);
+        boolean successful = httpUser.authenticate("admin", "admin");
+        System.out.println("Successful: " + successful);
+        System.out.println("Session: " + sessionManager);
+
         assetManager = new AssetManager();
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
         assetManager.load(AssetDescriptors.IMAGES);
@@ -48,19 +55,16 @@ public class SpeediiApp extends Game {
 
         batch = new SpriteBatch();
 
-        //setScreen(new MapScreen());
+        setScreen(new MapScreen(sessionManager));
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);
 
-        SessionManager sessionManager = new SessionManager();
-        HttpUser httpUser = new HttpUser(sessionManager);
-        boolean successful = httpUser.authenticate("admin", "admin");
-        System.out.println("Successful: " + successful);
-        System.out.println("Session: " + sessionManager);
+        /*
+
 
         ObjectId id = new ObjectId("67878b8fbc9ea613ee06ab50");
-
+*/
 
         /*
 
@@ -77,7 +81,7 @@ public class SpeediiApp extends Game {
         }
 
          */
-
+/*
         HttpMeasurement httpMeasurement = new HttpMeasurement(sessionManager);
         try {
             Measurement measurement = httpMeasurement.getById(id);
@@ -86,6 +90,8 @@ public class SpeediiApp extends Game {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+ */
     }
 
     public AssetManager getAssetManager() {

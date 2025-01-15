@@ -71,6 +71,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+
         // Start game
         gameViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer = new ShapeRenderer();
