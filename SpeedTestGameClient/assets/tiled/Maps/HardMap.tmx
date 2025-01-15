@@ -102,7 +102,7 @@
   <object id="2" name="SpawnPoint" x="6" y="290" width="59" height="59"/>
  </objectgroup>
  <objectgroup id="6" name="TeleportIntersection1">
-  <object id="3" name="TeleportIntersectionEnter" x="290" y="290" width="59" height="59"/>
+  <object id="3" name="TeleportIntersectionEnterGoRight" x="290" y="290" width="59" height="59"/>
   <object id="4" name="TeleportIntersectionGoRight" x="292" y="66" width="59" height="59"/>
   <object id="5" name="TeleportIntersectionGoRight" x="291" y="514" width="59" height="59"/>
  </objectgroup>
