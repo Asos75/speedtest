@@ -26,6 +26,7 @@ import si.um.feri.speedii.dao.MeasurementCRUD;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpUser;
 import si.um.feri.speedii.screens.GameScreen;
+import si.um.feri.speedii.screens.LoginScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.screens.MenuScreen;
@@ -48,15 +49,18 @@ public class SpeediiApp extends Game {
 
         batch = new SpriteBatch();
 
-        //setScreen(new MapScreen());
+
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);
 
+
+
         SessionManager sessionManager = new SessionManager();
         HttpUser httpUser = new HttpUser(sessionManager);
-        boolean successful = httpUser.authenticate("admin", "admin");
-        System.out.println("Successful: " + successful);
+        setScreen(new LoginScreen(this, httpUser));
+      //  boolean successful = httpUser.authenticate("admin", "admin");
+     //   System.out.println("Successful: " + successful);
         System.out.println("Session: " + sessionManager);
 
         ObjectId id = new ObjectId("67878b8fbc9ea613ee06ab50");
@@ -77,7 +81,7 @@ public class SpeediiApp extends Game {
         }
 
          */
-
+        /*
         HttpMeasurement httpMeasurement = new HttpMeasurement(sessionManager);
         try {
             Measurement measurement = httpMeasurement.getById(id);
@@ -86,6 +90,8 @@ public class SpeediiApp extends Game {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+         */
     }
 
     public AssetManager getAssetManager() {

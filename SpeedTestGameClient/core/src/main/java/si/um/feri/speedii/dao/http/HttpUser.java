@@ -18,6 +18,7 @@ import java.util.List;
 public class HttpUser implements UserCRUD {
 
     private final OkHttpClient client;
+
     private final String ip;
     private final SessionManager sessionManager;
 
