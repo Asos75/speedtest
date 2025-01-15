@@ -13,7 +13,7 @@ dependencies {
   implementation "org.json:json:20210307" // Add this line
   implementation 'io.github.cdimascio:dotenv-java:3.1.0' // dotenv dependency
   implementation "org.mongodb:mongodb-driver-sync:4.9.1"
-
+  implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
 
   if(enableGraalNative == 'true') {
