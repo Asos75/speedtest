@@ -126,13 +126,7 @@ class SpeedtestFragment : Fragment() {
                         putString("provider:", provider)
                     }
 
-                    // Preklopi na ResultFragment z argumenti
-                    val resultFragment = ResultFragment().apply {
-                        arguments = resultBundle
-                    }
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, resultFragment)
-                        .commit()
+
 
                     getLastLocation { customLocation ->
                         if (customLocation != null) {
@@ -165,6 +159,13 @@ class SpeedtestFragment : Fragment() {
                                     }
                                 }
                             }
+                            // Preklopi na ResultFragment z argumenti
+                            val resultFragment = ResultFragment().apply {
+                                arguments = resultBundle
+                            }
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragmentContainer, resultFragment)
+                                .commit()
                         } else {
                             println("Location is null or failed to retrieve")
                         }
