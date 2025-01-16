@@ -165,6 +165,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
+        float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
+        float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
+        for (Vector2 position : mobileTowerPositions) {
+            spriteBatch.draw(mobileTowerTexture, position.x, position.y, textureWidth, textureHeight);
+        }
+
+        spriteBatch.end();
+
         if (!speedInfo.isEmpty()) {
             float scaleFactor = Math.min(Gdx.graphics.getWidth() / 100f, Gdx.graphics.getHeight() / 100f);
 
@@ -180,18 +188,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             shapeRenderer.rect(speedInfoPosition.x, speedInfoPosition.y - textHeight, textWidth, textHeight);
             shapeRenderer.end();
 
+            spriteBatch.begin();
             font.draw(spriteBatch, speedInfo, speedInfoPosition.x, speedInfoPosition.y);
+            spriteBatch.end();
         }
-        float textureWidth = mobileTowerTexture.getRegionWidth() * 0.2f;
-        float textureHeight = mobileTowerTexture.getRegionHeight() * 0.2f;
-        for (Vector2 position : mobileTowerPositions) {
-            spriteBatch.draw(mobileTowerTexture, position.x, position.y, textureWidth, textureHeight);
-        }
-        spriteBatch.end();
     }
 
 
-    private void drawMarkers() {
+        private void drawMarkers() {
         Vector2 marker = MapRasterTiles.getPixelPosition(MARKER_GEOLOCATION.lat, MARKER_GEOLOCATION.lng, beginTile.x, beginTile.y);
 
         shapeRenderer.setProjectionMatrix(camera.combined);
