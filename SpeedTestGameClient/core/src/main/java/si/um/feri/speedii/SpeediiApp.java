@@ -24,6 +24,7 @@ import si.um.feri.speedii.classes.User;
 import si.um.feri.speedii.connection.MongoDBConnection;
 import si.um.feri.speedii.dao.MeasurementCRUD;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
+import si.um.feri.speedii.dao.http.HttpMobileTower;
 import si.um.feri.speedii.dao.http.HttpUser;
 import si.um.feri.speedii.screens.GameScreen;
 import si.um.feri.speedii.screens.LoginScreen;
@@ -42,9 +43,13 @@ public class SpeediiApp extends Game {
         MongoDBConnection.connect();
 
         SessionManager sessionManager = new SessionManager();
+        HttpMeasurement httpMeasurement = new HttpMeasurement(sessionManager);
+        HttpMobileTower httpMobileTower = new HttpMobileTower(sessionManager);
+
         HttpUser httpUser = new HttpUser(sessionManager);
-        boolean successful = httpUser.authenticate("admin", "admin");
-        System.out.println("Successful: " + successful);
+
+       // boolean successful = httpUser.authenticate("admin", "admin");
+       // System.out.println("Successful: " + successful);
         System.out.println("Session: " + sessionManager);
 
         assetManager = new AssetManager();
@@ -56,11 +61,13 @@ public class SpeediiApp extends Game {
 
         batch = new SpriteBatch();
 
-        setScreen(new MapScreen(sessionManager));
+
+
+        setScreen(new MapScreen(sessionManager, assetManager));
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);
-
+      //  setScreen(new LoginScreen(this,httpUser,httpMobileTower));;
         /*
 
 

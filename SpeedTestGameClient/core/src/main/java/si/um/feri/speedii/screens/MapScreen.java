@@ -1,5 +1,8 @@
 package si.um.feri.speedii.screens;
 
+import static si.um.feri.speedii.utils.Constants.ZOOM;
+import static si.um.feri.speedii.utils.MapRasterTiles.TILE_SIZE;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -9,6 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
@@ -22,15 +26,21 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.assets.AssetManager;
 
 import java.io.IOException;
 import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 
+import si.um.feri.speedii.SpeediiApp;
+import si.um.feri.speedii.assets.AssetDescriptors;
+import si.um.feri.speedii.assets.RegionNames;
 import si.um.feri.speedii.classes.Measurement;
+import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
+import si.um.feri.speedii.dao.http.HttpMobileTower;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.Geolocation;
 import si.um.feri.speedii.utils.MapRasterTiles;
@@ -41,10 +51,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private ShapeRenderer shapeRenderer;
     private Vector3 touchPosition;
 
+
     private TiledMap tiledMap;
+    int height = Gdx.graphics.getHeight();
     private TiledMapRenderer tiledMapRenderer;
     private OrthographicCamera camera;
 
+    private final AssetManager assetManager;
     private Texture[] mapTiles;
     private ZoomXY beginTile;   // top left tile
 
@@ -63,15 +76,21 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private String speedInfo;
     private Vector2 speedInfoPosition;
 
-    public MapScreen(SessionManager sessionManager) {
+    TextureAtlas atlas;
+    private TextureRegion mobileTowerTexture;
+
+    private List<Vector2> mobileTowerPositions;
+
+    public MapScreen(SessionManager sessionManager, AssetManager assetManager) {
         Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
 
         this.sessionManager = sessionManager;
-
         this.font = new BitmapFont();
         this.spriteBatch = new SpriteBatch();
         this.speedInfo = "";
+        this.assetManager = assetManager;
         this.speedInfoPosition = new Vector2();
+
     }
 
     @Override
@@ -90,23 +109,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         try {
             //in most cases, geolocation won't be in the center of the tile because tile borders are predetermined (geolocation can be at the corner of a tile)
-            ZoomXY centerTile = MapRasterTiles.getTileNumber(CENTER_GEOLOCATION.lat, CENTER_GEOLOCATION.lng, Constants.ZOOM);
+            ZoomXY centerTile = MapRasterTiles.getTileNumber(CENTER_GEOLOCATION.lat, CENTER_GEOLOCATION.lng, ZOOM);
             mapTiles = MapRasterTiles.getRasterTileZone(centerTile, Constants.NUM_TILES);
             //you need the beginning tile (tile on the top left corner) to convert geolocation to a location in pixels.
-            beginTile = new ZoomXY(Constants.ZOOM, centerTile.x - ((Constants.NUM_TILES - 1) / 2), centerTile.y - ((Constants.NUM_TILES - 1) / 2));
+            beginTile = new ZoomXY(ZOOM, centerTile.x - ((Constants.NUM_TILES - 1) / 2), centerTile.y - ((Constants.NUM_TILES - 1) / 2));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        atlas = assetManager.get(AssetDescriptors.IMAGES);
+        mobileTowerTexture =  (atlas.findRegion(RegionNames.CELL_TOWER));
         tiledMap = new TiledMap();
         MapLayers layers = tiledMap.getLayers();
 
-        TiledMapTileLayer layer = new TiledMapTileLayer(Constants.NUM_TILES, Constants.NUM_TILES, MapRasterTiles.TILE_SIZE, MapRasterTiles.TILE_SIZE);
+        TiledMapTileLayer layer = new TiledMapTileLayer(Constants.NUM_TILES, Constants.NUM_TILES, TILE_SIZE, TILE_SIZE);
         int index = 0;
         for (int j = Constants.NUM_TILES - 1; j >= 0; j--) {
             for (int i = 0; i < Constants.NUM_TILES; i++) {
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                cell.setTile(new StaticTiledMapTile(new TextureRegion(mapTiles[index], MapRasterTiles.TILE_SIZE, MapRasterTiles.TILE_SIZE)));
+                cell.setTile(new StaticTiledMapTile(new TextureRegion(mapTiles[index], TILE_SIZE, TILE_SIZE)));
                 layer.setCell(i, j, cell);
                 index++;
             }
@@ -122,7 +143,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         // Example measurements, replace with actual data
         List<Measurement> measurements = getMeasurements();
+        List<MobileTower> mobileTowers = getMobileTowers();
         mapOverlay.calculateAverageSpeeds(measurements, beginTile);
+        mobileTowerPositions =  mapOverlay.turnMobileTowerCoordinatesToPixels(mobileTowers,beginTile);
     }
 
     @Override
@@ -130,7 +153,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         ScreenUtils.clear(0, 0, 0, 1);
 
         handleInput();
-
         camera.update();
 
         tiledMapRenderer.setView(camera);
@@ -140,11 +162,12 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         mapOverlay.drawGrid(shapeRenderer, camera);
 
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+
         if (!speedInfo.isEmpty()) {
-            // Calculate the scale factor based on the window size
             float scaleFactor = Math.min(Gdx.graphics.getWidth() / 100f, Gdx.graphics.getHeight() / 100f);
 
-            // Set the font scale
             font.getData().setScale(scaleFactor);
 
             GlyphLayout layout = new GlyphLayout(font, speedInfo);
@@ -157,12 +180,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             shapeRenderer.rect(speedInfoPosition.x, speedInfoPosition.y - textHeight, textWidth, textHeight);
             shapeRenderer.end();
 
-            spriteBatch.setProjectionMatrix(camera.combined);
-            spriteBatch.begin();
             font.draw(spriteBatch, speedInfo, speedInfoPosition.x, speedInfoPosition.y);
-            spriteBatch.end();
         }
+        float textureWidth = mobileTowerTexture.getRegionWidth() * 0.2f;
+        float textureHeight = mobileTowerTexture.getRegionHeight() * 0.2f;
+        for (Vector2 position : mobileTowerPositions) {
+            spriteBatch.draw(mobileTowerTexture, position.x, position.y, textureWidth, textureHeight);
+        }
+        spriteBatch.end();
     }
+
 
     private void drawMarkers() {
         Vector2 marker = MapRasterTiles.getPixelPosition(MARKER_GEOLOCATION.lat, MARKER_GEOLOCATION.lng, beginTile.x, beginTile.y);
@@ -221,9 +248,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         speedInfoPosition.set(touchPosition.x, touchPosition.y);
 
-        System.out.println("Speed: " + speed);
+      //  System.out.println("Speed: " + speed);
         return false;
     }
+
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
@@ -298,6 +326,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             e.printStackTrace();
         }
         return measurements;
+
+    }
+
+
+    private List<MobileTower> getMobileTowers() {
+        HttpMobileTower httpMobileTower = new HttpMobileTower(sessionManager);
+        List<MobileTower> mobileTowers;
+        mobileTowers = httpMobileTower.getAll();
+        return mobileTowers;
 
     }
 }

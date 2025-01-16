@@ -7,10 +7,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import si.um.feri.speedii.classes.Measurement;
+import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.MapRasterTiles;
 import si.um.feri.speedii.utils.ZoomXY;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapOverlay {
@@ -37,6 +39,27 @@ public class MapOverlay {
             }
         }
     }
+
+    public List<Vector2> turnMobileTowerCoordinatesToPixels(List<MobileTower> mobileTowers, ZoomXY beginTile) {
+        List<Vector2> positions = new ArrayList<>();
+
+        for (MobileTower mobileTower : mobileTowers) {
+            System.out.println(mobileTower.getLocation().coordinates.get(1) + ", " +
+                mobileTower.getLocation().coordinates.get(0));
+
+            Vector2 position = MapRasterTiles.getPixelPosition(
+                mobileTower.getLocation().coordinates.get(1),
+                mobileTower.getLocation().coordinates.get(0),
+                beginTile.x,
+                beginTile.y
+            );
+
+            positions.add(position);
+        }
+
+        return positions;
+    }
+
 
     public void drawGrid(ShapeRenderer shapeRenderer, OrthographicCamera camera) {
         Gdx.gl.glEnable(GL20.GL_BLEND);
