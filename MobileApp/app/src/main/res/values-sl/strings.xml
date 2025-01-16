@@ -58,4 +58,7 @@
     <string name="measure2">Izmeri hitrost</string>
     <string name="getting_location">Pridobivanje lokacije…</string>
     <string name="getting_provider">Pridobivanje ponudnika…</string>
+    <string name="frequency">Frekvenca</string>
+    <string name="background_measurements">Meri v ozadju</string>
+    <string name="simulate_measurements">Simuliraj meritve</string>
 </resources>

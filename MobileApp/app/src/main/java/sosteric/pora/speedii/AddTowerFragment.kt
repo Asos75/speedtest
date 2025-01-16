@@ -101,6 +101,8 @@ class AddTowerFragment : Fragment() {
             // Save the tower object (example)
             Toast.makeText(context, "Tower saved: $tower", Toast.LENGTH_LONG).show()
 
+            // TODO save the tower object to the database
+
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, MapFragment())
                 .addToBackStack(null)

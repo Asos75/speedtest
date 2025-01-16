@@ -58,4 +58,7 @@
     <string name="measure2">Geschwindigkeit messen</string>
     <string name="getting_location">Standort wird ermittelt…</string>
     <string name="getting_provider">Anbieter wird ermittelt…</string>
+    <string name="frequency">Frequenz</string>
+    <string name="background_measurements">Hintergrundmessungen</string>
+    <string name="simulate_measurements">Messungen simulieren</string>
 </resources>

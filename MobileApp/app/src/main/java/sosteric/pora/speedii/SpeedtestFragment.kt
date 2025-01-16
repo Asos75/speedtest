@@ -147,6 +147,10 @@ class SpeedtestFragment : Fragment() {
                             val gson = Gson()
                             val measurementJson = gson.toJson(measurement.toAlt())
 
+                            requireActivity().runOnUiThread {
+                                binding.textViewMeasure.text = "Saving measurement..."
+                            }
+
                             // Publish the measurement using MqttHelper
                             val mqttHelper = MqttHelper(requireContext())
                             if (mqttHelper.isConnected()) {

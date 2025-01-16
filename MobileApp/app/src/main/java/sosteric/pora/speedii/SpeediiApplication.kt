@@ -15,6 +15,10 @@ class SpeediiApplication : Application() {
     lateinit var appTheme: String
     lateinit var language: String
 
+    var frequency: Int = 30
+    var backgroundMeasurements: Boolean = false
+    var simulateMeasurements: Boolean = false
+
     private lateinit var mqttHelper: MqttHelper
     lateinit var sessionManager: SessionManager
 
@@ -61,6 +65,27 @@ class SpeediiApplication : Application() {
         } else {
             userUUID = UUID.randomUUID()
             sharedPreferences.edit().putString("userUUID", userUUID.toString()).apply()
+        }
+
+        frequency = if(sharedPreferences.contains("frequency")){
+            sharedPreferences.getInt("frequency", 30)
+        } else {
+            sharedPreferences.edit().putInt("frequency", 30).apply()
+            30
+        }
+
+        backgroundMeasurements = if(sharedPreferences.contains("backgroundMeasurements")){
+            sharedPreferences.getBoolean("backgroundMeasurements", false)
+        } else {
+            sharedPreferences.edit().putBoolean("backgroundMeasurements", false).apply()
+            false
+        }
+
+        simulateMeasurements = if(sharedPreferences.contains("simulateMeasurements")){
+            sharedPreferences.getBoolean("simulateMeasurements", false)
+        } else {
+            sharedPreferences.edit().putBoolean("simulateMeasurements", false).apply()
+            false
         }
 
     }
