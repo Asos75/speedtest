@@ -133,4 +133,5 @@
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
         app:layout_constraintStart_toStartOf="@+id/seekBar"
         app:layout_constraintEnd_toEndOf="@+id/seekBar" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

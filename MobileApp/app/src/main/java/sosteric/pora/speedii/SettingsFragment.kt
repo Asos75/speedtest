@@ -127,10 +127,6 @@ class SettingsFragment : Fragment() {
             app.sharedPreferences.edit().putBoolean("simulateMeasurements", isChecked).apply()
         }
 
-
-
-
-
         return binding.root
     }
 }

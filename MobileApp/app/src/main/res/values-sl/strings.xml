@@ -35,6 +35,7 @@
     <string name="email">E-pošta: %1$s</string>
     <string name="logout">Odjava</string>
     <string name="my_measurements">Moje meritve</string>
+    <string name="my_towers">Moji stolpi</string>
     <string name="speed">Hitrost: %1$s Mbps</string>
     <string name="location">Lokacija: %1$s </string>
     <string name="provider">Ponudnik: %1$s</string>
@@ -61,4 +62,6 @@
     <string name="frequency">Frekvenca</string>
     <string name="background_measurements">Meri v ozadju</string>
     <string name="simulate_measurements">Simuliraj meritve</string>
+    <string name="towers">Stolpi</string>
+    <string name="measurements">Meritve</string>
 </resources>

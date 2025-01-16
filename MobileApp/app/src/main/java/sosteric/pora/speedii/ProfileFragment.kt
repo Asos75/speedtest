@@ -104,6 +104,20 @@ class ProfileFragment : Fragment() {
             recyclerViewMobile.addItemDecoration(PaddingItemDecoration(8))
         }
 
+        binding.buttonToggle.setOnClickListener() {
+            if (binding.measurementsRecyclerView.visibility == View.VISIBLE) {
+                binding.measurementsRecyclerView.visibility = View.GONE
+                binding.mobileTowerRecyclerView.visibility = View.VISIBLE
+                binding.buttonToggle.setText(R.string.measurements)
+                binding.measurementsTextView.text = getString(R.string.my_towers)
+            } else {
+                binding.measurementsRecyclerView.visibility = View.VISIBLE
+                binding.mobileTowerRecyclerView.visibility = View.GONE
+                binding.buttonToggle.setText(R.string.towers)
+                binding.measurementsTextView.text = getString(R.string.my_measurements)
+            }
+        }
+
         return binding.root
     }
 

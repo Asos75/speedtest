@@ -60,20 +60,32 @@
         app:layout_constraintTop_toBottomOf="@id/measurementsTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/mobileTowerRecyclerView"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mobileTowerRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/measurementsRecyclerView"
+        app:layout_constraintTop_toBottomOf="@id/measurementsTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/buttonToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/towers"
+        app:layout_constraintBaseline_toBaselineOf="@+id/measurementsTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.822"
+        app:layout_constraintStart_toEndOf="@+id/measurementsTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

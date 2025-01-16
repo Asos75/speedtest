@@ -35,6 +35,7 @@
     <string name="email">Email: %1$s</string>
     <string name="logout">Logout</string>
     <string name="my_measurements">My Measurements</string>
+    <string name="my_towers">My Towers</string>
     <string name="speed">Speed: %1$s Mbps</string>
     <string name="location">Location: %1$s </string>
     <string name="provider">Provider: %1$s</string>
@@ -61,4 +62,6 @@
     <string name="frequency">Frequency</string>
     <string name="background_measurements">Background Measurements</string>
     <string name="simulate_measurements">Simulate Measurements</string>
+    <string name="towers">Towers</string>
+    <string name="measurements">Measurements</string>
 </resources>
