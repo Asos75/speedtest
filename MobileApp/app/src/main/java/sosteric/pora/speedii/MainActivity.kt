@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.navigation_tower ->{
                     supportFragmentManager.beginTransaction()
-                        .replace(binding.fragmentContainer.id, TowerActivity())
+                        .replace(binding.fragmentContainer.id, MapFragment())
                         .commit()
                     true
                 }

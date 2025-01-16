@@ -49,8 +49,13 @@
     <string name="forgot_password">Passwort vergessen?</string>
     <string name="login">Anmelden</string>
     <string name="welcome">Willkommen zurück!</string>
-    <string name="measurement_details">Anbieter: %1$s\nGeschwindigkeit: %2$.2f Mb/s\nZeit: %3$s</string>
+    <string name="measurement_details">Anbieter: %1$s\nZeit: %2$s</string>
+    <string name="measurement_speed">Geschwindigkeit: %1$.2f Mb/s</string>
     <string name="measurement">Messung</string>
     <string name="show_result">Ergebnisse anzeigen</string>
     <string name="back">Zurück</string>
+    <string name="measure">Messung durchführen!</string>
+    <string name="measure2">Geschwindigkeit messen</string>
+    <string name="getting_location">Standort wird ermittelt…</string>
+    <string name="getting_provider">Anbieter wird ermittelt…</string>
 </resources>

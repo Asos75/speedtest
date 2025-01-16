@@ -93,7 +93,8 @@ class MeasurementFragment : Fragment() {
         // Geocoding
         val speedInMbps = measurement.speed / 1_000_000.0
         val formattedTime = measurement.time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        binding.measurementDetailsTextView.text = getString(R.string.measurement_details, measurement.provider, speedInMbps, formattedTime)
+        binding.measurementSpeedTextView.text = getString(R.string.measurement_speed, speedInMbps)
+        binding.measurementDetailsTextView.text = getString(R.string.measurement_details, measurement.provider, formattedTime)
         binding.measurementDetailsTextView.setTextColor(resources.getColor(android.R.color.black, null))
 
         // Marker click listener

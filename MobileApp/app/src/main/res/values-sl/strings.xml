@@ -49,8 +49,13 @@
     <string name="forgot_password">Ste pozabili geslo?</string>
     <string name="login">Prijava</string>
     <string name="welcome">Dobrodošli nazaj!</string>
-    <string name="measurement_details">Ponudnik: %1$s\nHitrost: %2$.2f Mb/s\nČas: %3$s</string>
+    <string name="measurement_details">Ponudnik: %1$s\nČas: %2$s</string>
+    <string name="measurement_speed">Hitrost: %1$.2f Mb/s</string>
     <string name="measurement">Meritev</string>
     <string name="show_result">Prikazujem rezultat</string>
     <string name="back">Nazaj</string>
+    <string name="measure">Izmeri svojo hitrost!</string>
+    <string name="measure2">Izmeri hitrost</string>
+    <string name="getting_location">Pridobivanje lokacije…</string>
+    <string name="getting_provider">Pridobivanje ponudnika…</string>
 </resources>

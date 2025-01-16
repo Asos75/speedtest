@@ -49,8 +49,13 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="login">Login</string>
     <string name="welcome">Welcome back!</string>
-    <string name="measurement_details">Provider: %1$s\nSpeed: %2$.2f Mb/s\nTime: %3$s</string>
+    <string name="measurement_details">Provider: %1$s\nTime: %2$s</string>
+    <string name="measurement_speed">%1$.2f Mb/s</string>
     <string name="measurement">Measurement</string>
     <string name="show_result">Displaying results</string>
     <string name="back">Back</string>
+    <string name="measure">Measure your speed!</string>
+    <string name="measure2">Measure speed</string>
+    <string name="getting_location">Getting location…</string>
+    <string name="getting_provider">Getting provider…</string>
 </resources>

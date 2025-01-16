@@ -114,31 +114,32 @@ class SpeedtestFragment : Fragment() {
 
                 result.postValue(speedtest.convertToMbps(res))
 
+                requireActivity().runOnUiThread {
+                    binding.textViewMeasure.text = getString(R.string.getting_provider)
+                }
+
                 // Get 'org' from ipinfo.io
                 IPInfo.getOrgFromIpInfo { org ->
                     val provider = org ?: "Unknown"  // Default to "Unknown" if org is null
 
                     Log.d("SpeedtestFragment", "Provider: $provider")
                     val type: Type = checkNetworkType(requireContext()) ?: return@getOrgFromIpInfo
-                    val resultBundle = Bundle().apply {
 
-                        putDouble("speed_result", speedResult)
-                        putString("provider:", provider)
+                    requireActivity().runOnUiThread {
+                        binding.textViewMeasure.text = getString(R.string.getting_location)
                     }
-
-
-
                     getLastLocation { customLocation ->
                         if (customLocation != null) {
                             println("Latitude: ${customLocation.coordinates[1]}, Longitude: ${customLocation.coordinates[0]}")
 
+                            var time = LocalDateTime.now()
                             // Create the measurement with provider set to the 'org' value
                             val measurement = Measurment(
                                 speed = res,
                                 type = type,
                                 provider = provider,  // Use the fetched 'org' value as the provider
                                 location = customLocation,
-                                time = LocalDateTime.now(),
+                                time = time,
                                 user = app.sessionManager.user
                             )
 
@@ -159,12 +160,21 @@ class SpeedtestFragment : Fragment() {
                                     }
                                 }
                             }
-                            // Preklopi na ResultFragment z argumenti
-                            val resultFragment = ResultFragment().apply {
-                                arguments = resultBundle
+
+                            val resultBundle = Bundle().apply {
+
+                                putDouble("speed_result", speedResult)
+                                putString("provider:", provider)
+                                putString("type:", type.toString())
+                                putString("location:", customLocation.toString())
+                                putString("time:", time.toString())
+
                             }
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.fragmentContainer, resultFragment)
+
+                            val fragment = MeasurementFragment.newInstance(measurement)
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
+                                .addToBackStack(null)
                                 .commit()
                         } else {
                             println("Location is null or failed to retrieve")
