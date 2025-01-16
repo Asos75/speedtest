@@ -23,11 +23,13 @@ osmdroidAndroid = "6.1.10"
 osmdroidWms = "6.1.10"
 playServicesLocation = "21.3.0"
 speedviewlib = "1.5.4"
+workRuntimeKtx = "2.10.0"
 
 [libraries]
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 bson = { module = "org.mongodb:bson", version.ref = "bson" }
 bson-v440 = { module = "org.mongodb:bson", version.ref = "bsonVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
