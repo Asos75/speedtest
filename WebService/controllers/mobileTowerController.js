@@ -130,8 +130,8 @@ module.exports = {
             
 
             return res.status(201).json({
-                message: 'Mobile Tower created and confirmed automatically',
-                data: savedTower,
+                message: "Mobile Tower created and confirmed using AI",
+                data: { confirmed, savedTower }, 
             });
         } catch (error) {
             return res.status(500).json({
