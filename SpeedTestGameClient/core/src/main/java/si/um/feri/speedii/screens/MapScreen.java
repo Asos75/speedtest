@@ -5,12 +5,12 @@ import static si.um.feri.speedii.utils.MapRasterTiles.TILE_SIZE;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,15 +25,20 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
 import java.util.List;
 
-import javax.xml.parsers.SAXParser;
-
-import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.assets.RegionNames;
 import si.um.feri.speedii.classes.Measurement;
@@ -81,6 +86,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     private List<Vector2> mobileTowerPositions;
 
+    private Stage stage;
+    private Window speedInfoWindow;
+    private Label speedInfoLabel;
+    private Skin skin;
+
     public MapScreen(SessionManager sessionManager, AssetManager assetManager) {
         Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
 
@@ -91,7 +101,28 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         this.assetManager = assetManager;
         this.speedInfoPosition = new Vector2();
 
+        stage = new Stage(new ScreenViewport());
+        skin = new Skin(Gdx.files.internal("skin/flat-earth-ui.json"));
+
+        //SPEED INFO WINDOW
+        speedInfoWindow = new Window("Average speed", skin);
+        speedInfoLabel = new Label("", skin);
+        TextButton closeButton = new TextButton("Play", skin);
+
+        closeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Button clicked");
+            }
+        });
+
+        speedInfoWindow.add(speedInfoLabel).pad(10);
+        speedInfoWindow.row();
+        speedInfoWindow.add(closeButton).pad(10);
+        speedInfoWindow.pack();
+        stage.addActor(speedInfoWindow);
     }
+
 
     @Override
     public void show() {
@@ -136,16 +167,18 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        Gdx.input.setInputProcessor(new GestureDetector(this));
+        GestureDetector gestureDetector = new GestureDetector(this);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer(stage, gestureDetector);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        mapOverlay = new MapOverlay();
 
-        // Initialize MapOverlay
-        mapOverlay = new MapOverlay(); // Adjust grid size as needed
-
-        // Example measurements, replace with actual data
         List<Measurement> measurements = getMeasurements();
         List<MobileTower> mobileTowers = getMobileTowers();
+
         mapOverlay.calculateAverageSpeeds(measurements, beginTile);
         mobileTowerPositions =  mapOverlay.turnMobileTowerCoordinatesToPixels(mobileTowers,beginTile);
+        speedInfoWindow.setSize(300, 200); // Set the desired width and height
+        speedInfoWindow.pack();
     }
 
     @Override
@@ -175,23 +208,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         if (!speedInfo.isEmpty()) {
             float scaleFactor = Math.min(Gdx.graphics.getWidth() / 100f, Gdx.graphics.getHeight() / 100f);
-
             font.getData().setScale(scaleFactor);
 
-            GlyphLayout layout = new GlyphLayout(font, speedInfo);
-            float textWidth = layout.width;
-            float textHeight = layout.height;
+            speedInfoLabel.setText(speedInfo);
+            speedInfoWindow.pack();
 
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(Color.BLACK);
-            shapeRenderer.rect(speedInfoPosition.x, speedInfoPosition.y - textHeight, textWidth, textHeight);
-            shapeRenderer.end();
+            // Convert touch position to screen coordinates
+            Vector3 screenPosition = camera.project(new Vector3(speedInfoPosition.x, speedInfoPosition.y, 0));
 
-            spriteBatch.begin();
-            font.draw(spriteBatch, speedInfo, speedInfoPosition.x, speedInfoPosition.y);
-            spriteBatch.end();
+            // Set the position of the popup on the screen
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - speedInfoWindow.getHeight();
+            speedInfoWindow.setPosition(popupX, popupY);
+
+            speedInfoWindow.setVisible(true);
+        } else {
+            speedInfoWindow.setVisible(false);
         }
+        stage.act(delta);
+        stage.draw();
     }
 
 
@@ -207,6 +242,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+
+        if (speedInfoWindow.isVisible()) {
+            Vector3 screenPosition = camera.project(new Vector3(speedInfoPosition.x, speedInfoPosition.y, 0));
+
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - speedInfoWindow.getHeight();
+            speedInfoWindow.setPosition(popupX, popupY);
+        }
     }
 
     @Override
@@ -224,12 +268,23 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void dispose() {
         shapeRenderer.dispose();
+        font.dispose();
+        spriteBatch.dispose();
+        stage.dispose();
     }
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
         touchPosition.set(x, y, 0);
         camera.unproject(touchPosition);
+
+        // Convert touch position to stage coordinates
+        Vector2 stageCoords = stage.screenToStageCoordinates(new Vector2(x, y));
+
+        if (speedInfoWindow.isVisible() && speedInfoWindow.hit(stageCoords.x, stageCoords.y, true) != null) {
+            return true;
+        }
+
         speedInfo = "";
         return false;
     }
@@ -247,6 +302,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
         speedInfo = "Speed: " + speed;
         if(speed == -1) {
+            speedInfo = "";
             return false;
         }
 

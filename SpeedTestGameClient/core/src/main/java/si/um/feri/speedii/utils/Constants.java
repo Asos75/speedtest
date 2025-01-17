@@ -18,5 +18,7 @@ public class Constants {
     public static final int SPEED_HIGH = 90000;
     public static final int MAX_SPEED = 100000;
     public static final float OVERLAY_ALPHA = 0.4f;
+    public static final int SPEED_INFO_WIDTH = 600;
+    public static final int SPEED_INFO_HEIGHT = 400;
 
 }
