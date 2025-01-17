@@ -1,5 +1,7 @@
 package si.um.feri.speedii.screens;
 
+
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -7,6 +9,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import org.bson.types.ObjectId;
 
@@ -18,6 +29,7 @@ import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -34,16 +46,19 @@ public class InsertEditScreen implements Screen {
     private List<Measurement> measurements;
     private List<MobileTower> mobileTowers;
 
+    private Stage stage;
+    private Skin skin;
+
+    private Table table;
+
     public InsertEditScreen(SessionManager sessionManager, User user) {
         this.sessionManager = sessionManager;
         this.user = user;
 
-        // Inicializacija SpriteBatch in BitmapFont za risanje besedila
         this.spriteBatch = new SpriteBatch();
-        this.font = new BitmapFont(); // Privzeta pisava
-        this.font.getData().setScale(1.5f); // Povečava pisave za boljšo berljivost
+        this.font = new BitmapFont();
+        this.font.getData().setScale(1.5f);
 
-        // Pridobivanje podatkov
         try {
             this.httpMeasurement = new HttpMeasurement(sessionManager);
             this.httpMobileTower = new HttpMobileTower(sessionManager);
@@ -57,100 +72,94 @@ public class InsertEditScreen implements Screen {
 
         font = new BitmapFont();
 
-    }
+        stage = new Stage(new ScreenViewport());
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
+        table = new Table();
+        table.top();
+        table.setFillParent(true);
+        stage.addActor(table);
+
+        table.add(new Label("Measurements", skin)).pad(10).center().row();
+        table.add(new Label("Speed", skin)).pad(10);
+        table.add(new Label("Provider", skin)).pad(10);
+        table.add(new Label("Date", skin)).pad(10);
+        table.row();
+
+
+        for (Measurement measurement : measurements) {
+            TextField speedField = new TextField(String.valueOf(measurement.getSpeed()) , skin);
+            TextField providerField = new TextField(measurement.getProvider() , skin);
+            TextField timeField = new TextField(measurement.getTime().toString() , skin);
+            TextButton updateButton = new TextButton("Update", skin);
+            table.add(speedField).width(200).pad(10);
+            table.add(providerField).width(200).pad(10);
+            table.add(timeField).width(200).pad(10);
+            table.add(updateButton).width(200).pad(10).row();
+
+            updateButton.addListener(new ClickListener() {
+                @Override public void clicked(InputEvent event, float x, float y) {
+                   // measurement.setSpeed(Float.parseFloat(speedField.getText()));
+                    //measurement.setProvider(providerField.getText());
+                   // measurement.setTime(LocalDateTime.parse(timeField.getText()));
+                    long newSpeed = Long.parseLong(speedField.getText());
+                    String newProvider = providerField.getText();
+                    LocalDateTime newDate = LocalDateTime.parse(timeField.getText());
+                    Measurement newMeasurement = new Measurement(newSpeed, measurement.getType(), newProvider, measurement.getLocation(), newDate,measurement.getUser(), measurement.getId());
+                    HttpMeasurement newHttpMeasurement = new HttpMeasurement(sessionManager);
+                    try {
+                       System.out.println(newHttpMeasurement.update(newMeasurement));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println(newMeasurement);
+                }
+
+        });
+        Gdx.input.setInputProcessor(stage);
+
+     }
+    }
     @Override
     public void render(float delta) {
-        // Počisti zaslon
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1); // Temno siva barva ozadja
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        spriteBatch.begin();
 
-        if (measurements == null || mobileTowers == null) {
-            font.draw(spriteBatch, "Error loading data.", 50, Gdx.graphics.getHeight() - 50);
-        } else {
-            // Prikaz naslovov z obrobo
-            drawBoxedText("Measurements", 50, 720);
-
-
-            // Prikaz meritev v stolpcih
-            font.draw(spriteBatch, "Speed", 50, 680);
-            font.draw(spriteBatch, "Provider:", 200, 680);
-            font.draw(spriteBatch, "Date", 450, 680);
-
-
-            int yOffset = 30;
-            for (Measurement measurement : measurements) {
-                font.draw(spriteBatch, String.valueOf(measurement.getSpeed()) + " mbps", 50, 650 - yOffset);
-                font.draw(spriteBatch, String.valueOf(measurement.getProvider()), 200, 650 - yOffset);
-                font.draw(spriteBatch, measurement.getTime().toString(), 450, 650 - yOffset);
-                yOffset += 30;
-            }
-
-
-            drawBoxedText("Mobile Towers", 50, 400);
-            // Prikaz mobilnih stolpov v stolpcih
-            font.draw(spriteBatch, "Provider", 50, 350);
-            font.draw(spriteBatch, "Location", 200, 350);
-            font.draw(spriteBatch, "Type", 650, 350);
-            yOffset = 30;
-
-            for (MobileTower tower : mobileTowers) {
-                font.draw(spriteBatch, tower.getProvider(), 50, 320 - yOffset);
-                font.draw(spriteBatch, tower.getLocation().toString(), 200, 320 - yOffset);
-                font.draw(spriteBatch, String.valueOf(tower.getType()), 650, 320 - yOffset);
-                yOffset += 30;
-            }
-        }
-
-        spriteBatch.end();
+        stage.act();
+        stage.draw();
     }
 
-    private void drawBoxedText(String text, float x, float y) {
-        float padding = 10f;
-        float width = font.getRegion().getRegionWidth() + padding * 2;
-        float height = font.getRegion().getRegionHeight() + padding * 2;
 
-        // Nariši obrobo (pravokotnik)
-        spriteBatch.setColor(0.2f, 0.2f, 0.2f, 1); // Temno siva obroba
-        // spriteBatch.draw(new Texture("images/white_pixel.png"), x - padding, y - height + padding, width, height);
-
-        // Prikaz besedila
-        spriteBatch.setColor(1, 1, 1, 1); // Bela barva besedila
-        font.draw(spriteBatch, text, x, y);
-    }
 
 
     @Override
     public void resize(int width, int height) {
-        // Če uporabljate Viewport, ga posodobite tukaj
     }
 
     @Override
     public void show() {
-        // Inicializacija ali predpriprava virov
+
     }
 
     @Override
     public void pause() {
-        // Uporabno za mobilne igre (shrani stanje)
+
     }
 
     @Override
     public void resume() {
-        // Obnovi stanje po pavzi
+
     }
 
     @Override
     public void hide() {
-        // Čiščenje, če se zaslon skrije
+
     }
 
     @Override
     public void dispose() {
-        // Sprostite vire
         spriteBatch.dispose();
         font.dispose();
     }
-}
+    }
