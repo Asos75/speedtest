@@ -9,11 +9,11 @@ import tensorflow as tf
 # from model import build_model 
 
 # Configuration
-MODEL_PATH = "app/best_tower_model.h5"
+MODEL_PATH = "./app/best_tower_model.h5"
 RAW_DIR = "Data/Raw/tower"
 INPUT_SHAPE = (128, 128, 3)
 
-CLASSIFICATOR_MODEL_PATH = "app/final_tower_detection_model.h5"
+CLASSIFICATOR_MODEL_PATH = "./app/final_tower_detection_model.h5"
 classificator_model = tf.keras.models.load_model(CLASSIFICATOR_MODEL_PATH)
 
 def preprocess_image(img):
@@ -33,7 +33,7 @@ def preprocess_image(img):
 # Initialize Flask app
 app = Flask(__name__)
 
-model = tf.keras.models.load_model('app/best_tower_model.h5')
+model = tf.keras.models.load_model('./app/best_tower_model.h5')
 
 # Create and load model
 def initialize_model():
@@ -57,7 +57,7 @@ def initialize_model():
 # model = initialize_model()
 # Uporabli initialize_model(), če se pri buildanju modela uporablja  #save_weights_only=True
 # Druga pa load model best_tower_model.h5.
-model = tf.keras.models.load_model('app/best_tower_model.h5')
+model = tf.keras.models.load_model('./app/best_tower_model.h5')
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
