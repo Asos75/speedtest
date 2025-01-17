@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,16 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import dao.http.HttpMobileTower
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.bson.types.ObjectId
 import sosteric.pora.speedii.databinding.FragmentAddTowerBinding
+import java.io.File
 
 class AddTowerFragment : Fragment() {
 
@@ -39,6 +47,8 @@ class AddTowerFragment : Fragment() {
 
 
         app = requireActivity().application as SpeediiApplication
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
 
         // Request camera permission
@@ -94,23 +104,41 @@ class AddTowerFragment : Fragment() {
                 provider = provider,
                 type = type,
                 confirmed = false, // Always set to false by default
-                locator = null, // Replace with a real user object
+                locator = app.sessionManager.user,
                 id = ObjectId()
             )
 
-            // Save the tower object (example)
-            Toast.makeText(context, "Tower saved: $tower", Toast.LENGTH_LONG).show()
+            capturedImageBitmap?.let { bitmap ->
 
-            // TODO save the tower object to the database
+                Log.d("AddTower", "Trying to save tower")
+                lifecycleScope.launch {
+                    val result = withContext(Dispatchers.IO){
+                        HttpMobileTower(app.sessionManager).insertConfirm(bitmap, tower)
+                    }
 
+                    if (result == 1) {
+                        Toast.makeText(context, "Tower confirmed successfully.", Toast.LENGTH_SHORT).show()
+                        Log.d("AddTower", "Tower confirmed successfully.")
+                    } else if (result == 0) {
+                        Toast.makeText(context, "Failed to confirm tower.", Toast.LENGTH_SHORT).show()
+                        Log.d("AddTower", "Failed to confirm tower.")
+                    } else {
+                        Toast.makeText(context, "Failed to confirm tower. Server error.", Toast.LENGTH_SHORT).show()
+                        Log.d("AddTower", "Failed to confirm tower. Server error.")
+                    }
+                }
+            }
+
+
+            // Proceed to MapFragment after saving
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, MapFragment())
                 .addToBackStack(null)
                 .commit()
 
         }
-
     }
+
 
     private fun getLastLocation(callback: (Location?) -> Unit) {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

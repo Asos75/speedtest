@@ -5,14 +5,20 @@ import Measurment
 import MobileTower
 import SessionManager
 import User
+import android.graphics.Bitmap
+import android.util.Base64
+import android.util.Log
 import dao.MobileTowerCRUD
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.bson.types.ObjectId
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
@@ -171,6 +177,64 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
             return response.isSuccessful
         }
     }
+
+    fun insertConfirm(bitmap: Bitmap, obj: MobileTower): Int {
+        try {
+            val mediaType = "application/json".toMediaType()
+
+            // Convert bitmap to Base64 string
+            val bos = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos)
+            val bitmapData = bos.toByteArray()
+            val base64Image = Base64.encodeToString(bitmapData, Base64.DEFAULT)
+
+            // Create the JSON object
+            val jsonPayload = JSONObject().apply {
+                put("location", JSONObject().apply {
+                    put("type", "Point")
+                    put("coordinates", obj.location.coordinates)
+                })
+                put("operator", obj.provider)
+                put("type", obj.type)
+                put("confirmed", obj.confirmed)
+                if (obj.locator != null) {
+                    put("locator", obj.locator!!.id)
+                }
+                put("image", base64Image)
+            }
+
+            val requestBody = jsonPayload.toString().toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url("$ip/mobile/addConfirm")
+                .addHeader("authorization", "Bearer ${sessionManager.token}")
+                .post(requestBody)
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    responseBody?.let {
+                        println("Mobile tower confirmed: $it")
+                        val jsonResponse = JSONObject(it)
+                        val confirmed = jsonResponse.getBoolean("confirmed")
+                        println("Confirmed: $confirmed")
+                        return if (confirmed) { 1 } else { 0 }
+                    }
+                } else {
+                    println("Failed to confirm mobile tower. Response: ${response.code}")
+                    return -1
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return -1
+        }
+        return -1
+    }
+
+
+
     override fun insertMany(list: List<MobileTower>): Boolean{
         val jsonArray = JSONArray()
         list.forEach { tower ->
