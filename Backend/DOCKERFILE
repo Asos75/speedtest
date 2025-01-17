@@ -1,17 +1,31 @@
+# Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
+# Set the working directory in the container
 WORKDIR /app
 
+# Install system dependencies (ensure OpenCV dependencies are met without GUI libraries)
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install opencv-headless for headless environment (no GUI components)
+RUN pip install --no-cache-dir opencv-python-headless
+
+# Copy the current directory contents into the container at /app
 COPY . /app
 
+# Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Expose the port the app will run on
 EXPOSE 6000
 
+# Set Python to run in unbuffered mode (helps with logging)
 ENV PYTHONUNBUFFERED=1
 
+# Run the app when the container starts
 CMD ["python", "app.py"]
