@@ -6,18 +6,34 @@ import base64
 from flask import Flask, request, jsonify, render_template_string
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import tensorflow as tf
-from model import build_model  # Import the model architecture from model.py
+# from model import build_model 
 
 # Configuration
 MODEL_PATH = "best_tower_model.h5"
-RAW_DIR = "Data/Raw"
-INPUT_SHAPE = (224, 224, 3)
+RAW_DIR = "Data/Raw/tower"
+INPUT_SHAPE = (128, 128, 3)
 
 CLASSIFICATOR_MODEL_PATH = "final_tower_detection_model.h5"
 classificator_model = tf.keras.models.load_model(CLASSIFICATOR_MODEL_PATH)
 
+def preprocess_image(img):
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Apply Gaussian blur
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    # Edge detection
+    edges = cv2.Canny(blurred, 50, 150)
+    # Find contours
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Draw contours
+    shape_image = np.zeros_like(gray)
+    cv2.drawContours(shape_image, contours, -1, (255,255,255), 2)
+    return shape_image
+
 # Initialize Flask app
 app = Flask(__name__)
+
+model = tf.keras.models.load_model('best_tower_model.h5')
 
 # Create and load model
 def initialize_model():
@@ -38,7 +54,10 @@ def initialize_model():
         )
         return model
 
-model = initialize_model()
+# model = initialize_model()
+# Uporabli initialize_model(), če se pri buildanju modela uporablja  #save_weights_only=True
+# Druga pa load model best_tower_model.h5.
+model = tf.keras.models.load_model('best_tower_model.h5')
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -90,14 +109,14 @@ def predict():
     if img is None:
         return "Could not read image", 400
     
-    # Convert BGR to RGB
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     orig_h, orig_w = img.shape[:2]
     
-    # Resize and preprocess
+    # Resize and preprocess for model
     resized_img = cv2.resize(img, INPUT_SHAPE[:2])
-    model_input = resized_img.astype('float32') / 255.0
-    model_input = np.expand_dims(model_input, axis=0)
+    processed_img = preprocess_image(resized_img)
+    processed_img = processed_img.astype('float32') / 255.0
+    model_input = np.expand_dims(processed_img, axis=-1)  # Add channel dimension
+    model_input = np.expand_dims(model_input, axis=0)  # Add batch dimension
 
     # Get predictions
     class_pred, bbox_pred = model.predict(model_input)
@@ -109,10 +128,7 @@ def predict():
     x2 = int(bbox_pred[0][2] * orig_w)
     y2 = int(bbox_pred[0][3] * orig_h)
     
-    # Convert back to BGR for OpenCV
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    
-    # Draw rectangle
+    # Draw rectangle on original image
     cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
     
     # Convert to base64
@@ -125,6 +141,71 @@ def predict():
         x1=x1, y1=y1, x2=x2, y2=y2,
         image=img_base64
     )
+
+
+@app.route("/predict_uploaded_image", methods=["POST"])
+def predict_uploaded_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+
+    file = request.files['image']
+
+    if file.filename == '':
+        return jsonify({"error": "Empty filename"}), 400
+
+    try:
+        # Read the image file
+        img = BytesIO(file.read())
+        file.seek(0)  # Reset the file pointer for further processing
+        
+        # Load the image using OpenCV
+        nparr = np.frombuffer(img.getvalue(), np.uint8)
+        img_cv2 = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if img_cv2 is None:
+            return jsonify({"error": "Invalid image format"}), 400
+
+        orig_h, orig_w = img_cv2.shape[:2]
+
+        # Resize and preprocess the image
+        resized_img = cv2.resize(img_cv2, INPUT_SHAPE[:2])
+        processed_img = preprocess_image(resized_img)
+        processed_img = processed_img.astype('float32') / 255.0
+        model_input = np.expand_dims(processed_img, axis=-1)  # Add channel dimension
+        model_input = np.expand_dims(model_input, axis=0)  # Add batch dimension
+
+        # Get predictions
+        class_pred, bbox_pred = model.predict(model_input)
+        class_conf = float(class_pred[0][0])
+
+        # Convert normalized coordinates to pixel coordinates
+        x1 = int(bbox_pred[0][0] * orig_w)
+        y1 = int(bbox_pred[0][1] * orig_h)
+        x2 = int(bbox_pred[0][2] * orig_w)
+        y2 = int(bbox_pred[0][3] * orig_h)
+
+        # Draw the bounding box on the original image
+        cv2.rectangle(img_cv2, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+        # Convert the image with bounding box to base64
+        _, buffer = cv2.imencode('.jpg', img_cv2)
+        img_base64 = base64.b64encode(buffer).decode('utf-8')
+
+        # Return the results as JSON
+        return jsonify({
+            "filename": file.filename,
+            "confidence": class_conf,
+            "x1": x1,
+            "y1": y1,
+            "x2": x2,
+            "y2": y2,
+            "image": img_base64
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 from io import BytesIO
 
@@ -168,4 +249,4 @@ def predict_image():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=6000)

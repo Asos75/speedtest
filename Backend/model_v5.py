@@ -20,7 +20,7 @@ if gpus:
 # Use mixed precision
 tf.keras.mixed_precision.set_global_policy('mixed_float16')
 
-def build_model(input_shape=(400, 400, 3)):  # Updated resolution
+def build_model(input_shape=(200, 200, 3)):  # Updated resolution
     inputs = tf.keras.Input(shape=input_shape)
     x = tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu')(inputs)
     x = tf.keras.layers.BatchNormalization()(x)
@@ -45,7 +45,7 @@ def build_model(input_shape=(400, 400, 3)):  # Updated resolution
 
 
 class TowerDataset(tf.keras.utils.Sequence):
-    def __init__(self, batch_size=8, input_size=(400, 400)):  # Updated resolution
+    def __init__(self, batch_size=8, input_size=(200, 200)):  # Updated resolution
         self.files = []
         self.bbox_data = {}
 
@@ -137,8 +137,8 @@ if __name__ == "__main__":
     )
     model.summary()
 
-    train_dataset = TowerDataset(batch_size=4, input_size=(400, 400))
-    val_dataset = TowerDataset(batch_size=4, input_size=(400, 400))
+    train_dataset = TowerDataset(batch_size=4, input_size=(200, 200))
+    val_dataset = TowerDataset(batch_size=4, input_size=(200, 200))
 
     # Callbacks for early stopping and best model saving
     callbacks = [
