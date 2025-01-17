@@ -27,6 +27,7 @@ import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
 import si.um.feri.speedii.dao.http.HttpUser;
 import si.um.feri.speedii.screens.GameScreen;
+import si.um.feri.speedii.screens.InsertEditScreen;
 import si.um.feri.speedii.screens.LoginScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
@@ -62,12 +63,12 @@ public class SpeediiApp extends Game {
         batch = new SpriteBatch();
 
 
-
-        setScreen(new MapScreen(sessionManager, assetManager));
+       // setScreen(new InsertEditScreen(httpMeasurement, httpMobileTower, httpUser));
+       // setScreen(new MapScreen(sessionManager, assetManager));
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);
-      //  setScreen(new LoginScreen(this,httpUser,httpMobileTower));;
+        setScreen(new LoginScreen(this,httpUser,sessionManager));
         /*
 
 
