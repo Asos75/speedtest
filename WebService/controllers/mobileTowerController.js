@@ -117,21 +117,10 @@ module.exports = {
             if (!flaskResponse.data.is_tower) {
                 confirmed = false;
             }
-    
-            const mobileTower = new MobiletowerModel({
-                location: req.body.location,
-                operator: req.body.operator,
-                type: req.body.type,
-                confirmed: confirmed,
-                locator: req.body.locator,
-            });
-    
-            const savedTower = await mobileTower.save();
-            
 
             return res.status(201).json({
                 message: "Mobile Tower created and confirmed using AI",
-                data: { confirmed, savedTower }, 
+                data: { confirmed }, 
             });
         } catch (error) {
             return res.status(500).json({
@@ -313,22 +302,10 @@ module.exports = {
             const gptReply = response.choices[0]?.message?.content?.trim().toLowerCase();
             const confirmed = gptReply === "yes";
             
-            const { location, operator, type, locator } = req.body;
-
-            const mobileTower = new MobiletowerModel({
-                location,
-                operator,
-                type,
-                confirmed,
-                locator,
-            });
-
-            const savedTower = await mobileTower.save();
-            
 
             return res.status(201).json({
                 message: "Mobile Tower created and confirmed using AI",
-                data: { confirmed, savedTower }, 
+                data: { confirmed }, 
             });
         } catch (error) {
             console.error("Error in addConfirm function:", error);
