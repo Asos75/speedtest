@@ -64,4 +64,7 @@
     <string name="simulate_measurements">Simulate Measurements</string>
     <string name="towers">Towers</string>
     <string name="measurements">Measurements</string>
+    <string name="thank_you">Thank YOU for your contribution!</string>
+    <string name="thank_you_success">Tower has been automatically accepted.</string>
+    <string name="thank_you_failure">Tower has been automatically rejected. But worry not as it will be checked again by admins.</string>
 </resources>

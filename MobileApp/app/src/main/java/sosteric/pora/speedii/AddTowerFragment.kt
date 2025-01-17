@@ -113,24 +113,42 @@ class AddTowerFragment : Fragment() {
                 Log.d("AddTower", "Trying to save tower")
                 lifecycleScope.launch {
                     val result = withContext(Dispatchers.IO){
-                        HttpMobileTower(app.sessionManager).insertConfirm(bitmap, tower)
+                        HttpMobileTower(app.sessionManager).confirm(bitmap)
                     }
 
                     if (result == 1) {
                         Toast.makeText(context, "Tower confirmed successfully.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Tower confirmed successfully.")
+                        tower.confirmed = true
+                        val result = withContext(Dispatchers.IO){
+                            HttpMobileTower(app.sessionManager).insert(tower)
+                        }
+                        Log.d("AddTower", "Save tower result: $result")
                     } else if (result == 0) {
                         Toast.makeText(context, "Failed to confirm tower.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Failed to confirm tower.")
+                        val result = withContext(Dispatchers.IO){
+                            HttpMobileTower(app.sessionManager).insert(tower)
+                        }
+                        Log.d("AddTower", "Save tower result: $result")
                     } else {
                         Toast.makeText(context, "Failed to confirm tower. Server error.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Failed to confirm tower. Server error.")
                     }
+
+                    val nextFragment = TowerSavedFragment()
+                    val bundle = Bundle()
+                    bundle.putBoolean("tower_confirmed", tower.confirmed)
+                    nextFragment.arguments = bundle
+
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, nextFragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
             }
 
 
-            // Proceed to MapFragment after saving
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, MapFragment())
                 .addToBackStack(null)
