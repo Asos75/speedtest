@@ -39,6 +39,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.io.IOException;
 import java.util.List;
 
+import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.assets.RegionNames;
 import si.um.feri.speedii.classes.Measurement;
@@ -91,9 +92,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Label speedInfoLabel;
     private Skin skin;
 
-    public MapScreen(SessionManager sessionManager, AssetManager assetManager) {
-        Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
+    private SpeediiApp app;
 
+    public MapScreen(SpeediiApp app, SessionManager sessionManager, AssetManager assetManager) {
+        Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
+        this.app = app;
         this.sessionManager = sessionManager;
         this.font = new BitmapFont();
         this.spriteBatch = new SpriteBatch();
@@ -227,6 +230,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
         stage.act(delta);
         stage.draw();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            app.setScreen(new MenuScreen(app, sessionManager));
+        }
+
     }
 
 

@@ -64,11 +64,11 @@ public class SpeediiApp extends Game {
 
 
        // setScreen(new InsertEditScreen(httpMeasurement, httpMobileTower, httpUser));
-        setScreen(new MapScreen(sessionManager, assetManager));
+       //setScreen(new MapScreen(sessionManager, assetManager));
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);
-        //setScreen(new LoginScreen(this,httpUser,sessionManager));
+        setScreen(new LoginScreen(this,httpUser,sessionManager));
         /*
 
 
