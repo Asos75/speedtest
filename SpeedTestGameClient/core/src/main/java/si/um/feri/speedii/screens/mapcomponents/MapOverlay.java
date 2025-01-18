@@ -61,7 +61,7 @@ public class MapOverlay {
     }
 
 
-    public void drawGrid(ShapeRenderer shapeRenderer, OrthographicCamera camera) {
+    public void drawGrid(ShapeRenderer shapeRenderer, OrthographicCamera camera, float gridAlpha) {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.setProjectionMatrix(camera.combined);
@@ -72,23 +72,53 @@ public class MapOverlay {
 
         for (int x = 0; x < Constants.GRID_SIZE; x++) {
             for (int y = 0; y < Constants.GRID_SIZE; y++) {
+                float avgSpeed = 0;
                 if (speedCounts[x][y] > 0) {
-                    float avgSpeed = speedSums[x][y] / speedCounts[x][y];
-                    Color color = getColorForSpeed(avgSpeed);
+                    avgSpeed = speedSums[x][y] / speedCounts[x][y];
 
-                    shapeRenderer.setColor(color);
-                    shapeRenderer.rect(
-                        x * cellWidth,
-                        y * cellHeight,
-                        cellWidth,
-                        cellHeight
-                    );
                 }
+                if(speedCounts[x][y] == 0) {
+                    avgSpeed = getAverageOfNeighbors(x, y);
+                }
+                Color color = getColorForSpeed(avgSpeed, gridAlpha);
+
+                shapeRenderer.setColor(color);
+                shapeRenderer.rect(
+                    x * cellWidth,
+                    y * cellHeight,
+                    cellWidth,
+                    cellHeight
+                );
             }
         }
 
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    public float getAverageOfNeighbors(int x, int y) {
+        int rows = speedSums.length;
+        int cols = speedSums[0].length;
+
+        float sum = 0;
+        float count = 0;
+
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) continue;
+
+                int neighborX = x + i;
+                int neighborY = y + j;
+
+                if (neighborX >= 0 && neighborX < rows && neighborY >= 0 && neighborY < cols) {
+                    if(speedCounts[neighborX][neighborY] == 0) continue;
+                    sum += speedSums[neighborX][neighborY] / speedCounts[neighborX][neighborY];
+                    count++;
+                }
+            }
+        }
+
+        return count > 0 ? (float) sum / count : 0;
     }
 
     public int getSpeed(int touchPosX, int touchPosY, ZoomXY beginTile) {
@@ -98,11 +128,15 @@ public class MapOverlay {
         return (int) speedSums[gridX][gridY] / speedCounts[gridX][gridY];
     }
 
-    private Color getColorForSpeed(float speed) {
-        if (speed < Constants.SPEED_LOW) return new Color(1, 0, 0, Constants.OVERLAY_ALPHA);
-        if (speed < Constants.SPEED_MEDIUM) return new Color(1, 0.5f, 0, Constants.OVERLAY_ALPHA);
-        if (speed < Constants.SPEED_HIGH) return new Color(1, 1, 0, Constants.OVERLAY_ALPHA);
-        return new Color(0, 1, 0, Constants.OVERLAY_ALPHA);
+    private Color getColorForSpeed(float speed, float gridAlpha) {
+        speed = Math.max(20_000_000, Math.min(100_000_000, speed));
+
+        float t = (speed - 20_000_000) / 90_000_000f;
+
+        float red = 1 - t;
+        float green = t;
+
+        return new Color(red, green, 0, gridAlpha);
     }
 }
 

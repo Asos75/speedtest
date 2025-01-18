@@ -26,12 +26,15 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.assets.AssetManager;
@@ -48,6 +51,7 @@ import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
+import si.um.feri.speedii.screens.mapcomponents.ScrollWheelInputProcessor;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.Geolocation;
 import si.um.feri.speedii.utils.MapRasterTiles;
@@ -100,6 +104,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Vector2 drawnTower;
     private int towerRadius = 600;
 
+    private boolean drawGrid = true;
+    private float gridOpacity = Constants.OVERLAY_ALPHA;
+    private boolean drawMobileTowers = true;
+
+
 
 
     public MapScreen(SpeediiApp app, SessionManager sessionManager, AssetManager assetManager) {
@@ -131,6 +140,46 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         speedInfoWindow.row();
         speedInfoWindow.add(closeButton).pad(10);
         speedInfoWindow.pack();
+
+        TextButton toggleGridButton = new TextButton("Toggle Grid", skin);
+        TextButton toggleTowersButton = new TextButton("Toggle Towers", skin);
+        Slider gridOpacitySlider = new Slider(0.0f, 1.0f, 0.01f, false, skin);
+
+        // Set button positions
+        toggleTowersButton.setPosition(10, Gdx.graphics.getHeight() - 50);
+        toggleGridButton.setPosition(10, Gdx.graphics.getHeight() - 100);
+        gridOpacitySlider.setPosition(10, Gdx.graphics.getHeight() - 150);
+
+        // Add listeners to buttons
+        toggleGridButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawGrid = !drawGrid;
+                gridOpacitySlider.setVisible(drawGrid);
+            }
+        });
+
+        toggleTowersButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawMobileTowers = !drawMobileTowers;
+                if(drawnTower != null) {
+                    drawnTower = null;
+                }
+            }
+        });
+
+        gridOpacitySlider.setValue(gridOpacity);
+        gridOpacitySlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                gridOpacity = gridOpacitySlider.getValue();
+            }
+        });
+
+        stage.addActor(gridOpacitySlider);
+        stage.addActor(toggleGridButton);
+        stage.addActor(toggleTowersButton);
         stage.addActor(speedInfoWindow);
     }
 
@@ -179,7 +228,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         GestureDetector gestureDetector = new GestureDetector(this);
-        InputMultiplexer inputMultiplexer = new InputMultiplexer(stage, gestureDetector);
+        ScrollWheelInputProcessor scrollWheelInputProcessor = new ScrollWheelInputProcessor(camera);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer(stage, gestureDetector, scrollWheelInputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
         mapOverlay = new MapOverlay();
 
@@ -202,15 +252,20 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
 
-        mapOverlay.drawGrid(shapeRenderer, camera);
+        if(drawGrid) {
+            mapOverlay.drawGrid(shapeRenderer, camera, gridOpacity);
+        }
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
-        float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
-        for (Vector2 position : mobileTowerPositions) {
-            spriteBatch.draw(mobileTowerTexture, position.x - textureWidth / 2, position.y - textureHeight / 2, textureWidth, textureHeight);
+        if(drawMobileTowers) {
+            float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
+            float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
+            for (Vector2 position : mobileTowerPositions) {
+                spriteBatch.draw(mobileTowerTexture, position.x - textureWidth / 2, position.y - textureHeight / 2, textureWidth, textureHeight);
+
+            }
 
         }
 
@@ -243,15 +298,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if(drawnTower != null) {
             shapeRenderer.setColor(Color.BLUE);
             shapeRenderer.circle(drawnTower.x, drawnTower.y, towerRadius);
-        }
-        shapeRenderer.end();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        if(drawnTower != null) {
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-            shapeRenderer.setColor(0, 0, 1, 0.2f);
-            shapeRenderer.circle(drawnTower.x, drawnTower.y, towerRadius);
-            Gdx.gl.glDisable(GL20.GL_BLEND);
         }
         shapeRenderer.end();
 
@@ -325,15 +371,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         speedInfo = "";
 
 
-        float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
-        for (Vector2 position : mobileTowerPositions) {
-            if (position.dst(touchPosition.x, touchPosition.y) < textureWidth / 2) {
-                System.out.println("Clicked on a mobile tower");
-                drawnTower = position;
-                return false;
+        if(drawMobileTowers) {
+            float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
+            for (Vector2 position : mobileTowerPositions) {
+                if (position.dst(touchPosition.x, touchPosition.y) < textureWidth / 2) {
+                    System.out.println("Clicked on a mobile tower");
+                    drawnTower = position;
+                    return false;
+                }
             }
+            drawnTower = null;
         }
-        drawnTower = null;
 
         return false;
     }
@@ -348,15 +396,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         touchPosition.set(x, y, 0);
         camera.unproject(touchPosition);
 
-        int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
-        speedInfo = "Speed: " + speed;
-        if(speed == -1) {
-            speedInfo = "";
-            return false;
+        if(drawGrid) {
+            int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
+            speedInfo = "Speed: " + String.format("%.2f", speed / 1_000_000.0) + " Mbps";
+            if (speed == -1) {
+                speedInfo = "";
+                return false;
+            }
+
+            speedInfoPosition.set(touchPosition.x, touchPosition.y);
         }
-
-        speedInfoPosition.set(touchPosition.x, touchPosition.y);
-
         return false;
     }
 
@@ -396,6 +445,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     }
 
+
     private void handleInput() {
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             camera.zoom += 0.02;
@@ -415,6 +465,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             camera.translate(0, 3, 0);
         }
+
 
         camera.zoom = MathUtils.clamp(camera.zoom, 0.5f, 2f);
 
@@ -446,6 +497,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         return mobileTowers;
 
     }
+
 
 
 

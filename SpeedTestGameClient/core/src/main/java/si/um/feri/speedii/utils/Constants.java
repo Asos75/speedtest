@@ -13,11 +13,7 @@ public class Constants {
 
     public static final int GRID_SIZE = 75;
     //TODO this should be updated when speeds are fixed
-    public static final int SPEED_LOW = 50000000;
-    public static final int SPEED_MEDIUM = 60000000;
-    public static final int SPEED_HIGH = 75000000;
-    public static final int MAX_SPEED = 100000000;
-    public static final float OVERLAY_ALPHA = 0.4f;
+    public static final float OVERLAY_ALPHA = 0.5f;
     public static final int SPEED_INFO_WIDTH = 600;
     public static final int SPEED_INFO_HEIGHT = 400;
 
