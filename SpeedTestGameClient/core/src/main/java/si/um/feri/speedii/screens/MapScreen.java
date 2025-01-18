@@ -57,6 +57,7 @@ import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
 public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     boolean debug = false;
+    private final SpeediiApp app;
 
     private ShapeRenderer shapeRenderer;
     private Vector3 touchPosition;
@@ -99,8 +100,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Vector2 drawnTower;
     private int towerRadius = 600;
 
-    public MapScreen(SessionManager sessionManager, AssetManager assetManager) {
-        Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
+
 
     public MapScreen(SpeediiApp app, SessionManager sessionManager, AssetManager assetManager) {
         Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
