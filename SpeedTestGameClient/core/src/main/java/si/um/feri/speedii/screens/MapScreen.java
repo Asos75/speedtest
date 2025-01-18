@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -53,6 +54,9 @@ import si.um.feri.speedii.utils.ZoomXY;
 import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener {
+
+    boolean debug = false;
+
     private ShapeRenderer shapeRenderer;
     private Vector3 touchPosition;
 
@@ -90,6 +94,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Window speedInfoWindow;
     private Label speedInfoLabel;
     private Skin skin;
+
+    private Vector2 drawnTower;
+    private int towerRadius = 600;
 
     public MapScreen(SessionManager sessionManager, AssetManager assetManager) {
         Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
@@ -191,8 +198,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
 
-        drawMarkers();
-
         mapOverlay.drawGrid(shapeRenderer, camera);
 
         spriteBatch.setProjectionMatrix(camera.combined);
@@ -201,7 +206,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
         float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
         for (Vector2 position : mobileTowerPositions) {
-            spriteBatch.draw(mobileTowerTexture, position.x, position.y, textureWidth, textureHeight);
+            spriteBatch.draw(mobileTowerTexture, position.x - textureWidth / 2, position.y - textureHeight / 2, textureWidth, textureHeight);
+
         }
 
         spriteBatch.end();
@@ -227,6 +233,33 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
         stage.act(delta);
         stage.draw();
+
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        if(drawnTower != null) {
+            shapeRenderer.setColor(Color.BLUE);
+            shapeRenderer.circle(drawnTower.x, drawnTower.y, towerRadius);
+        }
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if(drawnTower != null) {
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            shapeRenderer.setColor(0, 0, 1, 0.2f);
+            shapeRenderer.circle(drawnTower.x, drawnTower.y, towerRadius);
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }
+        shapeRenderer.end();
+
+
+        if(debug) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.RED);
+            for (Vector2 position : mobileTowerPositions) {
+                shapeRenderer.circle(position.x, position.y, 10);
+            }
+            shapeRenderer.end();
+        }
     }
 
 
@@ -286,6 +319,18 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
 
         speedInfo = "";
+
+
+        float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
+        for (Vector2 position : mobileTowerPositions) {
+            if (position.dst(touchPosition.x, touchPosition.y) < textureWidth / 2) {
+                System.out.println("Clicked on a mobile tower");
+                drawnTower = position;
+                return false;
+            }
+        }
+        drawnTower = null;
+
         return false;
     }
 
@@ -308,7 +353,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         speedInfoPosition.set(touchPosition.x, touchPosition.y);
 
-      //  System.out.println("Speed: " + speed);
         return false;
     }
 
@@ -385,6 +429,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(measurements.size());
         return measurements;
 
     }
@@ -397,4 +442,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         return mobileTowers;
 
     }
+
+
+
+
 }
