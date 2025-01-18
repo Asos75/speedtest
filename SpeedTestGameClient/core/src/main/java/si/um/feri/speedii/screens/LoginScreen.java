@@ -64,7 +64,7 @@ public class LoginScreen implements Screen {
                     ObjectId objectId = sessionManager.getUser().getId();
                     User user =  httpUser.getById(objectId);
                     System.out.println(user);
-                    app.setScreen(new InsertEditScreen(sessionManager, user));
+                    app.setScreen(new MenuScreen(app, sessionManager));
                     /*
                     List<MobileTower> mobileTowers = httpMobileTower.getByLocator(user);
                     if (mobileTowers.isEmpty()) {

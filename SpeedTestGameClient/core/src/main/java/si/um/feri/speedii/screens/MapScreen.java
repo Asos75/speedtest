@@ -40,6 +40,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.io.IOException;
 import java.util.List;
 
+import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.assets.RegionNames;
 import si.um.feri.speedii.classes.Measurement;
@@ -101,6 +102,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public MapScreen(SessionManager sessionManager, AssetManager assetManager) {
         Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
 
+    public MapScreen(SpeediiApp app, SessionManager sessionManager, AssetManager assetManager) {
+        Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
+        this.app = app;
         this.sessionManager = sessionManager;
         this.font = new BitmapFont();
         this.spriteBatch = new SpriteBatch();

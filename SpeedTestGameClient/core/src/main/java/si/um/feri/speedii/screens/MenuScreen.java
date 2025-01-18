@@ -18,18 +18,21 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
+import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.config.GameConfig;
 
 public class MenuScreen extends ScreenAdapter {
     private final SpeediiApp app;
     private final AssetManager assetManager;
+    private SessionManager sessionManager;
     private final Skin skin;
     private Viewport viewport;
     private Stage stage;
 
-    public MenuScreen(SpeediiApp app) {
+    public MenuScreen(SpeediiApp app, SessionManager sessionManager) {
         this.app = app;
         this.assetManager = app.getAssetManager();
+        this.sessionManager = sessionManager;
         this.skin = app.getAssetManager().get(AssetDescriptors.UI_SKIN);
     }
 
@@ -80,20 +83,20 @@ public class MenuScreen extends ScreenAdapter {
             }
         });
 
-        TextButton leaderboardButton = new TextButton("Leaderboard", skin);
+        TextButton leaderboardButton = new TextButton("Edit", skin);
         leaderboardButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // game.setScreen(new LeaderboardScreen(game));
+                 app.setScreen(new InsertEditScreen(app, sessionManager, sessionManager.getUser()));
             }
         });
 
 
-        TextButton settingsButton = new TextButton("Settings", skin);
+        TextButton settingsButton = new TextButton("Map", skin);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-             //    game.setScreen(new SettingsScreen(game));
+                 app.setScreen(new MapScreen(app, sessionManager, assetManager));
             }
         });
 
