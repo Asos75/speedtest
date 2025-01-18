@@ -20,7 +20,7 @@ public class EnemySpawner {
             Enemy enemy = new Enemy(100, 140.0f, Enemy.Type.BASIC, "images/Bugs/Dragonfly Sprite Sheet.png", gameLogic);
             // Set the enemy's position to the spawn point
             enemy.setPosition(spawnPoint.x, spawnPoint.y);
-            System.out.println("Enemy spawned at: " + spawnPoint);
+            //System.out.println("Enemy spawned at: " + spawnPoint);
             return enemy;
         } else {
             System.err.println("Spawn point not found!");

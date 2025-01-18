@@ -110,7 +110,7 @@ public class LoadMap {
         MapLayer gameTeleportLayer1 = map.getLayers().get("Teleport1");
         if (gameTeleportLayer1 != null) {
             for (MapObject object : gameTeleportLayer1.getObjects()) {
-                System.out.println("Object name: " + object.getName());
+                //System.out.println("Object name: " + object.getName());
                 float x = object.getProperties().get("x", Float.class);
                 float y = object.getProperties().get("y", Float.class);
                 Vector2 point = new Vector2(x, y);

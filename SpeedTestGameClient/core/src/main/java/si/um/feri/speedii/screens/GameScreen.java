@@ -9,10 +9,14 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -39,6 +43,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
+
+import si.um.feri.speedii.SpeediiApp;
+
+import si.um.feri.speedii.assets.AssetDescriptors;
 
 public class GameScreen implements Screen {
     //private final SpeediiApp app;
@@ -70,25 +78,34 @@ public class GameScreen implements Screen {
 
     private TileHoverHandler tileHoverHandler;
 
-    public GameScreen() {}
+    private final SpeediiApp app;
+    private final AssetManager assetManager;
+    private DIFFICULTY selectedDifficulty;
+
+    private boolean isPaused = false; // Track paused state
+
+    private Skin skin;
+
+    public GameScreen(SpeediiApp app, DIFFICULTY selectedDifficulty) {
+        this.app = app;
+        this.assetManager = app.getAssetManager();
+        this.selectedDifficulty = selectedDifficulty;
+        this.skin = app.getAssetManager().get(AssetDescriptors.UI_SKIN);
+    }
 
     @Override
     public void show() {
-
         // Start game
         gameViewport = new StretchViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer = new ShapeRenderer();
 
         stage = new Stage(gameViewport);
+        //stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         // Load map
         loadMap = new LoadMap();
-        //loadMap.loadMap(DIFFICULTY.VERY_EASY);
-        //loadMap.loadMap(DIFFICULTY.EASY);
-        //loadMap.loadMap(DIFFICULTY.MEDIUM);
-        //loadMap.loadMap(DIFFICULTY.HARD);
-        loadMap.loadMap(DIFFICULTY.VERY_HARD);
+        loadMap.loadMap(selectedDifficulty);
 
         // Initialize sprite batch
         spriteBatch = new SpriteBatch();
@@ -134,17 +151,19 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
         camera.update();
 
+        // Initialize game
+        initializeGame = new InitializeGame(gameDataManager, skin, this);
+        initializeGame.getTable().setFillParent(true);
+        //initializeGame.initializeUI();
+
         // Initialize TileHoverHandler
         MapLayer fieldLayer = loadMap.getFieldLayer();
         if (fieldLayer instanceof TiledMapTileLayer) {
-            tileHoverHandler = new TileHoverHandler((TiledMapTileLayer) fieldLayer, camera);
+            tileHoverHandler = new TileHoverHandler((TiledMapTileLayer) fieldLayer, camera, initializeGame);
         } else {
             Gdx.app.log("GameScreen", "Field layer not found or is not a TiledMapTileLayer");
         }
 
-        // Initialize game
-        initializeGame = new InitializeGame(gameDataManager);
-        initializeGame.getTable().setFillParent(true);
         stage.addActor(initializeGame.getTable());
     }
 
@@ -230,7 +249,7 @@ public class GameScreen implements Screen {
         stage.draw();
     }
 
-    private void showPath() {
+    /*private void showPath() {
         Vector2 startPoint = loadMap.getStartPoint();
         Vector2 endPoint = loadMap.getEndPoint();
 
@@ -270,18 +289,28 @@ public class GameScreen implements Screen {
             shapeRenderer.end();
         }
     }
+    */
 
     @Override
     public void resize(int width, int height) {
-        /*gameViewport.update(width, height, true);
-        stage.getViewport().update(width, height, true);
-        //camera.setToOrtho(false, width, height);
-        camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
-        camera.update();*/
         gameViewport.update(width, height, true);
         stage.getViewport().update(width, height, true);
         camera.setToOrtho(false, CAMERA_VIEWPORT_WIDTH, CAMERA_VIEWPORT_HEIGHT);
         camera.update();
+    }
+
+    public void pauseGame() {
+        isPaused = true;
+    }
+
+    public void resumeGame() {
+        isPaused = false;
+    }
+
+    public void quitGame() {
+        // LOG QUITTING GAME
+        Gdx.app.log("GameScreen", "Quitting game...");
+        Gdx.app.exit();
     }
 
     @Override

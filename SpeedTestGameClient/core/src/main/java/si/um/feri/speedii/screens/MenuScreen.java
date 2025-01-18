@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -20,12 +21,21 @@ import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.config.GameConfig;
 
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+
+import javax.swing.event.ChangeEvent;
+
+import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
+
 public class MenuScreen extends ScreenAdapter {
     private final SpeediiApp app;
     private final AssetManager assetManager;
     private final Skin skin;
     private Viewport viewport;
     private Stage stage;
+
+    private DIFFICULTY selectedDifficulty = DIFFICULTY.MEDIUM; // Default difficulty
+
 
     public MenuScreen(SpeediiApp app) {
         this.app = app;
@@ -39,7 +49,6 @@ public class MenuScreen extends ScreenAdapter {
         stage = new Stage(viewport, app.getBatch());
 
         stage.addActor(createUi());
-
         com.badlogic.gdx.Gdx.input.setInputProcessor(stage);
     }
 
@@ -76,9 +85,19 @@ public class MenuScreen extends ScreenAdapter {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              //  game.setScreen(new PlayScreen(game));
+                app.setScreen(new GameScreen(app, selectedDifficulty));
             }
         });
+
+        SelectBox<DIFFICULTY> difficultySelectBox = new SelectBox<>(skin);
+        difficultySelectBox.setItems(DIFFICULTY.values());
+        difficultySelectBox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                selectedDifficulty = difficultySelectBox.getSelected();
+            }
+        });
+        table.add(difficultySelectBox).width(250).pad(30).padBottom(15).expandX().row();
 
         TextButton leaderboardButton = new TextButton("Leaderboard", skin);
         leaderboardButton.addListener(new ClickListener() {
@@ -106,6 +125,7 @@ public class MenuScreen extends ScreenAdapter {
         });
 
         table.add(playButton).width(250).padBottom(15).expandX().row();
+        table.add(difficultySelectBox).width(250).padBottom(15).expandX().row();
         table.add(leaderboardButton).width(250).expandX().row();
         table.add(settingsButton).width(250).expandX().row();
         table.add(quitButton).width(250);

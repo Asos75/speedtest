@@ -25,17 +25,16 @@ import si.um.feri.speedii.connection.MongoDBConnection;
 import si.um.feri.speedii.dao.MeasurementCRUD;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpUser;
-import si.um.feri.speedii.screens.GameScreen;
 import si.um.feri.speedii.screens.LoginScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.screens.MenuScreen;
+import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 
 public class SpeediiApp extends Game {
 
     private AssetManager assetManager;
     private SpriteBatch batch;
-
 
     @Override
     public void create() {
@@ -57,8 +56,8 @@ public class SpeediiApp extends Game {
         batch = new SpriteBatch();
 
         //setScreen(new MapScreen(sessionManager));
-        setScreen(new GameScreen());
-        //new MenuScreen(this);
+        //setScreen(new GameScreen());
+        setScreen(new MenuScreen(this));
 
         /*
 
