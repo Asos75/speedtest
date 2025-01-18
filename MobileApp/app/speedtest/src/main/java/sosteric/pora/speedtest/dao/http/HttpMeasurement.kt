@@ -189,7 +189,9 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
                 put("time", measurement.time.format(DateTimeFormatter.ISO_DATE_TIME))
                 put("location", JSONObject().apply {
                     put("type", "Point")
-                    put("coordinates", measurement.location.coordinates)
+                    val coordinatesArray = JSONArray()
+                    measurement.location.coordinates.forEach { coordinatesArray.put(it) }
+                    put("coordinates", coordinatesArray)
                 })
                 measurement.user?.let { put("measuredBy", it.id) }
             }
@@ -219,7 +221,9 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
             put("time", obj.time.format(DateTimeFormatter.ISO_DATE_TIME))
             put("location", JSONObject().apply {
                 put("type", "Point")
-                put("coordinates", obj.location.coordinates)
+                val coordinatesArray = JSONArray()
+                obj.location.coordinates.forEach { coordinatesArray.put(it) }
+                put("coordinates", coordinatesArray)
             })
             obj.user?.let { put("measuredBy", it.id) }
         }

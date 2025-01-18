@@ -120,17 +120,17 @@ class AddTowerFragment : Fragment() {
                         Toast.makeText(context, "Tower confirmed successfully.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Tower confirmed successfully.")
                         tower.confirmed = true
-                        val result = withContext(Dispatchers.IO){
+                        val addResult = withContext(Dispatchers.IO){
                             HttpMobileTower(app.sessionManager).insert(tower)
                         }
-                        Log.d("AddTower", "Save tower result: $result")
+                        Log.d("AddTower", "Save tower result: $addResult")
                     } else if (result == 0) {
                         Toast.makeText(context, "Failed to confirm tower.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Failed to confirm tower.")
-                        val result = withContext(Dispatchers.IO){
+                        val addResult = withContext(Dispatchers.IO){
                             HttpMobileTower(app.sessionManager).insert(tower)
                         }
-                        Log.d("AddTower", "Save tower result: $result")
+                        Log.d("AddTower", "Save tower result: $addResult")
                     } else {
                         Toast.makeText(context, "Failed to confirm tower. Server error.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Failed to confirm tower. Server error.")
@@ -147,13 +147,6 @@ class AddTowerFragment : Fragment() {
                         .commit()
                 }
             }
-
-
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, MapFragment())
-                .addToBackStack(null)
-                .commit()
-
         }
     }
 

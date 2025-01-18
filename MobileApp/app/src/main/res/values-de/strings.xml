@@ -67,4 +67,5 @@
     <string name="thank_you">Vielen Dank für Ihren Beitrag!</string>
     <string name="thank_you_success">Der Turm wurde automatisch akzeptiert.</string>
     <string name="thank_you_failure">Der Turm wurde automatisch abgelehnt. Aber keine Sorge, er wird erneut von den Administratoren überprüft.</string>
+    <string name="add_tower">Turm hinzufügen</string>
 </resources>

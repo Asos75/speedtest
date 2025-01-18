@@ -67,4 +67,5 @@
     <string name="thank_you">Thank YOU for your contribution!</string>
     <string name="thank_you_success">Tower has been automatically accepted.</string>
     <string name="thank_you_failure">Tower has been automatically rejected. But worry not as it will be checked again by admins.</string>
+    <string name="add_tower">Add Tower</string>
 </resources>

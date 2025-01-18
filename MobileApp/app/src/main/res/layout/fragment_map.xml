@@ -15,7 +15,7 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="@string/add_tower"
         android:layout_marginBottom="72dp"
         android:layout_marginEnd="32dp"
         android:elevation="5dp"

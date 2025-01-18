@@ -175,6 +175,7 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
             .build()
 
         client.newCall(request).execute().use { response ->
+            Log.d("AddTower", "Response: ${response.body?.string()}")
             return response.isSuccessful
         }
     }
@@ -231,7 +232,9 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
             val jsonObject = JSONObject().apply {
                 put("location", JSONObject().apply {
                     put("type", "Point")
-                    put("coordinates", tower.location.coordinates)
+                    val coordinatesArray = JSONArray()
+                    tower.location.coordinates.forEach { coordinatesArray.put(it) }
+                    put("coordinates", coordinatesArray)
                 })
                 put("operator", tower.provider)
                 put("type", tower.type)
@@ -287,7 +290,9 @@ class HttpMobileTower(val sessionManager: SessionManager) : MobileTowerCRUD{
         val json = JSONObject().apply {
             put("location", JSONObject().apply {
                 put("type", "Point")
-                put("coordinates", obj.location.coordinates)
+                val coordinatesArray = JSONArray()
+                obj.location.coordinates.forEach { coordinatesArray.put(it) }
+                put("coordinates", coordinatesArray)
             })
             put("operator", obj.provider)
             put("type", obj.type)

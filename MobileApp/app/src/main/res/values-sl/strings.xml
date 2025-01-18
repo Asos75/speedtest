@@ -67,4 +67,5 @@
     <string name="thank_you">Hvala VAM za vaš prispevek!</string>
     <string name="thank_you_success">Stolp je bil samodejno sprejet.</string>
     <string name="thank_you_failure">Stolp je bil samodejno zavrnjen. Brez skrbi, ponovno ga bodo preverili administratorji.</string>
+    <string name="add_tower">Dodaj stolp</string>
 </resources>
