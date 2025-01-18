@@ -3,11 +3,19 @@ package sosteric.pora.speedii
 import SessionManager
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class SpeediiApplication : Application() {
     lateinit var sharedPreferences: SharedPreferences
@@ -87,9 +95,41 @@ class SpeediiApplication : Application() {
             sharedPreferences.edit().putBoolean("simulateMeasurements", false).apply()
             false
         }
-
+        handleBackgroundMeasurements()
     }
 
+    fun handleBackgroundMeasurements() {
+        if(backgroundMeasurements){
+            Log.d("SpeediiApplication", "Background measurements enabled for every $frequency minutes")
+            scheduleSpeedMeasurementWorker(frequency)
+        } else {
+            Log.d("SpeediiApplication", "Background measurements disabled")
+            WorkManager.getInstance(this).cancelAllWorkByTag("SpeedMeasurementWorker")
+        }
+    }
+
+    private fun scheduleSpeedMeasurementWorker(frequency: Int) {
+        WorkManager.getInstance(this).cancelAllWorkByTag("SpeedMeasurementWorker")
+
+        val periodicWorkRequest = PeriodicWorkRequestBuilder<SpeedMeasurementWorker>(
+            frequency.toLong(), TimeUnit.MINUTES
+        ).addTag("SpeedMeasurementWorker")
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .setRequiresCharging(false)
+                    .setRequiresDeviceIdle(false)
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "SpeedMeasurementWorker",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            periodicWorkRequest
+        )
+    }
     fun getLanguagePreference() = sharedPreferences.getString("language", "en")
 
     fun setLanguage(context: Context): Context {

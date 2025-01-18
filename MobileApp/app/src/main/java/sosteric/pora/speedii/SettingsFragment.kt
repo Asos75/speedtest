@@ -97,7 +97,9 @@ class SettingsFragment : Fragment() {
                 binding.seekBarValue.text = currentValue.toString()
                 Log.d("SettingsFragment", "Frequency: $currentValue")
                 app.sharedPreferences.edit().putInt("frequency", currentValue).apply()
-                // Update the position of the TextView
+                app.frequency = currentValue
+                app.handleBackgroundMeasurements()
+
                 val thumbPos = seekBar.thumb.bounds.centerX()
                 binding.seekBarValue.x = seekBar.x + thumbPos - binding.seekBarValue.width / 2
             }
@@ -116,6 +118,9 @@ class SettingsFragment : Fragment() {
         backgroundMeasurementsSwitch.isChecked = backgroundMeasurements
         backgroundMeasurementsSwitch.setOnCheckedChangeListener { _, isChecked ->
             app.sharedPreferences.edit().putBoolean("backgroundMeasurements", isChecked).apply()
+            app.backgroundMeasurements = isChecked
+            app.handleBackgroundMeasurements()
+
         }
 
 
@@ -125,6 +130,8 @@ class SettingsFragment : Fragment() {
         simulateMeasurementsSwitch.isChecked = simulateMeasurements
         simulateMeasurementsSwitch.setOnCheckedChangeListener { _, isChecked ->
             app.sharedPreferences.edit().putBoolean("simulateMeasurements", isChecked).apply()
+            app.simulateMeasurements = isChecked
+
         }
 
         return binding.root

@@ -6,7 +6,9 @@ import SessionManager
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
@@ -35,6 +37,8 @@ class SpeedMeasurementWorker(
 
     override suspend fun doWork(): Result {
 
+        showNotification("Speed Measurement", "Speedtest started")
+
         return try {
             val app = applicationContext as SpeediiApplication
             val sessionManager = app.sessionManager
@@ -46,13 +50,64 @@ class SpeedMeasurementWorker(
                 Log.d("SpeedMeasurementWorker", "Measured speed: $speed Mbps")
 
                 saveMeasurement(speed, sessionManager)
+            } else {
+                val speed = (1..100).random().toLong() * 1000000
+                saveSimulatedMeasurement(speed, sessionManager)
             }
 
             Result.success()
         } catch (e: Exception) {
-            Log.e("SpeedMeasurementWorker", "Failed to measure speed", e)
+            showNotification("Speed Measurement", "${e.message}")
             Result.retry()
         }
+    }
+
+    private suspend fun saveSimulatedMeasurement(speed: Long, sessionManager: SessionManager) {
+
+        withContext(Dispatchers.IO){
+            val provider = "Simulated"
+
+            val type = if((1..2).random() == 1) Type.wifi else Type.data
+
+            val location = Location(
+                coordinates = getRandomLocationInArea(46.545139401189346, 46.566609197269564,15.614795792873148,15.662003425327057)
+            )
+
+            val time = LocalDateTime.now()
+
+            val measurement = Measurment(
+                speed = speed,
+                type = type,
+                provider = provider,
+                location = location,
+                time = time,
+                user = sessionManager.user
+            )
+
+            val gson = Gson()
+            val measurementJson = gson.toJson(measurement.toAlt())
+
+            val mqttHelper = MqttHelper(applicationContext)
+            if (mqttHelper.isConnected()) {
+                showMeasurementNotification("Simulated Measurement", "$provider: ${speed / 1000000} Mbps", measurement)
+                mqttHelper.publishMessage("measurements/speed", measurementJson)
+            } else {
+                showMeasurementNotification("Simulated Measurement", "$provider: ${speed / 1000000} Mbps", measurement)
+                Thread{
+                    HttpMeasurement(sessionManager).insert(measurement)
+                }.start()
+            }
+        }
+
+    }
+
+    fun getRandomLocationInArea(
+        minLat: Double, maxLat: Double,
+        minLon: Double, maxLon: Double
+    ): List<Double> {
+        val latitude = minLat + (maxLat - minLat) * Math.random()
+        val longitude = minLon + (maxLon - minLon) * Math.random()
+        return listOf(longitude, latitude)
     }
 
     private suspend fun saveMeasurement(speed: Long, sessionManager: SessionManager) {
@@ -84,11 +139,13 @@ class SpeedMeasurementWorker(
 
                         val mqttHelper = MqttHelper(applicationContext)
                         if (mqttHelper.isConnected()) {
-                            showNotification("Speed Measurement", "$provider: ${speed / 1000000} Mbps")
+                            showMeasurementNotification("Speed Measurement", "$provider: ${speed / 1000000} Mbps", measurement)
                             mqttHelper.publishMessage("measurements/speed", measurementJson)
                         } else {
-                            showNotification("Speed Measurement", "$provider: ${speed / 1000000} Mbps")
-                            HttpMeasurement(sessionManager).insert(measurement)
+                            showMeasurementNotification("Speed Measurement", "$provider: ${speed / 1000000} Mbps",measurement)
+                            Thread{
+                                HttpMeasurement(sessionManager).insert(measurement)
+                            }.start()
                         }
                     } else {
                         showNotification("Speed Measurement", "Speedtest failed")
@@ -146,11 +203,11 @@ class SpeedMeasurementWorker(
                         }
                     }
             } catch (e: SecurityException) {
-                println("SecurityException: Permission is not granted or other issue occurred: ${e.message}")
+                Log.d("SpeedMeasurementWorker", "Security exception: ${e.message}")
                 callback(null)
             }
         } else {
-            println("Permission not granted")
+            Log.d("SpeedMeasurementWorker", "Location permission not granted")
             callback(null)
         }
     }
@@ -167,33 +224,85 @@ class SpeedMeasurementWorker(
             ) {
                 Log.w("SpeedMeasurementWorker", "Notification permission not granted")
                 return
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                channelName,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifications for Speed Measurement"
             }
 
-            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Notifications for Speed Measurement"
+                }
 
-        val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setSmallIcon(R.drawable.logo_no_bg)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
+                val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(channel)
+            }
 
-        // Show the notification
-        with(NotificationManagerCompat.from(applicationContext)) {
-            notify(1, notification)
+            val notification = NotificationCompat.Builder(applicationContext, channelId)
+                .setSmallIcon(R.drawable.logo_no_bg)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .build()
+
+            // Show the notification
+            with(NotificationManagerCompat.from(applicationContext)) {
+                notify(1, notification)
+            }
         }
     }
+
+    private fun showMeasurementNotification(title: String, message: String, measurement: Measurment) {
+        val channelId = "speed_measurement_channel"
+        val channelName = "Speed Measurement Notifications"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.w("SpeedMeasurementWorker", "Notification permission not granted")
+                return
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Notifications for Speed Measurement"
+                }
+
+                val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(channel)
+            }
+
+            val intent = Intent(applicationContext, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                putExtra("openFragment", "MeasurementFragment")
+                putExtra("measurementId", measurement.id.toString())
+            }
+
+            val pendingIntent = PendingIntent.getActivity(
+                applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat.Builder(applicationContext, channelId)
+                .setSmallIcon(R.drawable.logo_no_bg)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+
+            with(NotificationManagerCompat.from(applicationContext)) {
+                notify(1, notification)
+            }
+        }
     }
 }
