@@ -22,9 +22,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dao.http.HttpMeasurement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import sosteric.pora.speedii.localDateTimeGson.LocalDateTimeSerializer
 import sosteric.pora.speedtest.IPInfo
 import sosteric.pora.speedtest.Type
 import speedTest.SpeedTest
@@ -281,10 +283,17 @@ class SpeedMeasurementWorker(
                 notificationManager.createNotificationChannel(channel)
             }
 
+            val gson = GsonBuilder()
+                .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
+                .create()
+
+            val measurementJson = gson.toJson(measurement)
+
+
             val intent = Intent(applicationContext, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 putExtra("openFragment", "MeasurementFragment")
-                putExtra("measurementId", measurement.id.toString())
+                putExtra("measurement", measurementJson)
             }
 
             val pendingIntent = PendingIntent.getActivity(

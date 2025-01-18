@@ -18,6 +18,9 @@ import kotlinx.coroutines.withContext
 import org.bson.types.ObjectId
 import sosteric.pora.speedii.databinding.ActivityMainBinding
 import android.Manifest
+import com.google.gson.GsonBuilder
+import sosteric.pora.speedii.localDateTimeGson.LocalDateTimeDeserializer
+import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity() {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -39,23 +42,33 @@ class MainActivity : AppCompatActivity() {
         // Request Permissions
         checkPermissions()
 
-        if (intent?.getStringExtra("openFragment") == "MeasurementFragment") {
-            val measurementId = intent.getStringExtra("measurementId")
-
-            lifecycleScope.launch {
-                val measurement = withContext(Dispatchers.IO) {
-                    HttpMeasurement(app.sessionManager).getById(ObjectId(measurementId))
-                }
-                if (measurement != null) {
-                    Log.d("MainActivity", "Measurement: $measurement")
-                    openMeasurementFragment(measurement)
-                }
-            }
-        }
-
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, SpeedtestFragment())
             .commit()
+
+
+        if (intent?.getStringExtra("openFragment") == "MeasurementFragment") {
+            val measurementJson = intent.getStringExtra("measurement")
+
+            Log.d("MainActivity", "Measurement: $measurementJson")
+
+            if (measurementJson != null) {
+                val gson = GsonBuilder()
+                    .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
+                    .create()
+
+                val measurement = gson.fromJson(measurementJson, Measurment::class.java)
+
+                Log.d("MainActivity", "Measurement: $measurement")
+
+                val fragment = MeasurementFragment.newInstance(measurement)
+                supportFragmentManager.beginTransaction()
+                    .replace(binding.fragmentContainer.id, fragment)
+                    .addToBackStack(null)
+                    .commit()
+
+            }
+        }
 
         val bottomNavigationView = binding.bottomNavigationView
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -169,13 +182,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openMeasurementFragment(measurement: Measurment) {
-        val fragment = MeasurementFragment.newInstance(measurement)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
 
     override fun attachBaseContext(newBase: Context) {
         val app = newBase.applicationContext as SpeediiApplication
