@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.classes.MobileTower;
+import si.um.feri.speedii.classes.Pair;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.MapRasterTiles;
 import si.um.feri.speedii.utils.ZoomXY;
@@ -40,8 +41,8 @@ public class MapOverlay {
         }
     }
 
-    public List<Vector2> turnMobileTowerCoordinatesToPixels(List<MobileTower> mobileTowers, ZoomXY beginTile) {
-        List<Vector2> positions = new ArrayList<>();
+    public List<Pair<Vector2, MobileTower>> turnMobileTowerCoordinatesToPixels(List<MobileTower> mobileTowers, ZoomXY beginTile) {
+        List<Pair<Vector2, MobileTower>> positions = new ArrayList<>();
 
         for (MobileTower mobileTower : mobileTowers) {
             System.out.println(mobileTower.getLocation().coordinates.get(1) + ", " +
@@ -54,7 +55,7 @@ public class MapOverlay {
                 beginTile.y
             );
 
-            positions.add(position);
+            positions.add(new Pair<>(position, mobileTower));
         }
 
         return positions;

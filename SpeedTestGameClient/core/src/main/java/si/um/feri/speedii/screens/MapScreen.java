@@ -48,6 +48,7 @@ import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.assets.RegionNames;
 import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.classes.MobileTower;
+import si.um.feri.speedii.classes.Pair;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
@@ -94,12 +95,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     TextureAtlas atlas;
     private TextureRegion mobileTowerTexture;
 
-    private List<Vector2> mobileTowerPositions;
+    private List<Pair<Vector2, MobileTower>> mobileTowerPositions;
 
     private Stage stage;
     private Window speedInfoWindow;
     private Label speedInfoLabel;
     private Label difficultyLabel;
+    private Window towerInfoWindow;
+    private Label providerLabel;
+    private Label typeLabel;
+    private Label confirmedLabel;
+
     private Skin skin;
 
     private Vector2 drawnTower;
@@ -152,6 +158,22 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         speedInfoWindow.row();
         speedInfoWindow.add(playButton).pad(10);
         speedInfoWindow.pack();
+        speedInfoWindow.setVisible(false);
+
+        towerInfoWindow = new Window("Tower Info", skin);
+        providerLabel = new Label("", skin);
+        typeLabel = new Label("", skin);
+        confirmedLabel = new Label("", skin);
+
+        towerInfoWindow.add(providerLabel).left().pad(10);
+        towerInfoWindow.row();
+        towerInfoWindow.add(typeLabel).left().pad(10);
+        towerInfoWindow.row();
+        towerInfoWindow.add(confirmedLabel).left().pad(10);
+        towerInfoWindow.pack();
+        towerInfoWindow.setVisible(false);
+
+
 
         TextButton toggleGridButton = new TextButton("Toggle Grid", skin);
         TextButton toggleTowersButton = new TextButton("Toggle Towers", skin);
@@ -193,6 +215,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         stage.addActor(toggleGridButton);
         stage.addActor(toggleTowersButton);
         stage.addActor(speedInfoWindow);
+        stage.addActor(towerInfoWindow);
     }
 
 
@@ -277,8 +300,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if(drawMobileTowers) {
             float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
             float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
-            for (Vector2 position : mobileTowerPositions) {
-                spriteBatch.draw(mobileTowerTexture, position.x - textureWidth / 2, position.y - textureHeight / 2, textureWidth, textureHeight);
+            for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
+                spriteBatch.draw(mobileTowerTexture, position.getFirst().x - textureWidth / 2, position.getFirst().y - textureHeight / 2, textureWidth, textureHeight);
 
             }
 
@@ -301,10 +324,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             float popupY = screenPosition.y - speedInfoWindow.getHeight();
             speedInfoWindow.setPosition(popupX, popupY);
 
-            speedInfoWindow.setVisible(true);
-        } else {
-            speedInfoWindow.setVisible(false);
         }
+
+        if(drawnTower != null) {
+            towerInfoWindow.pack();
+            towerInfoWindow.setPosition(Gdx.graphics.getWidth() - towerInfoWindow.getWidth(), Gdx.graphics.getHeight() - towerInfoWindow.getHeight());
+
+        }
+
         stage.act(delta);
         stage.draw();
 
@@ -320,8 +347,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if(debug) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(Color.RED);
-            for (Vector2 position : mobileTowerPositions) {
-                shapeRenderer.circle(position.x, position.y, 10);
+            for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
+                shapeRenderer.circle(position.getFirst().x, position.getFirst().y, 10);
             }
             shapeRenderer.end();
         }
@@ -384,19 +411,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
 
         speedInfo = "";
+        speedInfoWindow.setVisible(false);
 
 
 
         if(drawMobileTowers) {
             float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
-            for (Vector2 position : mobileTowerPositions) {
-                if (position.dst(touchPosition.x, touchPosition.y) < textureWidth / 2) {
-                    System.out.println("Clicked on a mobile tower");
-                    drawnTower = position;
+            for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
+                if (position.getFirst().dst(touchPosition.x, touchPosition.y) < textureWidth / 2) {
+                    drawnTower = position.getFirst();
+
+                    providerLabel.setText("Provider: " + position.getSecond().getProvider());
+                    typeLabel.setText("Type: " + position.getSecond().getType());
+                    confirmedLabel.setText("Confirmed: " + position.getSecond().isConfirmed());
+                    towerInfoWindow.setVisible(true);
                     return false;
                 }
             }
             drawnTower = null;
+            towerInfoWindow.setVisible(false);
         }
 
         return false;
@@ -419,9 +452,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             difficultyLabel.setText("Difficulty: " + difficultyToString(selectedDifficulty));
             if (speed == -1) {
                 speedInfo = "";
+                speedInfoWindow.setVisible(false);
                 return false;
             }
-
+            speedInfoWindow.setVisible(true);
             speedInfoPosition.set(touchPosition.x, touchPosition.y);
         }
         return false;
