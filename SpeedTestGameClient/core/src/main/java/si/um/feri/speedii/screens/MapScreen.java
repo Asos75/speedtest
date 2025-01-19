@@ -99,6 +99,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Stage stage;
     private Window speedInfoWindow;
     private Label speedInfoLabel;
+    private Label difficultyLabel;
     private Skin skin;
 
     private Vector2 drawnTower;
@@ -107,7 +108,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private boolean drawGrid = true;
     private float gridOpacity = Constants.OVERLAY_ALPHA;
     private boolean drawMobileTowers = true;
-
+    private int minSpeed = 0;
+    private int maxSpeed = 0;
+    private int selectedDifficulty = 0;
 
 
 
@@ -124,21 +127,30 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("skin/flat-earth-ui.json"));
 
+        createActors();
+    }
+
+    private void createActors(){
         //SPEED INFO WINDOW
         speedInfoWindow = new Window("Average speed", skin);
         speedInfoLabel = new Label("", skin);
-        TextButton closeButton = new TextButton("Play", skin);
+        difficultyLabel = new Label("", skin);
+        TextButton playButton = new TextButton("Play", skin);
 
-        closeButton.addListener(new ClickListener() {
+        playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                // TODO - launch game with difficulty selected
+
                 System.out.println("Button clicked");
             }
         });
 
         speedInfoWindow.add(speedInfoLabel).pad(10);
         speedInfoWindow.row();
-        speedInfoWindow.add(closeButton).pad(10);
+        speedInfoWindow.add(difficultyLabel).pad(10);
+        speedInfoWindow.row();
+        speedInfoWindow.add(playButton).pad(10);
         speedInfoWindow.pack();
 
         TextButton toggleGridButton = new TextButton("Toggle Grid", skin);
@@ -237,6 +249,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         List<MobileTower> mobileTowers = getMobileTowers();
 
         mapOverlay.calculateAverageSpeeds(measurements, beginTile);
+        minSpeed = mapOverlay.getMinSpeed();
+        maxSpeed = mapOverlay.getMaxSpeed();
+
         mobileTowerPositions =  mapOverlay.turnMobileTowerCoordinatesToPixels(mobileTowers,beginTile);
         speedInfoWindow.setSize(300, 200); // Set the desired width and height
         speedInfoWindow.pack();
@@ -313,7 +328,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     }
 
 
-        private void drawMarkers() {
+    private void drawMarkers() {
         Vector2 marker = MapRasterTiles.getPixelPosition(MARKER_GEOLOCATION.lat, MARKER_GEOLOCATION.lng, beginTile.x, beginTile.y);
 
         shapeRenderer.setProjectionMatrix(camera.combined);
@@ -371,6 +386,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         speedInfo = "";
 
 
+
         if(drawMobileTowers) {
             float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
             for (Vector2 position : mobileTowerPositions) {
@@ -399,6 +415,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if(drawGrid) {
             int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
             speedInfo = "Speed: " + String.format("%.2f", speed / 1_000_000.0) + " Mbps";
+            selectedDifficulty = calculateDifficulty(speed);
+            difficultyLabel.setText("Difficulty: " + difficultyToString(selectedDifficulty));
             if (speed == -1) {
                 speedInfo = "";
                 return false;
@@ -496,6 +514,37 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         mobileTowers = httpMobileTower.getAll();
         return mobileTowers;
 
+    }
+
+    private int calculateDifficulty(int speed) {
+        if (speed < minSpeed + (maxSpeed - minSpeed) / 5) {
+            return 1;
+        } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 2) {
+            return 2;
+        } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 3) {
+            return 3;
+        } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 4) {
+            return 4;
+        } else {
+            return 5;
+        }
+    }
+
+    private String difficultyToString(int difficulty) {
+        switch (difficulty) {
+            case 1:
+                return "Very Easy";
+            case 2:
+                return "Easy";
+            case 3:
+                return "Medium";
+            case 4:
+                return "Hard";
+            case 5:
+                return "Very Hard";
+            default:
+                return "Unknown";
+        }
     }
 
 

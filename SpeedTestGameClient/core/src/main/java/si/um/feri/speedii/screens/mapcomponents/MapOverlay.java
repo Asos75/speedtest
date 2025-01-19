@@ -124,7 +124,13 @@ public class MapOverlay {
     public int getSpeed(int touchPosX, int touchPosY, ZoomXY beginTile) {
         int gridX = touchPosX / (Constants.MAP_WIDTH / Constants.GRID_SIZE);
         int gridY = touchPosY / (Constants.MAP_HEIGHT / Constants.GRID_SIZE);
-        if(speedCounts[gridX][gridY] == 0) return -1;
+        if(speedCounts[gridX][gridY] == 0) {
+            int average = (int)getAverageOfNeighbors(gridX, gridY);
+            if(average == 0) {
+                return -1;
+            }
+            return average;
+        };
         return (int) speedSums[gridX][gridY] / speedCounts[gridX][gridY];
     }
 
@@ -137,6 +143,30 @@ public class MapOverlay {
         float green = t;
 
         return new Color(red, green, 0, gridAlpha);
+    }
+
+    public int getMaxSpeed() {
+        int maxSpeed = 0;
+        for (int x = 0; x < Constants.GRID_SIZE; x++) {
+            for (int y = 0; y < Constants.GRID_SIZE; y++) {
+                if (speedCounts[x][y] > 0) {
+                    maxSpeed = Math.max(maxSpeed, (int) speedSums[x][y] / speedCounts[x][y]);
+                }
+            }
+        }
+        return maxSpeed;
+    }
+
+    public int getMinSpeed() {
+        int minSpeed = 100_000_000;
+        for (int x = 0; x < Constants.GRID_SIZE; x++) {
+            for (int y = 0; y < Constants.GRID_SIZE; y++) {
+                if (speedCounts[x][y] > 0) {
+                    minSpeed = Math.min(minSpeed, (int) speedSums[x][y] / speedCounts[x][y]);
+                }
+            }
+        }
+        return minSpeed;
     }
 }
 
