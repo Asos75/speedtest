@@ -8,7 +8,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -109,7 +108,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Skin skin;
 
     private Vector2 drawnTower;
-    private int towerRadius = 600;
+    private float towerRadius = 1.2f;
+    private float pxPerKm;
 
     private boolean drawGrid = true;
     private float gridOpacity = Constants.OVERLAY_ALPHA;
@@ -278,6 +278,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         mobileTowerPositions =  mapOverlay.turnMobileTowerCoordinatesToPixels(mobileTowers,beginTile);
         speedInfoWindow.setSize(300, 200); // Set the desired width and height
         speedInfoWindow.pack();
+
+        pxPerKm = (float) calculatePixelsPerKm(CENTER_GEOLOCATION.lat, ZOOM);
     }
 
     @Override
@@ -339,7 +341,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if(drawnTower != null) {
             shapeRenderer.setColor(Color.BLUE);
-            shapeRenderer.circle(drawnTower.x, drawnTower.y, towerRadius);
+            if (typeLabel.getText().toString().toLowerCase().contains("5g".toLowerCase())) {
+                float pixelRadius = (Constants.RANGE_5G * pxPerKm);
+                shapeRenderer.circle(drawnTower.x, drawnTower.y, pixelRadius);
+            } else if (typeLabel.getText().toString().toLowerCase().contains("4g".toLowerCase())) {
+                float pixelRadius = (Constants.RANGE_4G * pxPerKm);
+                shapeRenderer.circle(drawnTower.x, drawnTower.y, pixelRadius);
+            } else if (typeLabel.getText().toString().toLowerCase().contains("3g".toLowerCase())) {
+                float pixelRadius = (Constants.RANGE_3G * pxPerKm);
+                shapeRenderer.circle(drawnTower.x, drawnTower.y, pixelRadius);
+            }
         }
         shapeRenderer.end();
 
@@ -581,7 +592,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
     }
 
+    private double calculatePixelsPerKm(double latitude, int zoom) {
+        final double EARTH_CIRCUMFERENCE = 40075016.686;
+        final int TILE_SIZE = MapRasterTiles.TILE_SIZE;
 
+        double resolution = EARTH_CIRCUMFERENCE * Math.cos(Math.toRadians(latitude)) / Math.pow(2, zoom + 8);
+
+        double kmPerPixel = resolution / 1000.0;
+
+        return 1.0 / kmPerPixel;
+    }
 
 
 
