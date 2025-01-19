@@ -46,34 +46,7 @@ const removeOldEvents = (events) => {
 
 mqttClient.on('message', async (topic, message) => {
     console.log('Raw message:', message.toString());
-    if (topic === '/measurements/speed') {
-        let payload;
-        try {
-            payload = JSON.parse(message.toString());
-        } catch (error) {
-            console.error('Failed to parse MQTT message as JSON:', error);
-            return;
-        }
-
-        const { type, location, time, user } = payload;
-
-        const newEvent = {
-            type: type,
-            location: location,
-            time: time, 
-            user: user
-        };
-
-        console.log('New extreme event:', newEvent);
-
-        const events = getExtremeEventsFromFile();
-        
-        events.push(newEvent);
-
-        const updatedEvents = removeOldEvents(events);
-
-        saveExtremeEventsToFile(updatedEvents);
-    } else if (topic === 'measurements/extreme') {
+    if (topic === 'measurements/extreme') {
         let payload;
         try {
             payload = JSON.parse(message.toString());
@@ -102,7 +75,7 @@ mqttClient.on('message', async (topic, message) => {
         saveExtremeEventsToFile(filteredEvents);
 
         console.log('Extreme events list updated:', filteredEvents);
-    } else if (topic === '/measurements/speed') {
+    } else if (topic === 'measurements/speed') {
         let payload;
         try {
             payload = JSON.parse(message.toString());
@@ -151,7 +124,7 @@ mqttClient.on('message', async (topic, message) => {
                 }
             });
         
-    } else if (topic === '/tower/add' ){
+    } else if (topic === 'tower/add' ){
         let payload;
         try {
             payload = JSON.parse(message.toString());

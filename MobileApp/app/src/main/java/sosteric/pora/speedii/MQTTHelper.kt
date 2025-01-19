@@ -18,7 +18,7 @@ class MqttHelper(private val context: Context) {
 
     private val mqttClient: Mqtt3AsyncClient = MqttClient.builder()
         .useMqttVersion3()
-        .serverHost("10.0.2.2")
+        .serverHost("20.160.43.196")
         .serverPort(1883)
         .identifier(clientId)
         .buildAsync()
