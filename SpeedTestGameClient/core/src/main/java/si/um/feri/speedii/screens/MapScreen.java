@@ -615,6 +615,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             camera.translate(0, 3, 0);
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            app.setScreen(new MenuScreen(app, sessionManager));
+        }
 
 
         camera.zoom = MathUtils.clamp(camera.zoom, 0.5f, 2f);
