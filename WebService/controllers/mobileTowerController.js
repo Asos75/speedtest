@@ -1,6 +1,13 @@
 const mobileTowerModel = require('../models/mobileTowerModel.js');
 var MobiletowerModel = require('../models/mobileTowerModel.js');
 
+const sharp = require("sharp");
+const OpenAI = require("openai");
+
+const openai = new OpenAI({
+    apiKey: process.env.AI, // Use your OpenAI API key from environment variables
+});
+
 /**
  * mobileTowerController.js
  *
@@ -86,6 +93,81 @@ module.exports = {
             return res.status(201).json(mobileTower);
         });
     },
+
+    createAutoconfirm: async function (req, res) {
+        try {
+            if (!req.files || !req.files.image) {
+                return res.status(400).json({ message: "No image file uploaded" });
+            }
+    
+            const imageFile = req.files.image;
+    
+            const axios = require('axios');
+            const FormData = require('form-data');
+            const formData = new FormData();
+            formData.append('image', imageFile.data, imageFile.name);
+    
+            const flaskApiUrl = process.env.VISION_IP + '/predict_image'; 
+            const flaskResponse = await axios.post(flaskApiUrl, formData, {
+                headers: formData.getHeaders(),
+            });
+    
+            var confirmed = true;
+
+            if (!flaskResponse.data.is_tower) {
+                confirmed = false;
+            }
+
+            return res.status(201).json({
+                message: "Mobile Tower created and confirmed using AI",
+                data: { confirmed }, 
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Error in createAutoconfirm',
+                error: error.message,
+            });
+        }
+    },
+
+    locate: async function(req, res) {
+        const axios = require('axios');
+
+        try {
+            if (!req.files || !req.files.image) {
+                return res.status(400).json({ message: "No image file uploaded" });
+            }
+    
+            const imageFile = req.files.image;
+    
+            const FormData = require('form-data');
+            const formData = new FormData();
+            formData.append('image', imageFile.data, imageFile.name);
+    
+            const flaskApiUrl = process.env.VISION_IP + '/predict_uploaded_image';
+    
+            const flaskResponse = await axios.post(flaskApiUrl, formData, {
+                headers: formData.getHeaders(),
+            });
+    
+            const { filename, confidence, x1, y1, x2, y2, image } = flaskResponse.data;
+    
+            return res.status(200).json({
+                message: 'Tower location detected successfully',
+                filename,
+                confidence,
+                location: { x1, y1, x2, y2 },
+                image,
+            });
+        } catch (error) {
+            console.error("Error in locate function:", error);
+            return res.status(500).json({
+                message: 'Error processing image for tower location',
+                error: error.message,
+            });
+        }
+    },
+    
 
     createMany: function(req, res) {
         var towers = req.body.towers;
@@ -180,5 +262,57 @@ module.exports = {
 
             return res.status(204).json();
         });
-    }
+    },
+
+
+    addConfirm: async function (req, res) {
+        try {
+            if (!req.files || !req.files.image) {
+                return res.status(400).json({ message: "No image file uploaded" });
+            }
+
+            const imageFile = req.files.image;
+
+            const resizedImageBuffer = await sharp(imageFile.data)
+                .resize(512, 512) 
+                .toFormat("jpeg") 
+                .toBuffer();
+
+            const base64Image = resizedImageBuffer.toString("base64");
+
+            const response = await openai.chat.completions.create({
+                model: "gpt-4o-mini", 
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            { type: "text", text: "Does this image contain a mobile tower? Answer with yes or no without any punctuation" },
+                            {
+                                type: "image_url",
+                                image_url: {
+                                    url: `data:image/jpeg;base64,${base64Image}`,
+                                },
+                            },
+                        ],
+                    },
+                ],
+                max_tokens: 50,
+            });
+
+            const gptReply = response.choices[0]?.message?.content?.trim().toLowerCase();
+            const confirmed = gptReply === "yes";
+            
+
+            return res.status(201).json({
+                message: "Mobile Tower created and confirmed using AI",
+                data: { confirmed }, 
+            });
+        } catch (error) {
+            console.error("Error in addConfirm function:", error);
+            return res.status(500).json({
+                message: "Error in addConfirm",
+                error: error.message,
+            });
+        }
+    },
 };

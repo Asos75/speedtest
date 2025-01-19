@@ -19,6 +19,9 @@ router.get('/confirm/:id', authenticateToken, adminCheck, mobileTowerController.
  * POST
  */
 router.post('/', authenticateToken, mobileTowerController.create);
+router.post('/autoconfirm', mobileTowerController.createAutoconfirm)
+router.post('/locate', mobileTowerController.locate)
+router.post('/addconfirm', mobileTowerController.addConfirm)
 router.post('/createMany', authenticateToken, adminCheck, mobileTowerController.createMany)
 /*
  * PUT

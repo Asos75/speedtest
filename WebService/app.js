@@ -7,6 +7,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 // Cors for cross origin allowance
 const cors = require('cors');
+const expressFileUpload = require('express-fileupload');
+
 
 // Changed the path of the .env file for the dotenv package
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
@@ -75,6 +77,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(expressFileUpload());
 
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
