@@ -12,15 +12,19 @@ import org.bson.types.ObjectId;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import si.um.feri.speedii.classes.Events;
+import si.um.feri.speedii.classes.ExtremeEvent;
 import si.um.feri.speedii.classes.Location;
 import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.classes.Type;
 import si.um.feri.speedii.classes.User;
+import si.um.feri.speedii.connection.MQTTClient;
 import si.um.feri.speedii.connection.MongoDBConnection;
 import si.um.feri.speedii.dao.MeasurementCRUD;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
@@ -38,19 +42,22 @@ public class SpeediiApp extends Game {
     private AssetManager assetManager;
     private SpriteBatch batch;
 
+    public ArrayList<ExtremeEvent> extremeEvents = new ArrayList<>();
 
+    public MQTTClient mqttClient;
     @Override
     public void create() {
         MongoDBConnection.connect();
 
+        mqttClient = new MQTTClient();
+        mqttClient.connectToBroker(extremeEvents);
+
+        if(mqttClient.isBrokerConnected()) mqttClient.requestExtremeEvents();
+
         SessionManager sessionManager = new SessionManager();
-        HttpMeasurement httpMeasurement = new HttpMeasurement(sessionManager);
-        HttpMobileTower httpMobileTower = new HttpMobileTower(sessionManager);
 
         HttpUser httpUser = new HttpUser(sessionManager);
 
-       // boolean successful = httpUser.authenticate("admin", "admin");
-       // System.out.println("Successful: " + successful);
         System.out.println("Session: " + sessionManager);
 
         assetManager = new AssetManager();
@@ -64,7 +71,7 @@ public class SpeediiApp extends Game {
 
 
        // setScreen(new InsertEditScreen(httpMeasurement, httpMobileTower, httpUser));
-       //setScreen(new MapScreen(sessionManager, assetManager));
+        //setScreen(new MapScreen(this, sessionManager, assetManager));
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);

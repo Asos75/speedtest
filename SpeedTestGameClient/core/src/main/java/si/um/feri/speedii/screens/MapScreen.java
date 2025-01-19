@@ -40,11 +40,13 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
 import si.um.feri.speedii.assets.RegionNames;
+import si.um.feri.speedii.classes.ExtremeEvent;
 import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.classes.Pair;
@@ -90,6 +92,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private SpriteBatch spriteBatch;
     private String speedInfo;
     private Vector2 speedInfoPosition;
+    private Vector2 extremeEventPosition;
 
     TextureAtlas atlas;
     private TextureRegion mobileTowerTexture;
@@ -104,6 +107,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Label providerLabel;
     private Label typeLabel;
     private Label confirmedLabel;
+    private Window extremeEventWindow;
+    private Label extremeEventTypeLabel;
+    private Label extremeEventTimeLabel;
+    private Label extremeEventDateLabel;
+    private Label extremeUserLocationLabel;
+
+
 
     private Skin skin;
 
@@ -118,6 +128,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private int maxSpeed = 0;
     private int selectedDifficulty = 0;
 
+    private boolean drawExtremeEvents = true;
+
 
 
     public MapScreen(SpeediiApp app, SessionManager sessionManager, AssetManager assetManager) {
@@ -129,6 +141,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         this.speedInfo = "";
         this.assetManager = assetManager;
         this.speedInfoPosition = new Vector2();
+        this.extremeEventPosition = new Vector2();
 
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("skin/flat-earth-ui.json"));
@@ -173,16 +186,35 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         towerInfoWindow.pack();
         towerInfoWindow.setVisible(false);
 
+        //EXTREME EVENT WINDOW
+        extremeEventWindow = new Window("Extreme Event                          ", skin);
+        extremeEventTypeLabel = new Label("", skin);
+        extremeEventTimeLabel = new Label("", skin);
+        extremeEventDateLabel = new Label("", skin);
+        extremeUserLocationLabel = new Label("", skin);
+
+        extremeEventWindow.add(extremeEventTypeLabel).left().pad(10);
+        extremeEventWindow.row();
+        extremeEventWindow.add(extremeEventTimeLabel).left().pad(10);
+        extremeEventWindow.row();
+        extremeEventWindow.add(extremeEventDateLabel).left().pad(10);
+        extremeEventWindow.row();
+        extremeEventWindow.add(extremeUserLocationLabel).left().pad(10);
+        extremeEventWindow.pack();
+
+        extremeEventWindow.setVisible(false);
 
 
         TextButton toggleGridButton = new TextButton("Toggle Grid", skin);
+        TextButton toggleExtremeEventsButton = new TextButton("Toggle Extreme Events", skin);
         TextButton toggleTowersButton = new TextButton("Toggle Towers", skin);
         Slider gridOpacitySlider = new Slider(0.0f, 1.0f, 0.01f, false, skin);
 
         // Set button positions
         toggleTowersButton.setPosition(10, Gdx.graphics.getHeight() - 50);
-        toggleGridButton.setPosition(10, Gdx.graphics.getHeight() - 100);
-        gridOpacitySlider.setPosition(10, Gdx.graphics.getHeight() - 150);
+        toggleExtremeEventsButton.setPosition(10, Gdx.graphics.getHeight() - 100);
+        toggleGridButton.setPosition(10, Gdx.graphics.getHeight() - 150);
+        gridOpacitySlider.setPosition(10, Gdx.graphics.getHeight() - 200);
 
         // Add listeners to buttons
         toggleGridButton.addListener(new ClickListener() {
@@ -190,6 +222,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             public void clicked(InputEvent event, float x, float y) {
                 drawGrid = !drawGrid;
                 gridOpacitySlider.setVisible(drawGrid);
+            }
+        });
+
+        toggleExtremeEventsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawExtremeEvents = !drawExtremeEvents;
             }
         });
 
@@ -212,10 +251,12 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         });
 
         stage.addActor(gridOpacitySlider);
+        stage.addActor(toggleExtremeEventsButton);
         stage.addActor(toggleGridButton);
         stage.addActor(toggleTowersButton);
         stage.addActor(speedInfoWindow);
         stage.addActor(towerInfoWindow);
+        stage.addActor(extremeEventWindow);
     }
 
 
@@ -311,6 +352,18 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         spriteBatch.end();
 
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.setColor(Color.RED);
+        if(drawExtremeEvents) {
+            for(ExtremeEvent e : app.extremeEvents) {
+                drawMarker(e.location.coordinates.get(1), e.location.coordinates.get(0));
+            }
+        }
+
+        shapeRenderer.end();
+
+
         if (!speedInfo.isEmpty()) {
             float scaleFactor = Math.min(Gdx.graphics.getWidth() / 100f, Gdx.graphics.getHeight() / 100f);
             font.getData().setScale(scaleFactor);
@@ -326,6 +379,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             float popupY = screenPosition.y - speedInfoWindow.getHeight();
             speedInfoWindow.setPosition(popupX, popupY);
 
+        }
+
+        if(extremeEventWindow.isVisible()) {
+            Vector3 screenPosition = camera.project(new Vector3(extremeEventPosition.x, extremeEventPosition.y, 0));
+
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - extremeEventWindow.getHeight();
+            extremeEventWindow.setPosition(popupX, popupY);
         }
 
         if(drawnTower != null) {
@@ -374,6 +435,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.circle(marker.x, marker.y, 10);
         shapeRenderer.end();
+    }
+
+    private void drawMarker(double x, double y) {
+        Vector2 marker = MapRasterTiles.getPixelPosition(x, y, beginTile.x, beginTile.y);
+        shapeRenderer.circle(marker.x, marker.y, 10);
     }
 
     @Override
@@ -441,6 +507,27 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             }
             drawnTower = null;
             towerInfoWindow.setVisible(false);
+        }
+        if (drawExtremeEvents){
+            for(ExtremeEvent e : app.extremeEvents) {
+                Vector2 marker = MapRasterTiles.getPixelPosition(e.location.coordinates.get(1), e.location.coordinates.get(0), beginTile.x, beginTile.y);
+                if (marker.dst(touchPosition.x, touchPosition.y) < 30) {
+                    System.out.println("Extreme event clicked");
+                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+                    extremeEventTypeLabel.setText("Type: " + e.type);
+                    extremeEventDateLabel.setText("Date: " + e.time.format(dateFormatter));
+                    extremeEventTimeLabel.setText("Time: " + e.time.format(timeFormatter));
+                    if (e.user != null) extremeUserLocationLabel.setText("Location: " + e.user);
+                    extremeEventWindow.setVisible(true);
+
+                    extremeEventPosition.set(touchPosition.x, touchPosition.y);
+
+                    return false;
+                }
+                extremeEventWindow.setVisible(false);
+            }
         }
 
         return false;

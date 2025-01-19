@@ -105,6 +105,7 @@ public class MenuScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 com.badlogic.gdx.Gdx.app.exit();
+                app.mqttClient.disconnectFromBroker();
             }
         });
 
