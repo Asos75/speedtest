@@ -66,19 +66,24 @@ class MqttHelper(private val context: Context) {
             }
     }
 
+
     fun publishMessage(topic: String, message: String) {
-        mqttClient.publishWith()
-            .topic(topic)
-            .payload(message.toByteArray())
-            .qos(MqttQos.AT_LEAST_ONCE)
-            .send()
-            .whenComplete { pubAck, throwable ->
-                if (throwable != null) {
-                    Log.e("MqttHelper", "Failed to publish message to $topic. Exception: ${throwable.message}")
-                } else {
-                    Log.d("MqttHelper", "Published message to $topic successfully.")
+        if (isConnected()) {
+            mqttClient.publishWith()
+                .topic(topic)
+                .payload(message.toByteArray())
+                .qos(MqttQos.AT_LEAST_ONCE)
+                .send()
+                .whenComplete { pubAck, throwable ->
+                    if (throwable != null) {
+                        Log.e("MqttHelper", "Failed to publish message to $topic. Exception: ${throwable.message}")
+                    } else {
+                        Log.d("MqttHelper", "Published message to $topic successfully.")
+                    }
                 }
-            }
+        } else {
+            Log.e("MqttHelper", "Cannot publish message. MQTT client is not connected.")
+        }
     }
 
     fun disconnect() {
