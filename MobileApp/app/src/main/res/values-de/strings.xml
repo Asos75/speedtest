@@ -68,4 +68,6 @@
     <string name="thank_you_success">Der Turm wurde automatisch akzeptiert.</string>
     <string name="thank_you_failure">Der Turm wurde automatisch abgelehnt. Aber keine Sorge, er wird erneut von den Administratoren überprüft.</string>
     <string name="add_tower">Turm hinzufügen</string>
+    <string name="no_network">KEIN NETZWERK!</string>
+    <string name="extreme_event">BESONDERES EREIGNIS:</string>
 </resources>

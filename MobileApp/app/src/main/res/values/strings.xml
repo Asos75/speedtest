@@ -68,4 +68,6 @@
     <string name="thank_you_success">Tower has been automatically accepted.</string>
     <string name="thank_you_failure">Tower has been automatically rejected. But worry not as it will be checked again by admins.</string>
     <string name="add_tower">Add Tower</string>
+    <string name="no_network">NO NETWORK!</string>
+    <string name="extreme_event">EXTREME EVENT:</string>
 </resources>

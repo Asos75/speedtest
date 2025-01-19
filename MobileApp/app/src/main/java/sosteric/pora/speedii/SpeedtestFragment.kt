@@ -39,7 +39,7 @@ class SpeedtestFragment : Fragment() {
 
     private lateinit var binding: FragmentSpeedtestBinding
     private lateinit var app: SpeediiApplication
-  //  val resultFragment = ResultFragment()
+   val resultFragment = ResultFragment()
 
     private val result = MutableLiveData<Double>()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -94,101 +94,135 @@ class SpeedtestFragment : Fragment() {
 
 
         binding.buttonMeasure.setOnClickListener {
-            Thread {
-                val speedtest = SpeedTest()
-                requireActivity().runOnUiThread() {
-                    speedometer.speedTo(0f)
-                    speedometer.withTremble = true
-                }
-
-                val res: Long = speedtest.measureCycle {
-                    requireActivity().runOnUiThread {
-                        speedometer.speedTo(it.toFloat())
+            if (!isOnline(requireContext())) {
+            Log.d("SpeedtestFragment", "No network connection");
+                val fragment = ExtremeEventFragment()
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+            else {
+                Thread {
+                    val speedtest = SpeedTest()
+                    requireActivity().runOnUiThread() {
+                        speedometer.speedTo(0f)
+                        speedometer.withTremble = true
                     }
-                }
 
-                requireActivity().runOnUiThread {
-                    speedometer.withTremble = false
-                    speedometer.speedTo(res.toFloat() / 1000000)
-                }
-
-                result.postValue(speedtest.convertToMbps(res))
-
-                requireActivity().runOnUiThread {
-                    binding.textViewMeasure.text = getString(R.string.getting_provider)
-                }
-
-                // Get 'org' from ipinfo.io
-                IPInfo.getOrgFromIpInfo { org ->
-                    val provider = org ?: "Unknown"  // Default to "Unknown" if org is null
-
-                    Log.d("SpeedtestFragment", "Provider: $provider")
-                    val type: Type = checkNetworkType(requireContext()) ?: return@getOrgFromIpInfo
-
-                    requireActivity().runOnUiThread {
-                        binding.textViewMeasure.text = getString(R.string.getting_location)
-                    }
-                    getLastLocation { customLocation ->
-                        if (customLocation != null) {
-                            println("Latitude: ${customLocation.coordinates[1]}, Longitude: ${customLocation.coordinates[0]}")
-
-                            var time = LocalDateTime.now()
-                            // Create the measurement with provider set to the 'org' value
-                            val measurement = Measurment(
-                                speed = res,
-                                type = type,
-                                provider = provider,  // Use the fetched 'org' value as the provider
-                                location = customLocation,
-                                time = time,
-                                user = app.sessionManager.user
-                            )
-
-                            // Convert to JSON using Gson
-                            val gson = Gson()
-                            val measurementJson = gson.toJson(measurement.toAlt())
-
-                            requireActivity().runOnUiThread {
-                                binding.textViewMeasure.text = "Saving measurement..."
-                            }
-
-                            // Publish the measurement using MqttHelper
-                            val mqttHelper = MqttHelper(requireContext())
-                            if (mqttHelper.isConnected()) {
-                                Log.d("SpeedtestFragment", "Publishing measurement to MQTT")
-                                mqttHelper.publishMessage("measurements/speed", measurementJson)
-                            } else {
-                                Log.d("SpeedtestFragment", "Publishing measurement to HTTP")
-                                lifecycleScope.launch {
-                                    withContext(Dispatchers.IO) {
-                                        HttpMeasurement(app.sessionManager).insert(measurement)
-                                    }
-                                }
-                            }
-
-                            val resultBundle = Bundle().apply {
-
-                                putDouble("speed_result", speedResult)
-                                putString("provider:", provider)
-                                putString("type:", type.toString())
-                                putString("location:", customLocation.toString())
-                                putString("time:", time.toString())
-
-                            }
-
-                            val fragment = MeasurementFragment.newInstance(measurement)
-                            requireActivity().supportFragmentManager.beginTransaction()
-                                .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
-                                .addToBackStack(null)
-                                .commit()
-                        } else {
-                            println("Location is null or failed to retrieve")
+                    val res: Long = speedtest.measureCycle {
+                        requireActivity().runOnUiThread {
+                            speedometer.speedTo(it.toFloat())
                         }
                     }
-                }
-            }.start()
-        }
+
+                    requireActivity().runOnUiThread {
+                        speedometer.withTremble = false
+                        speedometer.speedTo(res.toFloat() / 1000000)
+                    }
+
+                    result.postValue(speedtest.convertToMbps(res))
+
+                    requireActivity().runOnUiThread {
+                        binding.textViewMeasure.text = getString(R.string.getting_provider)
+                    }
+
+                    // Get 'org' from ipinfo.io
+                    IPInfo.getOrgFromIpInfo { org ->
+                        val provider = org ?: "Unknown"  // Default to "Unknown" if org is null
+
+                        Log.d("SpeedtestFragment", "Provider: $provider")
+                        val type: Type = checkNetworkType(requireContext()) ?: return@getOrgFromIpInfo
+
+                        requireActivity().runOnUiThread {
+                            binding.textViewMeasure.text = getString(R.string.getting_location)
+                        }
+                        getLastLocation { customLocation ->
+                            if (customLocation != null) {
+                                println("Latitude: ${customLocation.coordinates[1]}, Longitude: ${customLocation.coordinates[0]}")
+
+                                var time = LocalDateTime.now()
+                                // Create the measurement with provider set to the 'org' value
+                                val measurement = Measurment(
+                                    speed = res,
+                                    type = type,
+                                    provider = provider,  // Use the fetched 'org' value as the provider
+                                    location = customLocation,
+                                    time = time,
+                                    user = app.sessionManager.user
+                                )
+
+                                // Convert to JSON using Gson
+                                val gson = Gson()
+                                val measurementJson = gson.toJson(measurement.toAlt())
+
+                                requireActivity().runOnUiThread {
+                                    binding.textViewMeasure.text = "Saving measurement..."
+                                }
+
+                                // Publish the measurement using MqttHelper
+                                val mqttHelper = MqttHelper(requireContext())
+                                if (mqttHelper.isConnected()) {
+                                    Log.d("SpeedtestFragment", "Publishing measurement to MQTT")
+                                    mqttHelper.publishMessage("measurements/speed", measurementJson)
+                                } else {
+                                    Log.d("SpeedtestFragment", "Publishing measurement to HTTP")
+                                    lifecycleScope.launch {
+                                        withContext(Dispatchers.IO) {
+                                            HttpMeasurement(app.sessionManager).insert(measurement)
+                                        }
+                                    }
+                                }
+
+                                val resultBundle = Bundle().apply {
+
+                                    putDouble("speed_result", speedResult)
+                                    putString("provider:", provider)
+                                    putString("type:", type.toString())
+                                    putString("location:", customLocation.toString())
+                                    putString("time:", time.toString())
+
+                                }
+
+                                val fragment = MeasurementFragment.newInstance(measurement)
+                                requireActivity().supportFragmentManager.beginTransaction()
+                                    .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
+                                    .addToBackStack(null)
+                                    .commit()
+                            } else {
+                                println("Location is null or failed to retrieve")
+                            }
+                        }
+                    }
+                }.start()
+            }
+
+            }
+
 
         return binding.root
+    }
+
+    fun isOnline(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (connectivityManager != null) {
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     fun checkNetworkType(context: Context): Type? {
@@ -215,6 +249,7 @@ class SpeedtestFragment : Fragment() {
                 } else if (activeNetworkInfo.type == ConnectivityManager.TYPE_MOBILE) {
                     Type.data
                 } else {
+                    Log.d("SpeedtestFragment", "No network connection")
                     null
                 }
             }

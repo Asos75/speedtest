@@ -1,5 +1,5 @@
 [versions]
-agp = "8.6.1"
+agp = "8.7.2"
 bson = "4.10.1"
 bsonVersion = "4.4.0"
 constraintlayout = "2.2.0"

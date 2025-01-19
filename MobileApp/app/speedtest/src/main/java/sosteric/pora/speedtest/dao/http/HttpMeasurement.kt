@@ -5,7 +5,7 @@ import Measurment
 import SessionManager
 import User
 import android.util.Log
-import dao.MeasurementCrud
+import sosteric.pora.speedtest.dao.MeasurementCrud
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -14,7 +14,6 @@ import org.bson.types.ObjectId
 import org.json.JSONArray
 import org.json.JSONObject
 import sosteric.pora.speedtest.Type
-import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -300,3 +299,4 @@ class HttpMeasurement(val sessionManager: SessionManager): MeasurementCrud {
     }
 
 }
+

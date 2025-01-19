@@ -1,7 +1,8 @@
-package dao
+package sosteric.pora.speedtest.dao
 
 import Measurment
 import User
+import dao.DaoCrud
 import java.time.LocalDateTime
 
 interface MeasurementCrud : DaoCrud<Measurment> {
