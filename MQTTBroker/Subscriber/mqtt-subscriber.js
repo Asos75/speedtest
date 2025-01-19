@@ -147,7 +147,7 @@ mqttClient.on('message', async (topic, message) => {
 
         const towerData = {
             location: location,
-            operator: tower.operator,
+            provider: tower.provider,
             type: tower.type,
             confirmed: tower.confirmed || false,
             locator: tower.locator || null
