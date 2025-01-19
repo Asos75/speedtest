@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -32,6 +33,7 @@ import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.classes.Location;
 import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.classes.SessionManager;
+import si.um.feri.speedii.classes.Type;
 import si.um.feri.speedii.classes.User;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.classes.Measurement;
@@ -55,9 +57,6 @@ public class InsertEditScreen implements Screen {
     private HttpMobileTower httpMobileTower;
 
 
-    private boolean showMeasurements = true;
-
-
     private SpriteBatch spriteBatch;
     private BitmapFont font;
 
@@ -71,6 +70,7 @@ public class InsertEditScreen implements Screen {
 
 
     private Table table;
+
 
 
 
@@ -106,31 +106,7 @@ public class InsertEditScreen implements Screen {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
 
-
-        Table firstTable = new Table();
-        firstTable.top();
-        firstTable.setFillParent(true);
-        stage.addActor(firstTable);
-
-
-        TextButton showBtn = new TextButton("Measurements/Towers", skin);
-        firstTable.add(showBtn).width(200).pad(10).row();
-
-
-        showBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("clicked");
-                showMeasurements = !showMeasurements;
-                table.clear();
-                run(showMeasurements);
-            }
-        });
-
-
-
-
-
+        boolean showMeasurements = true;
 
 
         run(showMeasurements);
@@ -160,15 +136,90 @@ public class InsertEditScreen implements Screen {
         if (showMeasurements) {
             table = new Table();
             table.top();
-            table.setFillParent(true);
-            stage.addActor(table);
+            table.padTop(20);
+            table.padBottom(20);
+            table.defaults().pad(10);
+
+            ScrollPane scrollPane = new ScrollPane(table, skin);
+            scrollPane.setScrollingDisabled(true, false);
+            scrollPane.setFadeScrollBars(false);
+
+
+            scrollPane.setFillParent(true);
+            stage.addActor(scrollPane);
+
+            TextButton showBtn = new TextButton("Measurements/Towers", skin);
+            table.add(showBtn).width(200).pad(10).row();
+
+
+
+
+
+            showBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    System.out.println("clicked");
+                    table.clear();
+                    run(false);
+                }
+            });
+
+
             Gdx.input.setInputProcessor(stage);
             table.add(new Label("Measurements", skin)).pad(10).center().row();
+
+            table.add(new Label("Longitude", skin)).pad(10).right();
+            TextField locationLongitudeAdd = new TextField("", skin);
+            table.add(locationLongitudeAdd).width(200).pad(10);
+
+            table.add(new Label("Latitude", skin)).pad(10).right();
+            TextField locationLatitudeAdd = new TextField("", skin);
+            table.add(locationLatitudeAdd).width(200).pad(10).row();
+
+
+            table.add(new Label("Provider", skin)).pad(10).right();
+            TextField providerFieldAdd = new TextField("", skin);
+            table.add(providerFieldAdd).width(200).pad(10);
+
+            table.add(new Label("Speed", skin)).pad(10).right();
+            TextField speedAdd = new TextField("", skin);
+            table.add(speedAdd).width(200).pad(10).row();
+
+
+            TextButton addButton = new TextButton("Add", skin);
+            table.add(addButton).width(200).pad(10).center().colspan(4).row();
+
             table.add(new Label("Speed", skin)).pad(10);
             table.add(new Label("Provider", skin)).pad(10);
             table.add(new Label("Date", skin)).pad(10);
             table.row();
 
+            addButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Location newLocationAdd = new Location(Arrays.asList(
+                        Double.parseDouble(locationLongitudeAdd.getText()),
+                        Double.parseDouble(locationLatitudeAdd.getText())
+                    ));
+                    String newProviderAdd = providerFieldAdd.getText();
+                    long newSpeedAdd = Long.parseLong(speedAdd.getText());
+                    Measurement newMeasurement = new Measurement(
+                        newSpeedAdd,
+                        Type.wifi,
+                        newProviderAdd,
+                        newLocationAdd,
+                        LocalDateTime.now(),
+                        sessionManager.getUser(),
+                        new ObjectId()
+                    );
+                    HttpMeasurement newHttpMeasurement = new HttpMeasurement(sessionManager);
+                    try {
+                        System.out.println(newHttpMeasurement.insert(newMeasurement));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
 
             for (Measurement measurement : measurements) {
                 TextField speedField = new TextField(String.valueOf(measurement.getSpeed()), skin);
@@ -211,9 +262,32 @@ public class InsertEditScreen implements Screen {
         } else {
             table = new Table();
             table.top();
-            table.setFillParent(true);
-            stage.addActor(table);
+            table.padTop(20);
+            table.padBottom(20);
+            table.defaults().pad(10);
+
+            ScrollPane scrollPane = new ScrollPane(table, skin);
+            scrollPane.setScrollingDisabled(true, false);
+            scrollPane.setFadeScrollBars(false);
+
+
+            scrollPane.setFillParent(true);
+            stage.addActor(scrollPane);
             Gdx.input.setInputProcessor(stage);
+
+            TextButton showBtn = new TextButton("Measurements/Towers", skin);
+            table.add(showBtn).width(200).pad(10).row();
+
+
+            showBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    System.out.println("clicked");
+                    table.clear();
+                    run(true);
+                }
+            });
+
 
             table.add(new Label("Mobile Towers", skin)).pad(10).center().row();
 
@@ -236,6 +310,11 @@ public class InsertEditScreen implements Screen {
 
             TextButton addButton = new TextButton("Add", skin);
             table.add(addButton).width(200).pad(10).center().colspan(4).row();
+
+            table.add(new Label("Confirmed", skin)).pad(10);
+            table.add(new Label("Provider", skin)).pad(10);
+            table.add(new Label("Type", skin)).pad(10);
+            table.row();
 
 
             addButton.addListener(new ClickListener() {
