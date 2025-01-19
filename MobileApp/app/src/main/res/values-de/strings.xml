@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">Speedii</string>
+    <string name="speedtest">Geschwindigkeitstest</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Einstellungen</string>
+    <string name="tower">Turm</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_dark_mode">Dunkles Thema</string>
+    <string name="settings_mode">App-Thema</string>
+    <string-array name="mode_keys">
+        <item>standard</item>
+        <item>hell</item>
+        <item>dunkel</item>
+    </string-array>
+    <string-array name="mode_options">
+        <item>Standard</item>
+        <item>Hell</item>
+        <item>Dunkel</item>
+    </string-array>
+    <string-array name="language_keys">
+        <item>standard</item>
+        <item>de</item>
+        <item>en</item>
+        <item>sl</item>
+    </string-array>
+    <string-array name="language_options">
+        <item>Standard</item>
+        <item>Deutsch</item>
+        <item>English</item>
+        <item>Slovenščina</item>
+    </string-array>
+    <string name="app_logo">Speedii-Logo</string>
+    <string name="user">Benutzer: %1$s</string>
+    <string name="email">E-Mail: %1$s</string>
+    <string name="logout">Abmelden</string>
+    <string name="my_measurements">Meine Messungen</string>
+    <string name="my_towers">Meine Türme</string>
+    <string name="speed">Geschwindigkeit: %1$s Mbps</string>
+    <string name="location">Standort: %1$s </string>
+    <string name="provider">Anbieter: %1$s</string>
+    <string name="date">Datum: %1$s</string>
+    <string name="create_account">Konto erstellen</string>
+    <string name="username">Benutzername</string>
+    <string name="email_hint">E-Mail</string>
+    <string name="password">Passwort</string>
+    <string name="confirm_password">Passwort bestätigen</string>
+    <string name="create_account_button">Konto erstellen</string>
+    <string name="no_account">Kein Konto? Anmelden</string>
+    <string name="forgot_password">Passwort vergessen?</string>
+    <string name="login">Anmelden</string>
+    <string name="welcome">Willkommen zurück!</string>
+    <string name="measurement_details">Anbieter: %1$s\nZeit: %2$s</string>
+    <string name="measurement_speed">Geschwindigkeit: %1$.2f Mb/s</string>
+    <string name="measurement">Messung</string>
+    <string name="show_result">Ergebnisse anzeigen</string>
+    <string name="back">Zurück</string>
+    <string name="measure">Messung durchführen!</string>
+    <string name="measure2">Geschwindigkeit messen</string>
+    <string name="getting_location">Standort wird ermittelt…</string>
+    <string name="getting_provider">Anbieter wird ermittelt…</string>
+    <string name="frequency">Frequenz</string>
+    <string name="background_measurements">Hintergrundmessungen</string>
+    <string name="simulate_measurements">Messungen simulieren</string>
+    <string name="towers">Türme</string>
+    <string name="measurements">Messungen</string>
+    <string name="thank_you">Vielen Dank für Ihren Beitrag!</string>
+    <string name="thank_you_success">Der Turm wurde automatisch akzeptiert.</string>
+    <string name="thank_you_failure">Der Turm wurde automatisch abgelehnt. Aber keine Sorge, er wird erneut von den Administratoren überprüft.</string>
+    <string name="add_tower">Turm hinzufügen</string>
+    <string name="no_network">KEIN NETZWERK!</string>
+    <string name="extreme_event">BESONDERES EREIGNIS:</string>
+</resources>
