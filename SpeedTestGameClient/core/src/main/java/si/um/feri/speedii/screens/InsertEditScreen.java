@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 
@@ -39,6 +40,7 @@ import si.um.feri.speedii.dao.http.HttpMobileTower;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -105,9 +107,6 @@ public class InsertEditScreen implements Screen {
 
 
 
-
-
-
         Table firstTable = new Table();
         firstTable.top();
         firstTable.setFillParent(true);
@@ -131,11 +130,7 @@ public class InsertEditScreen implements Screen {
 
 
 
-        table = new Table();
-        table.top();
-        table.setFillParent(true);
-        stage.addActor(table);
-        Gdx.input.setInputProcessor(stage);
+
 
 
         run(showMeasurements);
@@ -163,6 +158,11 @@ public class InsertEditScreen implements Screen {
     public void run(Boolean showMeasurements) {
 
         if (showMeasurements) {
+            table = new Table();
+            table.top();
+            table.setFillParent(true);
+            stage.addActor(table);
+            Gdx.input.setInputProcessor(stage);
             table.add(new Label("Measurements", skin)).pad(10).center().row();
             table.add(new Label("Speed", skin)).pad(10);
             table.add(new Label("Provider", skin)).pad(10);
@@ -209,14 +209,60 @@ public class InsertEditScreen implements Screen {
 
             }
         } else {
+            table = new Table();
+            table.top();
+            table.setFillParent(true);
+            stage.addActor(table);
+            Gdx.input.setInputProcessor(stage);
+
             table.add(new Label("Mobile Towers", skin)).pad(10).center().row();
-            table.add(new Label("Confirmed", skin)).pad(10);
-            table.add(new Label("Provider", skin)).pad(10);
-            table.add(new Label("Type", skin)).pad(10);
-            table.row();
+
+            table.add(new Label("Longitude", skin)).pad(10).right();
+            TextField locationLongitudeAdd = new TextField("", skin);
+            table.add(locationLongitudeAdd).width(200).pad(10);
+
+            table.add(new Label("Latitude", skin)).pad(10).right();
+            TextField locationLatitudeAdd = new TextField("", skin);
+            table.add(locationLatitudeAdd).width(200).pad(10).row();
+
+
+            table.add(new Label("Provider", skin)).pad(10).right();
+            TextField providerFieldAdd = new TextField("", skin);
+            table.add(providerFieldAdd).width(200).pad(10);
+
+            table.add(new Label("Type", skin)).pad(10).right();
+            TextField typeFieldAdd = new TextField("", skin);
+            table.add(typeFieldAdd).width(200).pad(10).row();
+
+            TextButton addButton = new TextButton("Add", skin);
+            table.add(addButton).width(200).pad(10).center().colspan(4).row();
+
+
+            addButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Location newLocationAdd = new Location(Arrays.asList(
+                        Double.parseDouble(locationLongitudeAdd.getText()),
+                        Double.parseDouble(locationLatitudeAdd.getText())
+                    ));
+                    String newProviderAdd = providerFieldAdd.getText();
+                    String newTypeAdd = typeFieldAdd.getText();
+                    MobileTower newMobileTower = new MobileTower(
+                        newLocationAdd,
+                        newProviderAdd,
+                        newTypeAdd,
+                        false,
+                        sessionManager.getUser(),
+                        new ObjectId()
+                    );
+                    HttpMobileTower newHttpMobileTower = new HttpMobileTower(sessionManager);
+                    System.out.println(newHttpMobileTower.insert(newMobileTower));
+                }
+            });
 
 
             for (MobileTower mobileTower : mobileTowers) {
+                System.out.println(mobileTower.getLocation());
                 TextField confirmedField = new TextField(String.valueOf(mobileTower.isConfirmed()), skin);
                 TextField providerField = new TextField(mobileTower.getProvider(), skin);
                 TextField typeField = new TextField(mobileTower.getType(), skin);
@@ -242,7 +288,7 @@ public class InsertEditScreen implements Screen {
                         );
                         HttpMobileTower newHttpMobileTower = new HttpMobileTower(sessionManager);
                         System.out.println(newHttpMobileTower.update(newMobileTower));
-                        System.out.println(newMobileTower);
+
                     }
                 });
             }
