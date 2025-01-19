@@ -36,7 +36,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/textNoNetwork"
         android:layout_marginTop="32dp"
-        android:text="Back"
+        android:text="@string/back"
         android:backgroundTint="@color/purple_500"
         android:textColor="@android:color/white" />
 </RelativeLayout>
