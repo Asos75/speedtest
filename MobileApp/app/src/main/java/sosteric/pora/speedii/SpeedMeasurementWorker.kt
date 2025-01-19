@@ -51,10 +51,10 @@ class SpeedMeasurementWorker(
 
                 Log.d("SpeedMeasurementWorker", "Measured speed: $speed Mbps")
 
-                saveMeasurement(speed, sessionManager)
+                saveMeasurement(speed, sessionManager, app)
             } else {
                 val speed = (1..100).random().toLong() * 1000000
-                saveSimulatedMeasurement(speed, sessionManager)
+                saveSimulatedMeasurement(speed, sessionManager, app)
             }
 
             Result.success()
@@ -64,7 +64,7 @@ class SpeedMeasurementWorker(
         }
     }
 
-    private suspend fun saveSimulatedMeasurement(speed: Long, sessionManager: SessionManager) {
+    private suspend fun saveSimulatedMeasurement(speed: Long, sessionManager: SessionManager, app: SpeediiApplication) {
 
         withContext(Dispatchers.IO){
             val provider = "Simulated"
@@ -89,10 +89,9 @@ class SpeedMeasurementWorker(
             val gson = Gson()
             val measurementJson = gson.toJson(measurement.toAlt())
 
-            val mqttHelper = MqttHelper(applicationContext)
-            if (mqttHelper.isConnected()) {
+            if (app.mqttHelper.isConnected()) {
                 showMeasurementNotification("Simulated Measurement", "$provider: ${speed / 1000000} Mbps", measurement)
-                mqttHelper.publishMessage("measurements/speed", measurementJson)
+                app.mqttHelper.publishMessage("measurements/speed", measurementJson)
             } else {
                 showMeasurementNotification("Simulated Measurement", "$provider: ${speed / 1000000} Mbps", measurement)
                 Thread{
@@ -112,7 +111,7 @@ class SpeedMeasurementWorker(
         return listOf(longitude, latitude)
     }
 
-    private suspend fun saveMeasurement(speed: Long, sessionManager: SessionManager) {
+    private suspend fun saveMeasurement(speed: Long, sessionManager: SessionManager, app: SpeediiApplication) {
 
 
         withContext(Dispatchers.IO) {
@@ -139,10 +138,9 @@ class SpeedMeasurementWorker(
                         val measurementJson = gson.toJson(measurement.toAlt())
 
 
-                        val mqttHelper = MqttHelper(applicationContext)
-                        if (mqttHelper.isConnected()) {
+                        if (app.mqttHelper.isConnected()) {
                             showMeasurementNotification("Speed Measurement", "$provider: ${speed / 1000000} Mbps", measurement)
-                            mqttHelper.publishMessage("measurements/speed", measurementJson)
+                            app.mqttHelper.publishMessage("measurements/speed", measurementJson)
                         } else {
                             showMeasurementNotification("Speed Measurement", "$provider: ${speed / 1000000} Mbps",measurement)
                             Thread{

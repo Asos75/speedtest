@@ -23,11 +23,7 @@ class MqttHelper(private val context: Context) {
         .identifier(clientId)
         .buildAsync()
 
-    init {
-        connect()
-    }
-
-    fun connect() {
+    fun connect(onConnectCallback: () -> Unit) {
         mqttClient.connectWith()
             .simpleAuth()
             .username(username)
@@ -41,12 +37,15 @@ class MqttHelper(private val context: Context) {
                     Log.d("MqttHelper", "Connected to MQTT broker successfully.")
                     subscribeToTopic("test/topic")
                 }
+                onConnectCallback()
             }
 
         mqttClient.publishes(MqttGlobalPublishFilter.ALL) { publish: Mqtt3Publish ->
             Log.d("MqttHelper", "Message arrived: ${publish.payloadAsBytes.toString(StandardCharsets.UTF_8)}")
         }
     }
+
+
 
     fun isConnected(): Boolean {
         val status =  mqttClient.state.isConnected

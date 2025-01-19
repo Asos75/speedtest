@@ -1,9 +1,13 @@
 const mqtt = require('mqtt');
 const axios = require('axios'); 
+const moment = require('moment');
+const fs = require('fs');
 
 // Set up the MQTT client to subscribe to a topic
 const mqttClient = mqtt.connect(process.env.MQTT_BROKER_URL)
-const topics = ['measurements/speed', 'measurements/extreme', 'tower/add'];  // Add more topics as needed
+const topics = ['measurements/speed', 'measurements/extreme', 'tower/add', 'measurements/extreme/request'];  // Add more topics as needed
+
+const eventsFilePath = './extremeEvents.json';
 
 
 // API endpoint to store data
@@ -18,10 +22,85 @@ mqttClient.on('connect', () => {
     });
 });
 
+const getExtremeEventsFromFile = () => {
+    try {
+        const data = fs.readFileSync(eventsFilePath);
+        return JSON.parse(data);
+    } catch (err) {
+        return []; // If the file doesn't exist or there's an error, return an empty array
+    }
+};
+
+const saveExtremeEventsToFile = (events) => {
+    fs.writeFileSync(eventsFilePath, JSON.stringify(events, null, 2), 'utf8');
+};
+
+const removeOldEvents = (events) => {
+    const oneWeekAgo = moment().subtract(7, 'days');
+    return events.filter(event => moment(event.time).isAfter(oneWeekAgo));
+};
+
+
 
 mqttClient.on('message', async (topic, message) => {
     console.log('Raw message:', message.toString());
-    if (topic === 'measurements/speed') {
+    if (topic === '/measurements/speed') {
+        let payload;
+        try {
+            payload = JSON.parse(message.toString());
+        } catch (error) {
+            console.error('Failed to parse MQTT message as JSON:', error);
+            return;
+        }
+
+        const { type, location, time, user } = payload;
+
+        const newEvent = {
+            type: type,
+            location: location,
+            time: time, 
+            user: user
+        };
+
+        console.log('New extreme event:', newEvent);
+
+        const events = getExtremeEventsFromFile();
+        
+        events.push(newEvent);
+
+        const updatedEvents = removeOldEvents(events);
+
+        saveExtremeEventsToFile(updatedEvents);
+    } else if (topic === 'measurements/extreme') {
+        let payload;
+        try {
+            payload = JSON.parse(message.toString());
+        } catch (error) {
+            console.error('Failed to parse MQTT message as JSON:', error);
+            return;
+        }
+
+        const { type, location, time, user } = payload;
+
+        const newEvent = {
+            type: type,
+            location: location,
+            time: time, // Make sure the time is in ISO string format or a format you can parse easily
+            user: user
+        };
+
+        console.log('New extreme event:', newEvent);
+
+        const events = getExtremeEventsFromFile();
+
+        events.push(newEvent);
+
+        const filteredEvents = removeOldEvents(events);
+
+        saveExtremeEventsToFile(filteredEvents);
+
+        console.log('Extreme events list updated:', filteredEvents);
+    } else if (topic === '/measurements/speed') {
         let payload;
         try {
             payload = JSON.parse(message.toString());
@@ -42,7 +121,6 @@ mqttClient.on('message', async (topic, message) => {
             },
             measuredBy: measuredBy  
         };
-        
 
         console.log('Data being sent:', data);
 
@@ -58,9 +136,20 @@ mqttClient.on('message', async (topic, message) => {
                 console.error('Error setting up the request:', error.message);
             }
         }
-    } else if (topic === 'measurements/extreme') {
-
-    } else if (topic === 'tower/add' ){
+    } else if(topic === 'measurements/extreme/request') {
+    
+            let events = getExtremeEventsFromFile();
+            events = removeOldEvents(events); 
+            
+            mqttClient.publish('measurements/extreme/response', JSON.stringify(events), (err) => {
+                if (err) {
+                    console.error('Error publishing MQTT message:', err);
+                } else {
+                    console.log('Extreme events published successfully.');
+                }
+            });
+        
+    } else if (topic === '/tower/add' ){
         let payload;
         try {
             payload = JSON.parse(message.toString());

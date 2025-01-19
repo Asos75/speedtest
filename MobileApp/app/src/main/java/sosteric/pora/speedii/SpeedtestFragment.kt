@@ -31,6 +31,8 @@ import dao.http.HttpMeasurement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import sosteric.pora.speedtest.Events
+import sosteric.pora.speedtest.ExtremeEvent
 import sosteric.pora.speedtest.IPInfo
 import java.io.IOException
 import java.time.LocalDateTime
@@ -96,6 +98,26 @@ class SpeedtestFragment : Fragment() {
         binding.buttonMeasure.setOnClickListener {
             if (!isOnline(requireContext())) {
             Log.d("SpeedtestFragment", "No network connection");
+
+                lifecycleScope.launch {
+                    getLastLocation { location: Location? ->
+                        val extremeEvent = location?.let { it1 ->
+                            ExtremeEvent(
+                                type = Events.NO_CONNECTION,
+                                time = LocalDateTime.now(),
+                                location = it1,
+                                user = app.sessionManager.user
+                            )
+                        }
+                        if (extremeEvent != null) {
+                            app.saveExtremeEventLocally(extremeEvent)
+                            Log.d("SpeedtestFragment", "Saved extreme event locally")
+                        }
+                    }
+
+                }
+
+
                 val fragment = ExtremeEventFragment()
                 requireActivity().supportFragmentManager.beginTransaction()
                     .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
@@ -141,12 +163,12 @@ class SpeedtestFragment : Fragment() {
                             if (customLocation != null) {
                                 println("Latitude: ${customLocation.coordinates[1]}, Longitude: ${customLocation.coordinates[0]}")
 
-                                var time = LocalDateTime.now()
-                                // Create the measurement with provider set to the 'org' value
+                                val time = LocalDateTime.now()
+
                                 val measurement = Measurment(
                                     speed = res,
                                     type = type,
-                                    provider = provider,  // Use the fetched 'org' value as the provider
+                                    provider = provider,
                                     location = customLocation,
                                     time = time,
                                     user = app.sessionManager.user

@@ -1,0 +1,24 @@
+[
+  {
+    "type": "NO_CONNECTION",
+    "location": {
+      "coordinates": [
+        -122.083922,
+        37.4220936
+      ],
+      "type": "Point"
+    },
+    "time": "2025-01-19T17:56:06.0342"
+  },
+  {
+    "type": "NO_CONNECTION",
+    "location": {
+      "coordinates": [
+        -122.083922,
+        37.4220936
+      ],
+      "type": "Point"
+    },
+    "time": "2025-01-19T17:56:47.727635"
+  }
+]

@@ -8,11 +8,17 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import sosteric.pora.speedii.localDateTimeGson.LocalDateTimeSerializer
+import sosteric.pora.speedtest.ExtremeEvent
+import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -34,8 +40,8 @@ class SpeediiApplication : Application() {
         super.onCreate()
         sharedPreferences = getSharedPreferences("sosteric.pora.application", MODE_PRIVATE)
 
-        mqttHelper = MqttHelper(this)  // Create an instance of MqttHelper
-        mqttHelper.connect()  // Connect to the broker
+        mqttHelper = MqttHelper(this)
+        mqttHelper.connect({ checkAndPublishIfOnline() })
 
         sessionManager = SessionManager()
 
@@ -152,5 +158,36 @@ class SpeediiApplication : Application() {
             "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }
+
+    fun saveExtremeEventLocally(extremeEvent: ExtremeEvent) {
+        val editor = sharedPreferences.edit()
+        val gson = GsonBuilder()
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
+            .create()
+
+        val eventJson = gson.toJson(extremeEvent.toAlt())
+        editor.putString("offline_extreme_event", eventJson)
+        editor.apply()
+    }
+
+    fun checkAndPublishIfOnline() {
+        val eventJson = sharedPreferences.getString("offline_extreme_event", null)
+        Log.d("SpeedtestFragment", "Checking for offline extreme event: $eventJson")
+
+        if (eventJson != null) {
+            if (isOnline()) {
+                mqttHelper.publishMessage("measurements/extreme", eventJson)
+                Log.d("SpeedtestFragment", "Published offline extreme event: $eventJson")
+                sharedPreferences.edit().remove("offline_extreme_event").apply()
+            }
+        }
+    }
+    fun isOnline(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+        return capabilities != null && capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
 
 }
