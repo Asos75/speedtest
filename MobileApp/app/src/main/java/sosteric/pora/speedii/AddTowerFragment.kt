@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import dao.http.HttpMobileTower
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -120,17 +121,11 @@ class AddTowerFragment : Fragment() {
                         Toast.makeText(context, "Tower confirmed successfully.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Tower confirmed successfully.")
                         tower.confirmed = true
-                        val addResult = withContext(Dispatchers.IO){
-                            HttpMobileTower(app.sessionManager).insert(tower)
-                        }
-                        Log.d("AddTower", "Save tower result: $addResult")
+                        saveTower(tower)
                     } else if (result == 0) {
                         Toast.makeText(context, "Failed to confirm tower.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Failed to confirm tower.")
-                        val addResult = withContext(Dispatchers.IO){
-                            HttpMobileTower(app.sessionManager).insert(tower)
-                        }
-                        Log.d("AddTower", "Save tower result: $addResult")
+                        saveTower(tower)
                     } else {
                         Toast.makeText(context, "Failed to confirm tower. Server error.", Toast.LENGTH_SHORT).show()
                         Log.d("AddTower", "Failed to confirm tower. Server error.")
@@ -173,6 +168,31 @@ class AddTowerFragment : Fragment() {
         } else {
             println("Permission not granted")
             callback(null)
+        }
+    }
+
+    private fun saveTower(tower: MobileTower) {
+        if (app.mqttHelper.isConnected()) {
+            Log.d("AddTower", "Adding tower to MQTT")
+            val gson = Gson()
+            val towerJson = gson.toJson(tower.toAlt())
+
+            val payloadWithToken = """
+            {
+                "tower": $towerJson,
+                "jwtToken": "${app.sessionManager.token}"
+            }
+        """.trimIndent()
+
+            app.mqttHelper.publishMessage("tower/add", payloadWithToken)
+        } else {
+            Log.d("AddTower", "Adding tower to http")
+            lifecycleScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    HttpMobileTower(app.sessionManager).insert(tower)
+                }
+                Log.d("AddTower", "Save tower result: $result")
+            }
         }
     }
 }

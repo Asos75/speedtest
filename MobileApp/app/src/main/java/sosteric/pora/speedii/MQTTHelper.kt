@@ -49,7 +49,9 @@ class MqttHelper(private val context: Context) {
     }
 
     fun isConnected(): Boolean {
-        return mqttClient.state.isConnected
+        val status =  mqttClient.state.isConnected
+        Log.d("MqttHelper", "MQTT client is connected: $status")
+        return status
     }
 
     fun subscribeToTopic(topic: String) {

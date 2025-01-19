@@ -160,11 +160,9 @@ class SpeedtestFragment : Fragment() {
                                     binding.textViewMeasure.text = "Saving measurement..."
                                 }
 
-                                // Publish the measurement using MqttHelper
-                                val mqttHelper = MqttHelper(requireContext())
-                                if (mqttHelper.isConnected()) {
+                                if (app.mqttHelper.isConnected()) {
                                     Log.d("SpeedtestFragment", "Publishing measurement to MQTT")
-                                    mqttHelper.publishMessage("measurements/speed", measurementJson)
+                                    app.mqttHelper.publishMessage("measurements/speed", measurementJson)
                                 } else {
                                     Log.d("SpeedtestFragment", "Publishing measurement to HTTP")
                                     lifecycleScope.launch {

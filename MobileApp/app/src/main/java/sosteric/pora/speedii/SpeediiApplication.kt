@@ -27,7 +27,7 @@ class SpeediiApplication : Application() {
     var backgroundMeasurements: Boolean = false
     var simulateMeasurements: Boolean = false
 
-    private lateinit var mqttHelper: MqttHelper
+    lateinit var mqttHelper: MqttHelper
     lateinit var sessionManager: SessionManager
 
     override fun onCreate() {

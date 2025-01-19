@@ -1,1 +1,4 @@
 node_modules/
+Broker/node_modules/
+Subscriber/node_modules/
+Subscriber/.env
