@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 1883
 
-CMD ["node", "server.js"]
+CMD ["node", "mqtt-broker.js"]

@@ -14,4 +14,4 @@ ARG MQTT_BROKER_URL
 ENV API_ENDPOINT=${API_ENDPOINT}
 ENV MQTT_BROKER_URL=${MQTT_BROKER_URL}
 
-CMD ["node", "app.js"]
+CMD ["node", "mqtt-subscriber.js"]
