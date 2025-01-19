@@ -1,11 +1,13 @@
+require('dotenv').config();  
 const mqtt = require('mqtt');
 const axios = require('axios'); 
 const moment = require('moment');
 const fs = require('fs');
 
-// Set up the MQTT client to subscribe to a topic
-const mqttClient = mqtt.connect(process.env.MQTT_BROKER_URL)
-const topics = ['measurements/speed', 'measurements/extreme', 'tower/add', 'measurements/extreme/request'];  // Add more topics as needed
+const mqttBrokerURL = process.env.MQTT_BROKER_URL;
+console.log(`Trying to connect to ${mqttBrokerURL}`);
+const mqttClient = mqtt.connect(mqttBrokerURL);
+const topics = ['measurements/speed', 'measurements/extreme', 'tower/add', 'measurements/extreme/request'];  
 
 const eventsFilePath = './extremeEvents.json';
 
