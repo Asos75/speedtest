@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -238,8 +239,20 @@ public class GameScreen implements Screen {
             enemy.renderHealthBar(spriteBatch);
         }
 
+        // Draw the tower range circle
+        drawTowerRangeCircle();
+
         // End the sprite batch
         spriteBatch.end();
+
+        /*if (initializeGame.drawCircle) {
+            shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 0.1f); // 10% opacity gray
+            shapeRenderer.circle(initializeGame.towerPosition.x, initializeGame.towerPosition.y, initializeGame.towerRange);
+            shapeRenderer.end();
+        }*/
+
 
         if (tileHoverHandler != null) {
             tileHoverHandler.render();
@@ -247,6 +260,13 @@ public class GameScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+    }
+
+    private void drawTowerRangeCircle() {
+        if (initializeGame.drawCircle) {
+            Drawable circleDrawable = initializeGame.createCircleDrawable(initializeGame.towerRange, skin.getColor("color"));
+            circleDrawable.draw(spriteBatch, initializeGame.towerPosition.x - initializeGame.towerRange, initializeGame.towerPosition.y - initializeGame.towerRange, initializeGame.towerRange * 2, initializeGame.towerRange * 2);
+        }
     }
 
     /*private void showPath() {
@@ -311,6 +331,11 @@ public class GameScreen implements Screen {
         // LOG QUITTING GAME
         Gdx.app.log("GameScreen", "Quitting game...");
         Gdx.app.exit();
+    }
+
+    // In GameScreen class
+    public Stage getStage() {
+        return stage;
     }
 
     @Override

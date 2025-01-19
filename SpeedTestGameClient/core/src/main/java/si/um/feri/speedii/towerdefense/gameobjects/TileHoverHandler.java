@@ -12,6 +12,8 @@ import com.badlogic.gdx.math.Vector3;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import si.um.feri.speedii.screens.GameScreenComponents.InitializeGame;
 
@@ -53,9 +55,11 @@ public class TileHoverHandler extends InputListener {
         }
 
         if (hoveredTile != null) {
-            if (initializeGame.getSelectedTower() != null){
+            if (initializeGame.getSelectedTower() != null) {
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            } else shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            } else {
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            }
             shapeRenderer.setColor(Color.BLUE);
             shapeRenderer.rect(hoveredTile.x, hoveredTile.y, hoveredTile.width, hoveredTile.height);
             shapeRenderer.end();
@@ -65,12 +69,14 @@ public class TileHoverHandler extends InputListener {
     }
 
     private void handleTileHoverAndClick(Vector3 mousePos, int tileX, int tileY) {
-        if (initializeGame.getSelectedTower() != null && hoveredTile != null && !occupiedTiles.contains(hoveredTile)) {
+        Container<Table> selectedTowerContainer = initializeGame.getSelectedTower();
+        if (selectedTowerContainer != null && hoveredTile != null && !occupiedTiles.contains(hoveredTile)) {
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
                 Gdx.app.log("TileHoverHandler", "Placing tower at: (" + hoveredTile.x + ", " + hoveredTile.y + ")");
                 float tileWidth = fieldLayer.getTileWidth();
                 float tileHeight = fieldLayer.getTileHeight();
-                initializeGame.placeTower(initializeGame.getSelectedTower(), hoveredTile.x, hoveredTile.y, tileWidth, tileHeight);
+                String regionName = selectedTowerContainer.getName(); // Assuming the container has a name set to the regionName
+                initializeGame.placeTower(regionName, hoveredTile.x, hoveredTile.y, tileWidth, tileHeight);
                 occupiedTiles.add(new Rectangle(hoveredTile.x, hoveredTile.y, hoveredTile.width, hoveredTile.height));
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             } else {
@@ -80,6 +86,7 @@ public class TileHoverHandler extends InputListener {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         }
     }
+
 
     public void dispose() {
         shapeRenderer.dispose();
