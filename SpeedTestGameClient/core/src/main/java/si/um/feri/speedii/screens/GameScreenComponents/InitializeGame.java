@@ -72,6 +72,7 @@ public class InitializeGame {
     Drawable tableBorder;
 
     private TextButton quitButton;
+    private TextButton toggleButton;
     private GameScreen gameScreen;
     private Container<Table> selectedTower;
     private String selectedTowerType;
@@ -104,7 +105,6 @@ public class InitializeGame {
         whiteBackground = createWhiteBackground();
         tableBorder = createTableBorder();
         table.setFillParent(true);
-       //stage.addActor(table);
 
         initializeLabels();
         initializeButtons();
@@ -145,6 +145,19 @@ public class InitializeGame {
 
     private void initializeButtons() {
         pauseButton = new TextButton("Pause", skin);
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (gameScreen.getPausable()) {
+                    gameScreen.resumeGame();
+                    pauseButton.setText("Pause");
+                } else {
+                    gameScreen.pauseGame();
+                    pauseButton.setText("Resume");
+                }
+            }
+        });
+
         quitButton = new TextButton("Quit", skin);
         quitButton.addListener(new ClickListener() {
             @Override
@@ -178,7 +191,8 @@ public class InitializeGame {
 
 
         Table mainTable = new Table();
-        mainTable.add(towersTable).expand().fill().left();
+        mainTable.add(toggleButton).left().pad(10); // Add this line
+        mainTable.add(towersTable).expand().fill().left(); // Change this line
         mainTable.add(buttonTable).expand().fill().right();
 
         table.top();
@@ -218,6 +232,7 @@ public class InitializeGame {
                 }
             });
             gameScreen.getStage().addActor(newTower);
+            table.setZIndex(Integer.MAX_VALUE);
             //Gdx.app.log("InitializeGame", "New tower added at: (" + x + ", " + y + ") with size: (" + tileWidth + ", " + tileHeight + ")");
             if (selectedTower != null) {
                 selectedTower.setBackground(whiteBackground);
@@ -338,6 +353,24 @@ public class InitializeGame {
             addInputListeners(iconContainer, regionName); // Add input listeners to the container
             towersTable.add(iconContainer).size(iconSize, iconSize * 1.2f).pad(10);
         }
+
+        toggleButton = new TextButton("Hide", skin);
+        toggleButton.setColor(Color.WHITE);
+        toggleButton.getLabel().setColor(Color.WHITE);
+        toggleButton.getStyle().up.setMinWidth(100);
+        toggleButton.getStyle().up.setMinHeight(50);
+        toggleButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (towersTable.isVisible()) {
+                    towersTable.setVisible(false);
+                    toggleButton.setText("Show");
+                } else {
+                    towersTable.setVisible(true);
+                    toggleButton.setText("Hide");
+                }
+            }
+        });
 
         // Ensure the table layout is updated
         towersTable.pack();

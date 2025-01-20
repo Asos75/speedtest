@@ -50,6 +50,8 @@ import si.um.feri.speedii.SpeediiApp;
 
 import si.um.feri.speedii.assets.AssetDescriptors;
 
+import si.um.feri.speedii.screens.PauseScreen;
+
 public class GameScreen implements Screen {
     //private final SpeediiApp app;
     //private final AssetManager assetManager;
@@ -84,7 +86,8 @@ public class GameScreen implements Screen {
     private final AssetManager assetManager;
     private DIFFICULTY selectedDifficulty;
 
-    private boolean isPaused = false; // Track paused state
+    private PauseScreen pauseScreen;
+    private boolean isPaused = false;
 
     private Skin skin;
 
@@ -104,6 +107,8 @@ public class GameScreen implements Screen {
         stage = new Stage(gameViewport);
         //stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
+
+        pauseScreen = new PauseScreen(app, skin);
 
         // Load map
         loadMap = new LoadMap();
@@ -213,6 +218,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        if (isPaused) {
+            // TODO TOMMOROW, Not just Pause screen but like settings also
+            // TODO Maybe even round end logic also with shop? IDK
+            //pauseScreen.getStage().act(delta);
+            //pauseScreen.getStage().draw();
+            return;
+        }
         ScreenUtils.clear(0, 0, 0, 1);
 
         // Update camera
@@ -278,12 +290,16 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
+    public boolean getPausable() { return isPaused; }
+
     public void pauseGame() {
         isPaused = true;
+        //Gdx.input.setInputProcessor(pauseScreen.getStage());
     }
 
     public void resumeGame() {
         isPaused = false;
+        //Gdx.input.setInputProcessor(stage);
     }
 
     public void quitGame() {
