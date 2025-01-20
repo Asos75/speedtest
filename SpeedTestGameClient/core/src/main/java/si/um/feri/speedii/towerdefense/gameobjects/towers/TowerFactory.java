@@ -11,14 +11,14 @@ public class TowerFactory {
     private static final Map<String, Tower> towerTypes = new HashMap<>();
 
     static {
-        towerTypes.put(RegionNames.FAST_ACCESS, new ConcreteTower(new Vector2(0, 0), RegionPrices.FAST_ACCESS.getPrice(), 20, 50.0f, 1.0f));
-        towerTypes.put(RegionNames.CABINETS, new ConcreteTower(new Vector2(0, 0), RegionPrices.CABINETS.getPrice(), 30, 60.0f, 1.2f));
-        towerTypes.put(RegionNames.SERVER_CONTROL, new ConcreteTower(new Vector2(0, 0), RegionPrices.SERVER_CONTROL.getPrice(), 40, 70.0f, 1.5f));
-        towerTypes.put(RegionNames.HUB, new ConcreteTower(new Vector2(0, 0), RegionPrices.HUB.getPrice(), 50, 80.0f, 1.8f));
-        towerTypes.put(RegionNames.SWITCH, new ConcreteTower(new Vector2(0, 0), RegionPrices.SWITCH.getPrice(), 60, 90.0f, 2.0f));
-        towerTypes.put(RegionNames.CELL_TOWER, new ConcreteTower(new Vector2(0, 0), RegionPrices.CELL_TOWER.getPrice(), 70, 100.0f, 2.2f));
-        towerTypes.put(RegionNames.SATELLITE_TOWER, new ConcreteTower(new Vector2(0, 0), RegionPrices.SATELLITE_TOWER.getPrice(), 80, 110.0f, 2.5f));
-        towerTypes.put(RegionNames.SIGNAL, new ConcreteTower(new Vector2(0, 0), RegionPrices.SIGNAL.getPrice(), 90, 120.0f, 2.8f));
+        towerTypes.put(RegionNames.FAST_ACCESS, new ConcreteTower(new Vector2(0, 0), RegionPrices.FAST_ACCESS.getPrice(), 20, 100.0f, 0.3f));
+        towerTypes.put(RegionNames.CABINETS, new ConcreteTower(new Vector2(0, 0), RegionPrices.CABINETS.getPrice(), 30, 120.0f, 0.4f));
+        towerTypes.put(RegionNames.SERVER_CONTROL, new ConcreteTower(new Vector2(0, 0), RegionPrices.SERVER_CONTROL.getPrice(), 40, 140.0f, 0.55f));
+        towerTypes.put(RegionNames.HUB, new ConcreteTower(new Vector2(0, 0), RegionPrices.HUB.getPrice(), 50, 160.0f, 0.6f));
+        towerTypes.put(RegionNames.SWITCH, new ConcreteTower(new Vector2(0, 0), RegionPrices.SWITCH.getPrice(), 60, 180.0f, 0.8f));
+        towerTypes.put(RegionNames.CELL_TOWER, new ConcreteTower(new Vector2(0, 0), RegionPrices.CELL_TOWER.getPrice(), 70, 200.0f, 1f));
+        towerTypes.put(RegionNames.SATELLITE_TOWER, new ConcreteTower(new Vector2(0, 0), RegionPrices.SATELLITE_TOWER.getPrice(), 80, 220.0f, 1.2f));
+        towerTypes.put(RegionNames.SIGNAL, new ConcreteTower(new Vector2(0, 0), RegionPrices.SIGNAL.getPrice(), 90, 240.0f, 1.4f));
     }
 
     public static Tower createTower(String type, Vector2 position) {

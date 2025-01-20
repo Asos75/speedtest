@@ -8,10 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 // Healthbar
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.Gdx;
 
 import java.util.List;
 
@@ -67,6 +64,11 @@ public class Enemy {
     public void setSpeed(float speed) { this.speed = speed; }
     public Type getType() { return type; }
     public void setType(Type type) { this.type = type; }
+    public Vector2 getPosition(){ return position; }
+
+    public boolean isDead() {
+        return health <= 0;
+    }
 
     // Update enemy state
     public void update(float delta) {

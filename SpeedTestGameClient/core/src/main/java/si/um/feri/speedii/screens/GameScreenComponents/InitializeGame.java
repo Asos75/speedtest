@@ -2,6 +2,7 @@ package si.um.feri.speedii.screens.GameScreenComponents;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -28,6 +29,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import si.um.feri.speedii.screens.GameScreen;
 import si.um.feri.speedii.towerdefense.config.GameDataManager;
+import si.um.feri.speedii.towerdefense.gameobjects.enemies.Enemy;
+import si.um.feri.speedii.towerdefense.gameobjects.enemies.Bullet;
+import si.um.feri.speedii.towerdefense.gameobjects.towers.ConcreteTower;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.Tower;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.TowerFactory;
 
@@ -39,6 +43,11 @@ import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+
+
+
+import java.util.ArrayList;
+import java.util.List;
 
 import si.um.feri.speedii.assets.RegionPrices;
 
@@ -70,6 +79,8 @@ public class InitializeGame {
     public Vector2 towerPosition;
     public float towerRange;
 
+    private List<Tower> towers;
+
     TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("images/spediiIcons.atlas"));
 
     public InitializeGame(GameDataManager gameDataManager, Skin skin, GameScreen gameScreen) {
@@ -80,6 +91,7 @@ public class InitializeGame {
         //this.stage = new Stage(new ScreenViewport());
         this.shapeRenderer = new ShapeRenderer();
         this.gameScreen = gameScreen;
+        this.towers = new ArrayList<>();
         initializeUI();
     }
 
@@ -171,15 +183,21 @@ public class InitializeGame {
         table.add(mainTable).expand().fill().row();
     }
 
+    public void addTower(Tower tower) {
+        towers.add(tower);
+        Gdx.app.log("InitializeGame", "Tower added at position: " + tower.getPosition());
+    }
+
     public void placeTower(String towerType, float x, float y, float tileWidth, float tileHeight) {
-        Gdx.app.log("InitializeGame", "Attempting to place tower of type: " + selectedTowerType + " at: (" + x + ", " + y + ")");
+        //Gdx.app.log("InitializeGame", "Attempting to place tower of type: " + selectedTowerType + " at: (" + x + ", " + y + ")");
         if (selectedTowerType == null) {
             Gdx.app.log("InitializeGame", "Tower type is null, cannot place tower.");
             return;
         }
         Tower tower = TowerFactory.createTower(selectedTowerType, new Vector2(x, y));
         if (tower != null) {
-            Gdx.app.log("InitializeGame", "Tower created successfully: " + selectedTowerType);
+            addTower(tower);
+            //Gdx.app.log("InitializeGame", "Tower created successfully: " + selectedTowerType);
             Table towerContent = new Table();
             Image towerImage = new Image(atlas.findRegion(selectedTowerType));
             towerContent.add(towerImage).expand().fill().row();
@@ -194,16 +212,33 @@ public class InitializeGame {
                     showTowerStats(tower);
                 }
             });
-            gameScreen.getStage().addActor(newTower); // Add the new tower to the stage
-            Gdx.app.log("InitializeGame", "New tower added at: (" + x + ", " + y + ") with size: (" + tileWidth + ", " + tileHeight + ")");
+            gameScreen.getStage().addActor(newTower);
+            //Gdx.app.log("InitializeGame", "New tower added at: (" + x + ", " + y + ") with size: (" + tileWidth + ", " + tileHeight + ")");
             if (selectedTower != null) {
                 selectedTower.setBackground(whiteBackground);
-                Gdx.app.log("InitializeGame", "Deselecting tower: " + selectedTower);
+                //Gdx.app.log("InitializeGame", "Deselecting tower: " + selectedTower);
             }
             selectedTower = null;
             selectedTowerType = null;
         } else {
             Gdx.app.log("InitializeGame", "Failed to create tower of type: " + selectedTowerType);
+        }
+    }
+
+    public void updateTowers(float delta, List<Enemy> enemies, ShapeRenderer shapeRenderer) {
+        for (Tower tower : towers) {
+            if (tower instanceof ConcreteTower) {
+                //Gdx.app.log("InitializeGame", "Updating ConcreteTower at position: " + tower.getPosition());
+                ((ConcreteTower) tower).update(delta, enemies, shapeRenderer);
+            }
+        }
+    }
+
+    public void drawTowers(SpriteBatch spriteBatch) {
+        for (Tower tower : towers) {
+            if (tower instanceof ConcreteTower) {
+                ((ConcreteTower) tower).draw(spriteBatch);
+            }
         }
     }
 
@@ -220,6 +255,7 @@ public class InitializeGame {
         statsDialog.text(new Label("Damage: " + tower.getDamage(), labelStyle));
         statsDialog.text(new Label("Range: " + tower.getRange(), labelStyle));
         statsDialog.text(new Label("Cooldown: " + tower.getCooldown(), labelStyle));
+        statsDialog.text(new Label("Enemies in Range: " + tower.getEnemiesInRange(), labelStyle));
         statsDialog.button(new TextButton("OK", skin));
         statsDialog.show(gameScreen.getStage());
 
@@ -294,16 +330,16 @@ public class InitializeGame {
                     container.setBackground(whiteBackground);
                     selectedTower = null;
                     selectedTowerType = null;
-                    Gdx.app.log("InitializeGame", "Deselected tower: " + container);
+                    //Gdx.app.log("InitializeGame", "Deselected tower: " + container);
                 } else {
                     if (selectedTower != null) {
                         selectedTower.setBackground(whiteBackground);
-                        Gdx.app.log("InitializeGame", "Deselected previous tower: " + selectedTower);
+                        //Gdx.app.log("InitializeGame", "Deselected previous tower: " + selectedTower);
                     }
                     container.setBackground(createGrayBackground());
                     selectedTower = container;
                     selectedTowerType = towerType;
-                    Gdx.app.log("InitializeGame", "Selected tower: " + container);
+                    //Gdx.app.log("InitializeGame", "Selected tower: " + container);
                 }
             }
         });

@@ -72,7 +72,7 @@ public class TileHoverHandler extends InputListener {
         Container<Table> selectedTowerContainer = initializeGame.getSelectedTower();
         if (selectedTowerContainer != null && hoveredTile != null && !occupiedTiles.contains(hoveredTile)) {
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-                Gdx.app.log("TileHoverHandler", "Placing tower at: (" + hoveredTile.x + ", " + hoveredTile.y + ")");
+                //Gdx.app.log("TileHoverHandler", "Placing tower at: (" + hoveredTile.x + ", " + hoveredTile.y + ")");
                 float tileWidth = fieldLayer.getTileWidth();
                 float tileHeight = fieldLayer.getTileHeight();
                 String regionName = selectedTowerContainer.getName(); // Assuming the container has a name set to the regionName

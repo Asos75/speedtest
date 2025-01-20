@@ -42,6 +42,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
 
@@ -231,7 +232,12 @@ public class GameScreen implements Screen {
         spriteBatch.begin();
 
         // Update and draw enemies
-        for (Enemy enemy : enemies) {
+        for (Iterator<Enemy> iterator = enemies.iterator(); iterator.hasNext();) {
+            Enemy enemy = iterator.next();
+            if (enemy.isDead()) {
+                iterator.remove();
+                continue;
+            }
             if (isRoundActive) {
                 enemy.update(delta);
             }
@@ -240,19 +246,14 @@ public class GameScreen implements Screen {
         }
 
         // Draw the tower range circle
-        drawTowerRangeCircle();
+        //drawTowerRangeCircle();
+
+        // Update and draw towers
+        initializeGame.drawTowers(spriteBatch);
+        initializeGame.updateTowers(delta, enemies, shapeRenderer);
 
         // End the sprite batch
         spriteBatch.end();
-
-        /*if (initializeGame.drawCircle) {
-            shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 0.1f); // 10% opacity gray
-            shapeRenderer.circle(initializeGame.towerPosition.x, initializeGame.towerPosition.y, initializeGame.towerRange);
-            shapeRenderer.end();
-        }*/
-
 
         if (tileHoverHandler != null) {
             tileHoverHandler.render();
@@ -268,48 +269,6 @@ public class GameScreen implements Screen {
             circleDrawable.draw(spriteBatch, initializeGame.towerPosition.x - initializeGame.towerRange, initializeGame.towerPosition.y - initializeGame.towerRange, initializeGame.towerRange * 2, initializeGame.towerRange * 2);
         }
     }
-
-    /*private void showPath() {
-        Vector2 startPoint = loadMap.getStartPoint();
-        Vector2 endPoint = loadMap.getEndPoint();
-
-        if (startPoint != null && endPoint != null) {
-            // Calculate the middle points of the SpawnPoint and EndPoint
-            Vector2 startMiddle = new Vector2(startPoint.x * 1.6f, startPoint.y * 1.7f);
-            Vector2 endMiddle = new Vector2(endPoint.x * 1.55f, endPoint.y * 1.7f);
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(0, 1, 0, 1); // Green color
-
-            // Draw dashed line
-            float dashLength = 10f;
-            float totalLength = startMiddle.dst(endMiddle);
-            int numDashes = (int) (totalLength / dashLength);
-            Vector2 dashVector = new Vector2(endMiddle).sub(startMiddle).nor().scl(dashLength);
-
-            Gdx.gl.glLineWidth(3);
-
-            for (int i = 0; i < numDashes; i++) {
-                if (i % 2 == 0) {
-                    Vector2 dashStart = new Vector2(startMiddle).add(dashVector.x * i, dashVector.y * i);
-                    Vector2 dashEnd = new Vector2(startMiddle).add(dashVector.x * (i + 1), dashVector.y * (i + 1));
-                    shapeRenderer.line(dashStart, dashEnd);
-                }
-            }
-
-            // Draw arrowhead
-            float arrowHeadSize = 20f;
-            Vector2 arrowDir = new Vector2(endMiddle).sub(startMiddle).nor();
-            Vector2 arrowLeft = new Vector2(arrowDir).rotateDeg(135).scl(arrowHeadSize);
-            Vector2 arrowRight = new Vector2(arrowDir).rotateDeg(-135).scl(arrowHeadSize);
-
-            shapeRenderer.line(endMiddle, new Vector2(endMiddle).add(arrowLeft));
-            shapeRenderer.line(endMiddle, new Vector2(endMiddle).add(arrowRight));
-
-            shapeRenderer.end();
-        }
-    }
-    */
 
     @Override
     public void resize(int width, int height) {
