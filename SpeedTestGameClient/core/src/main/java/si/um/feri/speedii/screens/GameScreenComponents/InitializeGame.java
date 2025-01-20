@@ -81,6 +81,8 @@ public class InitializeGame {
 
     private List<Tower> towers;
 
+    private Stage stage;
+
     TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("images/spediiIcons.atlas"));
 
     public InitializeGame(GameDataManager gameDataManager, Skin skin, GameScreen gameScreen) {
@@ -88,7 +90,7 @@ public class InitializeGame {
         this.skin = skin;
         this.table = new Table();
         this.gameDataManager = gameDataManager;
-        //this.stage = new Stage(new ScreenViewport());
+        this.stage = new Stage(new ScreenViewport());
         this.shapeRenderer = new ShapeRenderer();
         this.gameScreen = gameScreen;
         this.towers = new ArrayList<>();
