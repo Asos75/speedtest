@@ -16,6 +16,7 @@ public abstract class Tower extends GameObject {
     private Drawable background;
     private String name;
     private int enemiesInRange;
+    private String description;
 
     public Tower(Vector2 position, int price, int damage, float range, float cooldown) {
         super(position);
@@ -39,14 +40,19 @@ public abstract class Tower extends GameObject {
     public int getPrice() { return price; }
 
     public int getDamage() { return damage; }
+    public void setDamage(int damage) { this.damage = damage; }
 
     public float getRange() { return range; }
+    public void setRange(float range) { this.range = range; }
 
     public float getCooldown() { return cooldown; }
+    public void setCooldown(float cooldown) { this.cooldown = cooldown; }
 
     public float getWidth() { return background.getMinWidth(); }
 
     public float getLevel() { return level; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public void upgrade() {
         level++;
@@ -60,6 +66,8 @@ public abstract class Tower extends GameObject {
     public abstract void attack();
 
     public abstract void attack(Enemy enemy);
+
+
 
     public abstract Tower clone(Vector2 position);
 }

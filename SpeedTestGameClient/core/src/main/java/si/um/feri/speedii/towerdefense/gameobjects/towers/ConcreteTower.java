@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import si.um.feri.speedii.config.GameConfig;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.Bullet;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.Enemy;
 
@@ -48,12 +49,12 @@ public class ConcreteTower extends Tower {
 
         // Debug log for circle drawing
         //Gdx.app.log("ConcreteTower", "Drawing range circle at position: (" + (position.x + 16) + ", " + (position.y + 16) + ") with range: " + range);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.circle(position.x + 16, position.y + 16, range); // Adjusted to center the circle
-        shapeRenderer.end();
-
+        if(GameConfig.DEBUG_MODE) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.circle(position.x + 16, position.y + 16, range); // Adjusted to center the circle
+            shapeRenderer.end();
+        }
         for (Enemy enemy : enemies) {
             if (position.dst(enemy.getPosition()) <= range) {
                 setEnemiesInRange(getEnemiesInRange() + 1);

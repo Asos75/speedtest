@@ -31,7 +31,10 @@ import si.um.feri.speedii.screens.GameScreen;
 import si.um.feri.speedii.towerdefense.config.GameDataManager;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.Enemy;
 import si.um.feri.speedii.towerdefense.gameobjects.enemies.Bullet;
+import si.um.feri.speedii.towerdefense.gameobjects.towers.AoETower;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.ConcreteTower;
+import si.um.feri.speedii.towerdefense.gameobjects.towers.SlowingTower;
+import si.um.feri.speedii.towerdefense.gameobjects.towers.SupportTower;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.Tower;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.TowerFactory;
 
@@ -233,6 +236,18 @@ public class InitializeGame {
                 //Gdx.app.log("InitializeGame", "Updating ConcreteTower at position: " + tower.getPosition());
                 ((ConcreteTower) tower).update(delta, enemies, shapeRenderer);
             }
+            if(tower instanceof AoETower) {
+                //Gdx.app.log("InitializeGame", "Updating AoETower at position: " + tower.getPosition());
+                ((AoETower) tower).update(delta, enemies, shapeRenderer);
+            }
+            if(tower instanceof SupportTower) {
+                //Gdx.app.log("InitializeGame", "Updating SupportTower at position: " + tower.getPosition());
+                ((SupportTower) tower).update(delta, towers, shapeRenderer);
+            }
+            if(tower instanceof SlowingTower) {
+                //Gdx.app.log("InitializeGame", "Updating SlowingTower at position: " + tower.getPosition());
+                ((SlowingTower) tower).update(delta, enemies, shapeRenderer);
+            }
         }
     }
 
@@ -241,6 +256,7 @@ public class InitializeGame {
             if (tower instanceof ConcreteTower) {
                 ((ConcreteTower) tower).draw(spriteBatch);
             }
+
         }
     }
 
@@ -254,10 +270,15 @@ public class InitializeGame {
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(skin.getFont("font"), skin.getColor("white"));
 
-        statsDialog.text(new Label("Damage: " + tower.getDamage(), labelStyle));
-        statsDialog.text(new Label("Range: " + tower.getRange(), labelStyle));
-        statsDialog.text(new Label("Cooldown: " + tower.getCooldown(), labelStyle));
-        statsDialog.text(new Label("Enemies in Range: " + tower.getEnemiesInRange(), labelStyle));
+        Table table = new Table();
+
+        table.add(new Label(tower.getDescription(), labelStyle)).row();
+        table.add(new Label("Damage: " + tower.getDamage(), labelStyle)).row();
+        table.add(new Label("Range: " + tower.getRange(), labelStyle)).row();
+        table.add(new Label("Cooldown: " + tower.getCooldown(), labelStyle)).row();
+        table.add(new Label("Enemies in Range: " + tower.getEnemiesInRange(), labelStyle)).row();
+
+        statsDialog.getContentTable().add(table);
         statsDialog.button(new TextButton("OK", skin));
         statsDialog.show(gameScreen.getStage());
 
@@ -267,7 +288,6 @@ public class InitializeGame {
         towerPosition = new Vector2(tower.getPosition().x + 16, tower.getPosition().y + 16);
         towerRange = tower.getRange();
     }
-
     public Drawable createCircleDrawable(float radius, Color color) {
         int diameter = (int) (radius * 2);
         Pixmap pixmap = new Pixmap(diameter, diameter, Pixmap.Format.RGBA8888);

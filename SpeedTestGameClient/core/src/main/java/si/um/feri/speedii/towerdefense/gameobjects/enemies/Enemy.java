@@ -29,6 +29,7 @@ public class Enemy {
     private Vector2 direction;
     private GameLogic gameLogic;
     private Texture healthBarTexture;
+    private float speedMultiplier = 1.0f;
 
     // Constructor to initialize enemy attributes
     public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic) {
@@ -148,7 +149,7 @@ public class Enemy {
 
     // Move enemy based on direction and speed
     private void move(float delta) {
-        Vector2 movement = new Vector2(direction).scl(speed * delta);
+        Vector2 movement = new Vector2(direction).scl(speed * delta * speedMultiplier);
         position.add(movement);
     }
 
@@ -181,6 +182,7 @@ public class Enemy {
     public void setPosition(float x, float y) { this.position.set(x, y); }
     public float getX() { return position.x; }
     public float getY() { return position.y; }
+    public void setSpeedMultiplier(float speedMultiplier) { this.speedMultiplier = speedMultiplier; }
 
     public void dispose() {
         healthBarTexture.dispose();
