@@ -20,7 +20,7 @@ public class TowerFactory {
         towerTypes.put(RegionNames.SATELLITE_TOWER, new ConcreteTower(new Vector2(0, 0), RegionPrices.SATELLITE_TOWER.getPrice(), 30, 220.0f, 1.2f));
         towerTypes.put(RegionNames.SIGNAL, new ConcreteTower(new Vector2(0, 0), RegionPrices.SIGNAL.getPrice(), 90, 240.0f, 1.4f));
 
-        TowerDescriptionLoader.loadDescriptions(towerTypes);
+        //TowerDescriptionLoader.loadDescriptions(towerTypes);
     }
 
     public static Tower createTower(String type, Vector2 position) {

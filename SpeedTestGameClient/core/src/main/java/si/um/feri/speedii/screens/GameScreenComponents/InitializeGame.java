@@ -112,35 +112,38 @@ public class InitializeGame {
     }
 
     private void initializeLabels() {
-        locationLabel = new Label("Location: {name}", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        locationLabel = new Label("Location: " + gameDataManager.getLocation(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         locationLabel.setFontScale(1.2f);
         locationLabel.getStyle().font.getData().markupEnabled = true;
-        locationLabel.setText("[#FFFFFF]Location: {name}");
 
-        uploadSpeedLabel = new Label("Upload speed: {something}", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        uploadSpeedLabel = new Label("Upload speed: " + gameDataManager.getUploadSpeed(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         uploadSpeedLabel.setFontScale(1.2f);
         uploadSpeedLabel.getStyle().font.getData().markupEnabled = true;
-        uploadSpeedLabel.setText("[#FFFFFF]Upload speed: {something}");
 
-        downloadSpeedLabel = new Label("Download speed: {something}", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        downloadSpeedLabel = new Label("Download speed: " + gameDataManager.getDownloadSpeed(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         downloadSpeedLabel.setFontScale(1.2f);
         downloadSpeedLabel.getStyle().font.getData().markupEnabled = true;
-        downloadSpeedLabel.setText("[#FFFFFF]Download speed: {something}");
 
-        healthLabel = new Label("Health: {value}", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        healthLabel = new Label("Health: " + gameDataManager.getHealth(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         healthLabel.setFontScale(1.2f);
         healthLabel.getStyle().font.getData().markupEnabled = true;
-        healthLabel.setText("[#FFFFFF]Health: {value}");
 
-        waveLabel = new Label("Wave {1 of 10}", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        waveLabel = new Label("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         waveLabel.setFontScale(1.2f);
         waveLabel.getStyle().font.getData().markupEnabled = true;
-        waveLabel.setText("[#FFFFFF]Wave {1 of 10}");
 
         enemiesRemainingLabel = new Label(gameDataManager.getEnemiesRemaining() + " enemies remaining", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         enemiesRemainingLabel.setFontScale(1.2f);
         enemiesRemainingLabel.getStyle().font.getData().markupEnabled = true;
-        enemiesRemainingLabel.setText("[#FFFFFF]" + gameDataManager.getEnemiesRemaining() + " enemies remaining");
+    }
+
+    public void updateLabels() {
+        locationLabel.setText("Location: " + gameDataManager.getLocation());
+        uploadSpeedLabel.setText("Upload speed: " + gameDataManager.getUploadSpeed());
+        downloadSpeedLabel.setText("Download speed: " + gameDataManager.getDownloadSpeed());
+        healthLabel.setText("Health: " + gameDataManager.getHealth());
+        waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves());
+        enemiesRemainingLabel.setText(gameDataManager.getEnemiesRemaining() + " enemies remaining");
     }
 
     private void initializeButtons() {

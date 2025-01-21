@@ -5,19 +5,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -41,16 +36,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
 
-import si.um.feri.speedii.SpeediiApp;
-
 import si.um.feri.speedii.assets.AssetDescriptors;
 
-import si.um.feri.speedii.screens.PauseScreen;
+import si.um.feri.speedii.screens.GameScreenComponents.PauseContainer;
+
 
 public class GameScreen implements Screen {
     //private final SpeediiApp app;
@@ -86,7 +79,7 @@ public class GameScreen implements Screen {
     private final AssetManager assetManager;
     private DIFFICULTY selectedDifficulty;
 
-    private PauseScreen pauseScreen;
+    private PauseContainer pauseContainer;
     private boolean isPaused = false;
 
     private Skin skin;
@@ -108,7 +101,12 @@ public class GameScreen implements Screen {
         //stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        pauseScreen = new PauseScreen(app, skin);
+        pauseContainer = new PauseContainer(app, skin);
+        pauseContainer.setFillParent(true);
+        pauseContainer.setVisible(false);
+        stage.addActor(pauseContainer);
+
+        // Log to verify PauseContainer is added
 
         // Load map
         loadMap = new LoadMap();
@@ -183,7 +181,7 @@ public class GameScreen implements Screen {
                     enemies.add(enemy);
                 }
             }
-        }, 0f);
+        }, 4f);
 
         Timer.schedule(new Timer.Task() {
             @Override
@@ -193,7 +191,7 @@ public class GameScreen implements Screen {
                     enemies.add(enemy);
                 }
             }
-        }, 0.4f);
+        }, 4.4f);
 
         Timer.schedule(new Timer.Task() {
             @Override
@@ -203,7 +201,7 @@ public class GameScreen implements Screen {
                     enemies.add(enemy);
                 }
             }
-        }, 0.6f);
+        }, 4.6f);
 
         Timer.schedule(new Timer.Task() {
             @Override
@@ -213,18 +211,11 @@ public class GameScreen implements Screen {
                     enemies.add(enemy);
                 }
             }
-        }, 1.1f);
+        }, 5.1f);
     }
 
     @Override
     public void render(float delta) {
-        if (isPaused) {
-            // TODO TOMMOROW, Not just Pause screen but like settings also
-            // TODO Maybe even round end logic also with shop? IDK
-            //pauseScreen.getStage().act(delta);
-            //pauseScreen.getStage().draw();
-            return;
-        }
         ScreenUtils.clear(0, 0, 0, 1);
 
         // Update camera
@@ -237,9 +228,6 @@ public class GameScreen implements Screen {
         // Set the projection matrix for the shape renderer
         shapeRenderer.setProjectionMatrix(camera.combined);
 
-        // Show path
-        //showPath();
-
         // Begin the sprite batch
         spriteBatch.begin();
 
@@ -250,7 +238,7 @@ public class GameScreen implements Screen {
                 iterator.remove();
                 continue;
             }
-            if (isRoundActive) {
+            if (isRoundActive && !isPaused) {
                 enemy.update(delta);
             }
             enemy.draw(spriteBatch, enemy.getX(), enemy.getY());
@@ -261,14 +249,21 @@ public class GameScreen implements Screen {
         //drawTowerRangeCircle();
 
         // Update and draw towers
+        if (!isPaused) { initializeGame.updateTowers(delta, enemies, shapeRenderer); }
         initializeGame.drawTowers(spriteBatch);
-        initializeGame.updateTowers(delta, enemies, shapeRenderer);
 
         // End the sprite batch
         spriteBatch.end();
 
         if (tileHoverHandler != null) {
             tileHoverHandler.render();
+        }
+
+        if (isPaused) {
+            pauseContainer.setVisible(true);
+            pauseContainer.toFront();
+        } else {
+            pauseContainer.setVisible(false);
         }
 
         stage.act(delta);
@@ -292,26 +287,13 @@ public class GameScreen implements Screen {
 
     public boolean getPausable() { return isPaused; }
 
-    public void pauseGame() {
-        isPaused = true;
-        //Gdx.input.setInputProcessor(pauseScreen.getStage());
-    }
+    public void pauseGame() { isPaused = true; }
 
-    public void resumeGame() {
-        isPaused = false;
-        //Gdx.input.setInputProcessor(stage);
-    }
+    public void resumeGame() { isPaused = false; }
 
-    public void quitGame() {
-        // LOG QUITTING GAME
-        Gdx.app.log("GameScreen", "Quitting game...");
-        Gdx.app.exit();
-    }
+    public void quitGame() { Gdx.app.exit(); }
 
-    // In GameScreen class
-    public Stage getStage() {
-        return stage;
-    }
+    public Stage getStage() { return stage; }
 
     @Override
     public void pause() {}

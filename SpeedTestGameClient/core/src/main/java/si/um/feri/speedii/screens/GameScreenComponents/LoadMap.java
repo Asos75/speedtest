@@ -69,7 +69,7 @@ public class LoadMap {
         MapLayer pathLayer = map.getLayers().get("Path");
         MapLayer borderLayer = map.getLayers().get("Border");
         fieldLayer = map.getLayers().get("Field");
-        Gdx.app.log("LoadMap", "Loaded Field layer with " + fieldLayer.getObjects().getCount() + " objects");
+        //Gdx.app.log("LoadMap", "Loaded Field layer with " + fieldLayer.getObjects().getCount() + " objects");
     }
 
     public MapLayer getFieldLayer() {
