@@ -75,7 +75,7 @@ public class SpeediiApp extends Game {
         //setScreen(new GameScreen(this));
         //setScreen(new GameScreen());
         //new MenuScreen(this);
-        setScreen(new LoginScreen(this,httpUser,sessionManager));
+        setScreen(new LoginScreen(this,httpUser,sessionManager, assetManager));
         /*
 
 
