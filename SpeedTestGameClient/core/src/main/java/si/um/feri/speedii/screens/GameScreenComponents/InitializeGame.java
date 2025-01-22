@@ -142,9 +142,12 @@ public class InitializeGame {
         uploadSpeedLabel.setText("Upload speed: " + gameDataManager.getUploadSpeed());
         downloadSpeedLabel.setText("Download speed: " + gameDataManager.getDownloadSpeed());
         healthLabel.setText("Health: " + gameDataManager.getHealth());
-        waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves());
+        if (gameDataManager.getCurrentWave() == 1) { waveLabel.setText("Wave " + gameDataManager.getCurrentWave());}
+        else { waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves());}
         enemiesRemainingLabel.setText(gameDataManager.getEnemiesRemaining() + " enemies remaining");
     }
+
+    public void updateWaveLabel() { waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves()); }
 
     private void initializeButtons() {
         pauseButton = new TextButton("Pause", skin);
@@ -171,6 +174,7 @@ public class InitializeGame {
         });
     }
 
+    // TODO FIX from Fixed sizes to scale with screen size
     private void initializeTables() {
         Table topTable = new Table();
         topTable.add(locationLabel).left().pad(10).expandX();

@@ -14,7 +14,7 @@ public class GameDataManager {
         this.uploadSpeed = 0.0f;
         this.downloadSpeed = 0.0f;
         this.health = 100;
-        this.currentWave = 1;
+        this.currentWave = 0;
         this.totalWaves = 10;
         this.enemiesRemaining = 0;
     }
@@ -29,69 +29,48 @@ public class GameDataManager {
         this.enemiesRemaining = enemiesRemaining;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public float getUploadSpeed() {
-        return uploadSpeed;
-    }
-
-    public void setUploadSpeed(float uploadSpeed) {
-        this.uploadSpeed = uploadSpeed;
-    }
-
-    public float getDownloadSpeed() {
-        return downloadSpeed;
-    }
-
-    public void setDownloadSpeed(float downloadSpeed) {
-        this.downloadSpeed = downloadSpeed;
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    public void setHealth(int health) {
-        this.health = health;
-    }
-
-    public int getCurrentWave() {
-        return currentWave;
-    }
-
-    public void setCurrentWave(int currentWave) {
-        this.currentWave = currentWave;
-    }
-
-    public int getTotalWaves() {
-        return totalWaves;
-    }
-
-    public void setTotalWaves(int totalWaves) {
-        this.totalWaves = totalWaves;
-    }
-
-    public int getEnemiesRemaining() {
-        return enemiesRemaining;
-    }
-
-    public void setEnemiesRemaining(int enemiesRemaining) {
-        this.enemiesRemaining = enemiesRemaining;
-    }
-
-    public void decreaseEnemiesRemaining() {
-        if (enemiesRemaining > 0) {
-            enemiesRemaining--;
+    public void incrementWave() {
+        currentWave++;
+        if (currentWave > totalWaves) {
+            currentWave = 1; // Reset to the first wave or handle end of game
         }
     }
 
-    public void increaseEnemiesRemaining() {
-        enemiesRemaining++;
+    public void decrementEnemiesRemaining() {
+        if (enemiesRemaining > 0) { enemiesRemaining--; }
     }
+
+    public String getLocation() { return location; }
+
+    public void setLocation(String location) { this.location = location; }
+
+    public float getUploadSpeed() { return uploadSpeed; }
+
+    public void setUploadSpeed(float uploadSpeed) { this.uploadSpeed = uploadSpeed; }
+
+    public float getDownloadSpeed() { return downloadSpeed; }
+
+    public void setDownloadSpeed(float downloadSpeed) { this.downloadSpeed = downloadSpeed; }
+
+    public int getHealth() { return health; }
+
+    public void setHealth(int health) { this.health = health; }
+
+    public int getCurrentWave() { return currentWave; }
+
+    public void setCurrentWave(int currentWave) { this.currentWave = currentWave; }
+
+    public int getTotalWaves() { return totalWaves; }
+
+    public void setTotalWaves(int totalWaves) { this.totalWaves = totalWaves; }
+
+    public int getEnemiesRemaining() { return enemiesRemaining; }
+
+    public void setEnemiesRemaining(int enemiesRemaining) { this.enemiesRemaining = enemiesRemaining; }
+
+    public void decreaseEnemiesRemaining() {
+        if (enemiesRemaining > 0) { enemiesRemaining--; }
+    }
+
+    public void increaseEnemiesRemaining() { enemiesRemaining++; }
 }

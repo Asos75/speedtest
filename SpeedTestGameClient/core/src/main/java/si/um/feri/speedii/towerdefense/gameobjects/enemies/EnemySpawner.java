@@ -13,14 +13,62 @@ public class EnemySpawner {
         this.gameLogic = gameLogic;
     }
 
-    public Enemy spawnEnemy() {
+    public Enemy spawnEnemyByType(String type, int health, float speed) {
+        switch (type) {
+            case "BasicEnemy":
+                return spawnBasicEnemy(health, speed);
+            case "DefenseEnemy":
+                return spawnDefenseEnemy(health, speed);
+            case "SpeedEnemy":
+                return spawnSpeedEnemy(health, speed);
+            case "DifficultEnemy":
+                return spawnDifficultEnemy(health, speed);
+            default:
+                throw new IllegalArgumentException("Unknown enemy type: " + type);
+        }
+    }
+
+    public Enemy spawnBasicEnemy(int health, float speed) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
-            // Create a new enemy with basic type and sprite, and pass the game logic
-            Enemy enemy = new Enemy(100, 70.0f, Enemy.Type.BASIC, "images/Bugs/Dragonfly Sprite Sheet.png", gameLogic);
-            // Set the enemy's position to the spawn point
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.BASIC, "images/Bugs/Dragonfly Sprite Sheet.png", gameLogic);
             enemy.setPosition(spawnPoint.x, spawnPoint.y);
-            //System.out.println("Enemy spawned at: " + spawnPoint);
+            return enemy;
+        } else {
+            System.err.println("Spawn point not found!");
+            return null;
+        }
+    }
+
+    public Enemy spawnDefenseEnemy(int health, float speed) {
+        Vector2 spawnPoint = loadMap.getStartPoint();
+        if (spawnPoint != null) {
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.DEFENSE, "images/Bugs/MaggotWalk.png", gameLogic);
+            enemy.setPosition(spawnPoint.x, spawnPoint.y);
+            return enemy;
+        } else {
+            System.err.println("Spawn point not found!");
+            return null;
+        }
+    }
+
+    public Enemy spawnSpeedEnemy(int health, float speed) {
+        Vector2 spawnPoint = loadMap.getStartPoint();
+        if (spawnPoint != null) {
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.FAST, "images/Bugs/BeetleMove.png", gameLogic);
+            enemy.setPosition(spawnPoint.x, spawnPoint.y);
+            return enemy;
+        } else {
+            System.err.println("Spawn point not found!");
+            return null;
+        }
+    }
+
+    public Enemy spawnDifficultEnemy(int health, float speed) {
+        Vector2 spawnPoint = loadMap.getStartPoint();
+        if (spawnPoint != null) {
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.BOSS, "images/Bugs/MantisMove.png", gameLogic);
+            enemy.setPosition(spawnPoint.x, spawnPoint.y);
             return enemy;
         } else {
             System.err.println("Spawn point not found!");

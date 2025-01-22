@@ -16,11 +16,12 @@ import si.um.feri.speedii.towerdefense.logic.GameLogic;
 
 public class Enemy {
     public enum Type {
-        BASIC, REGENATIVE, DEFENSE, BOSS
+        BASIC, DEFENSE, FAST, BOSS
     }
 
     // Enemy attributes
     private int health;
+    private int maxHealth;
     private float speed;
     private Type type;
     private Animation<TextureRegion> idleAnimation;
@@ -34,6 +35,7 @@ public class Enemy {
     // Constructor to initialize enemy attributes
     public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic) {
         this.health = health;
+        this.maxHealth = health;
         this.speed = speed;
         this.type = type;
         this.stateTime = 0f;
@@ -42,17 +44,31 @@ public class Enemy {
         this.direction = new Vector2(1, 0); // Start moving right
         this.healthBarTexture = new Texture("assets/images/white_pixel.png");
 
-        loadAnimation(texturePath);
+        loadAnimation(texturePath, type);
     }
 
     // Load animation frames from texture
-    private void loadAnimation(String texturePath) {
+    private void loadAnimation(String texturePath, Type type) {
         Texture texture = new Texture(texturePath);
         TextureRegion[][] tmp = TextureRegion.split(texture, 32, 32);
         Array<TextureRegion> frames = new Array<>();
-        for (int i = 0; i < tmp.length - 1; i++) {
-            for (int j = 0; j < 4; j++) {
-                frames.add(tmp[i][j]);
+        if (type == Type.BASIC) {
+            for (int i = 0; i < tmp.length - 1; i++) {
+                for (int j = 0; j < 4; j++) {
+                    frames.add(tmp[i][j]);
+                }
+            }
+        } else if (type == Type.DEFENSE || type == Type.FAST) {
+            for (int i = tmp.length - 2; i < tmp.length - 1; i++) {
+                for (int j = 0; j < 4; j++) {
+                    frames.add(tmp[i][j]);
+                }
+            }
+        } else if (type == Type.BOSS) {
+            for (int i = tmp.length - 3; i < tmp.length - 2; i++) {
+                for (int j = 0; j < 4; j++) {
+                    frames.add(tmp[i][j]);
+                }
             }
         }
         idleAnimation = new Animation<>(0.15f, frames, Animation.PlayMode.LOOP);
@@ -162,11 +178,11 @@ public class Enemy {
 
     // Health logic
     public void renderHealthBar(SpriteBatch uiBatch) {
-        if (health > 100) {
+        if (health > maxHealth) {
             uiBatch.setColor(Color.GOLD);
-        } else if (health > 70) {
+        } else if (health > maxHealth * 0.7) {
             uiBatch.setColor(Color.GREEN);
-        } else if (health > 40) {
+        } else if (health > maxHealth * 0.4) {
             uiBatch.setColor(Color.ORANGE);
         } else {
             uiBatch.setColor(Color.RED);

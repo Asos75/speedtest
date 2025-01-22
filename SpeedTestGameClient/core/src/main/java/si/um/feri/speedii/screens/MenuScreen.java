@@ -34,8 +34,8 @@ public class MenuScreen extends ScreenAdapter {
     private Viewport viewport;
     private Stage stage;
 
-    private DIFFICULTY selectedDifficulty = DIFFICULTY.MEDIUM; // Default difficulty
-
+    //private DIFFICULTY selectedDifficulty = DIFFICULTY.MEDIUM; // Default difficulty
+    private DIFFICULTY selectedDifficulty = DIFFICULTY.VERY_EASY;
 
     public MenuScreen(SpeediiApp app) {
         this.app = app;

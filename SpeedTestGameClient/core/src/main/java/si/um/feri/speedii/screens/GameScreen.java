@@ -44,6 +44,7 @@ import si.um.feri.speedii.assets.AssetDescriptors;
 
 import si.um.feri.speedii.screens.GameScreenComponents.PauseContainer;
 
+import si.um.feri.speedii.towerdefense.config.RoundDifficulty;
 
 public class GameScreen implements Screen {
     //private final SpeediiApp app;
@@ -64,8 +65,8 @@ public class GameScreen implements Screen {
 
     private EnemySpawner enemySpawner;
     private List<Enemy> enemies = new ArrayList<>();
-    private float spawnTimer = 0f;
-    private int enemyCount = 0;
+    //private float spawnTimer = 0f;
+    //private int enemyCount = 0;
     private GameLogic gameLogic;
 
     private static final float CAMERA_VIEWPORT_WIDTH = 35 * 32;
@@ -148,7 +149,7 @@ public class GameScreen implements Screen {
 
         // Initialize enemy spawner
         enemySpawner = new EnemySpawner(loadMap, gameLogic);
-        spawnEnemies();
+        //spawnEnemies();
 
         // Initialize map renderer
         mapRenderer = new OrthogonalTiledMapRenderer(loadMap.getMap());
@@ -159,6 +160,7 @@ public class GameScreen implements Screen {
         // Initialize game
         initializeGame = new InitializeGame(gameDataManager, skin, this);
         initializeGame.getTable().setFillParent(true);
+        stage.addActor(initializeGame.getTable());
         //initializeGame.initializeUI();
 
         // Initialize TileHoverHandler
@@ -173,45 +175,28 @@ public class GameScreen implements Screen {
     }
 
     private void spawnEnemies() {
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                Enemy enemy = enemySpawner.spawnEnemy();
-                if (enemy != null) {
-                    enemies.add(enemy);
-                }
-            }
-        }, 4f);
+        RoundDifficulty roundDifficulty = new RoundDifficulty(selectedDifficulty, gameDataManager);
+        List<RoundDifficulty.Wave> waves = roundDifficulty.getWaves();
 
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                Enemy enemy = enemySpawner.spawnEnemy();
-                if (enemy != null) {
-                    enemies.add(enemy);
+        int totalEnemies = 0;
+        for (RoundDifficulty.Wave wave : waves) {
+            for (RoundDifficulty.EnemyConfig enemyConfig : wave.getEnemies()) {
+                totalEnemies += enemyConfig.getCount();
+                for (int i = 0; i < enemyConfig.getCount(); i++) {
+                    float spawnDelay = enemyConfig.getDelay() + (i * 0.3f);
+                    Timer.schedule(new Timer.Task() {
+                        @Override
+                        public void run() {
+                            Enemy enemy = enemySpawner.spawnEnemyByType(enemyConfig.getType(), enemyConfig.getHealth(), enemyConfig.getSpeed());
+                            if (enemy != null) {
+                                enemies.add(enemy);
+                            }
+                        }
+                    }, spawnDelay);
                 }
             }
-        }, 4.4f);
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                Enemy enemy = enemySpawner.spawnEnemy();
-                if (enemy != null) {
-                    enemies.add(enemy);
-                }
-            }
-        }, 4.6f);
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                Enemy enemy = enemySpawner.spawnEnemy();
-                if (enemy != null) {
-                    enemies.add(enemy);
-                }
-            }
-        }, 5.1f);
+        }
+        gameDataManager.setEnemiesRemaining(totalEnemies);
     }
 
     @Override
@@ -236,6 +221,8 @@ public class GameScreen implements Screen {
             Enemy enemy = iterator.next();
             if (enemy.isDead()) {
                 iterator.remove();
+                gameDataManager.decrementEnemiesRemaining();
+                initializeGame.updateEnemiesRemainingLabel();
                 continue;
             }
             if (isRoundActive && !isPaused) {
@@ -244,6 +231,9 @@ public class GameScreen implements Screen {
             enemy.draw(spriteBatch, enemy.getX(), enemy.getY());
             enemy.renderHealthBar(spriteBatch);
         }
+
+        // Check if all enemies are defeated
+        checkAndStartNextRound();
 
         // Draw the tower range circle
         //drawTowerRangeCircle();
@@ -268,6 +258,18 @@ public class GameScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+    }
+
+    private void checkAndStartNextRound() {
+        if (enemies.isEmpty()) {
+            if (gameDataManager.getCurrentWave() >= gameDataManager.getTotalWaves()) {
+                app.setScreen(new GameOverScreen());
+            } else {
+                gameDataManager.incrementWave();
+                initializeGame.updateLabels();
+                spawnEnemies();
+            }
+        }
     }
 
     private void drawTowerRangeCircle() {
