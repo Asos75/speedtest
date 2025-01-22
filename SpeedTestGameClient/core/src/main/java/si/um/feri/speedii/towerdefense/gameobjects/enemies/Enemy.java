@@ -86,13 +86,13 @@ public class Enemy {
     public int getMoneyReward() {
         switch (type) {
             case BASIC:
-                return 50;
+                return 20;
             case FAST:
-                return 40;
+                return 15;
             case DEFENSE:
-                return 70;
+                return 35;
             case BOSS:
-                return 100;
+                return 50;
             default:
                 return 0;
         }

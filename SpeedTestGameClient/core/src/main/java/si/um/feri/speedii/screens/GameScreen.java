@@ -230,7 +230,7 @@ public class GameScreen implements Screen {
             if (enemy.isDead()) {
                 // Add money
                 gameDataManager.addMoney(enemy.getMoneyReward());
-                gameDataManager.addMoneySpent(enemy.getMoneyReward());
+                gameDataManager.addmoneyGot(enemy.getMoneyReward());
                 iterator.remove();
                 gameDataManager.decrementEnemiesRemaining();
                 gameDataManager.incrementEnemiesKilled();

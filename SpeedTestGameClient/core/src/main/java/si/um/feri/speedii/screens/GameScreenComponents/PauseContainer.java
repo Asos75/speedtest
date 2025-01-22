@@ -31,7 +31,7 @@ public class PauseContainer extends Table {
 
     private Label enemiesKilledLabel;
     private Label towersPlacedLabel;
-    private Label moneySpentLabel;
+    private Label moneyGotLabel;
 
     private final GameDataManager gameDataManager;
 
@@ -78,8 +78,8 @@ public class PauseContainer extends Table {
         statisticsTable.add(enemiesKilledLabel).align(Align.left).pad(5).row();
         towersPlacedLabel = new Label("Towers Placed: " + gameDataManager.getTowersPlaced(), skin);
         statisticsTable.add(towersPlacedLabel).align(Align.left).pad(5).row();
-        moneySpentLabel = new Label("Money Spent: " + gameDataManager.getMoneySpent(), skin);
-        statisticsTable.add(moneySpentLabel).align(Align.left).pad(5).row();
+        moneyGotLabel = new Label("Money Earned: " + gameDataManager.getmoneyGot(), skin);
+        statisticsTable.add(moneyGotLabel).align(Align.left).pad(5).row();
 
         // Add towerTable and statisticsTable to mainTable
         mainTable.add(towerTable).expand().fill().left().pad(10);
@@ -91,7 +91,7 @@ public class PauseContainer extends Table {
     public void updateStatistics() {
         enemiesKilledLabel.setText("Enemies Killed: " + gameDataManager.getEnemiesKilled());
         towersPlacedLabel.setText("Towers Placed: " + gameDataManager.getTowersPlaced());
-        moneySpentLabel.setText("Money Spent: " + gameDataManager.getMoneySpent());
+        moneyGotLabel.setText("Money Earned: " + gameDataManager.getmoneyGot());
     }
 
     private void addTowerInfo(Table towerTable, String towerName) {

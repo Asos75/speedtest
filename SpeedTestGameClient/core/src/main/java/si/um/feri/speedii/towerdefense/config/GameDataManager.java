@@ -13,7 +13,7 @@ public class GameDataManager {
     // All time stats
     private int enemiesKilled;
     private int towersPlaced;
-    private int moneySpent;
+    private int moneyGot;
 
     public GameDataManager() {
         this.location = "Unknown";
@@ -94,9 +94,9 @@ public class GameDataManager {
 
     public void incrementTowersPlaced() { towersPlaced++; }
 
-    public int getMoneySpent() { return moneySpent; }
+    public int getmoneyGot() { return moneyGot; }
 
-    public void addMoneySpent(int amount) { moneySpent += amount; }
+    public void addmoneyGot(int amount) { moneyGot += amount; }
 
-    public void subtractMoneySpent(int amount) { moneySpent -= amount; }
+    public void subtractmoneyGot(int amount) { moneyGot -= amount; }
 }

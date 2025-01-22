@@ -1,14 +1,14 @@
 package si.um.feri.speedii.assets;
 
 public enum RegionPrices {
-    FAST_ACCESS(50),
-    CABINETS(80),
-    SERVER_CONTROL(70),
+    FAST_ACCESS(80),
+    CABINETS(100),
+    SERVER_CONTROL(100),
     HUB(100),
-    SWITCH(40),
-    CELL_TOWER(35),
-    SATELLITE_TOWER(55),
-    SIGNAL(120);
+    SWITCH(75),
+    CELL_TOWER(200),
+    SATELLITE_TOWER(100),
+    SIGNAL(125);
 
     private final int price;
 

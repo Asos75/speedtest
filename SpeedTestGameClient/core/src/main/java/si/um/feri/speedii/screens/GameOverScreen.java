@@ -65,8 +65,8 @@ public class GameOverScreen implements Screen {
         statisticsTable.add(enemiesKilledLabel).align(Align.left).pad(5).row();
         Label towersPlacedLabel = new Label("Towers Placed: " + gameDataManager.getTowersPlaced(), statsLabelStyle);
         statisticsTable.add(towersPlacedLabel).align(Align.left).pad(5).row();
-        Label moneySpentLabel = new Label("Money Spent: " + gameDataManager.getMoneySpent(), statsLabelStyle);
-        statisticsTable.add(moneySpentLabel).align(Align.left).pad(5).row();
+        Label moneyGotLabel = new Label("Money Earned: " + gameDataManager.getmoneyGot(), statsLabelStyle);
+        statisticsTable.add(moneyGotLabel).align(Align.left).pad(5).row();
 
         table.add(statisticsTable).expand().fill().row();
 
