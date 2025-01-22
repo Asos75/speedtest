@@ -55,6 +55,7 @@ import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
 import si.um.feri.speedii.screens.mapcomponents.ScrollWheelInputProcessor;
+import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.Geolocation;
 import si.um.feri.speedii.utils.MapRasterTiles;
@@ -129,7 +130,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private boolean drawMobileTowers = true;
     private int minSpeed = 0;
     private int maxSpeed = 0;
-    private int selectedDifficulty = 0;
+    private DIFFICULTY selectedDifficulty = DIFFICULTY.VERY_EASY;
 
     private boolean drawExtremeEvents = true;
 
@@ -165,9 +166,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // TODO - launch game with difficulty selected
 
-                System.out.println("Button clicked");
+                app.setScreen(new GameScreen(app, selectedDifficulty));
             }
         });
 
@@ -573,7 +573,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
             speedInfo = "Speed: " + String.format("%.2f", speed / 1_000_000.0) + " Mbps";
             selectedDifficulty = calculateDifficulty(speed);
-            difficultyLabel.setText("Difficulty: " + difficultyToString(selectedDifficulty));
+            difficultyLabel.setText("Difficulty: " + selectedDifficulty.toString());
             if (speed == -1) {
                 speedInfo = "";
                 speedInfoWindow.setVisible(false);
@@ -677,34 +677,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     }
 
-    private int calculateDifficulty(int speed) {
+    private DIFFICULTY calculateDifficulty(int speed) {
         if (speed < minSpeed + (maxSpeed - minSpeed) / 5) {
-            return 1;
+            return DIFFICULTY.VERY_EASY;
         } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 2) {
-            return 2;
+            return DIFFICULTY.EASY;
         } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 3) {
-            return 3;
+            return DIFFICULTY.MEDIUM;
         } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 4) {
-            return 4;
+            return DIFFICULTY.HARD;
         } else {
-            return 5;
-        }
-    }
-
-    private String difficultyToString(int difficulty) {
-        switch (difficulty) {
-            case 1:
-                return "Very Easy";
-            case 2:
-                return "Easy";
-            case 3:
-                return "Medium";
-            case 4:
-                return "Hard";
-            case 5:
-                return "Very Hard";
-            default:
-                return "Unknown";
+            return DIFFICULTY.VERY_HARD;
         }
     }
 
