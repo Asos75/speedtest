@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Color;
 
 import java.util.List;
 
+import si.um.feri.speedii.towerdefense.config.GameDataManager;
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
 
 public class Enemy {
@@ -37,15 +38,19 @@ public class Enemy {
     private float speedMultiplier = 1.0f;
     private Array<DamageText> damageTexts = new Array<>();
     private BitmapFont font = new BitmapFont();
+    private GameDataManager gameDataManager;
+
+    float healthBarY = 50 + MathUtils.random(-10, 10);
 
     // Constructor to initialize enemy attributes
-    public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic) {
+    public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic, GameDataManager gameDataManager) {
         this.health = health;
         this.maxHealth = health;
         this.speed = speed;
         this.type = type;
         this.stateTime = 0f;
         this.gameLogic = gameLogic;
+        this.gameDataManager = gameDataManager;
         this.position = new Vector2();
         this.direction = new Vector2(1, 0); // Start moving right
         this.healthBarTexture = new Texture("assets/images/white_pixel.png");
@@ -83,13 +88,13 @@ public class Enemy {
     public int getMoneyReward() {
         switch (type) {
             case BASIC:
-                return 50;
+                return 20;
             case FAST:
-                return 40;
+                return 15;
             case DEFENSE:
-                return 70;
+                return 35;
             case BOSS:
-                return 100;
+                return 50;
             default:
                 return 0;
         }
@@ -112,7 +117,8 @@ public class Enemy {
     public Type getType() { return type; }
     public void setType(Type type) { this.type = type; }
     public Vector2 getPosition(){ return position; }
-    public boolean isDead() { return health <= 0; }
+    public boolean isDead() { return health <= 0 ; }
+    public boolean isAtEnd() { return position.epsilonEquals(gameLogic.endPoint, 5.0f); }
 
     // Update enemy state
     public void update(float delta) {
@@ -136,6 +142,21 @@ public class Enemy {
 
         if (position.epsilonEquals(gameLogic.endPoint, 5.0f)) {
             direction.set(0, 0);
+            // Decrease player's life based on enemy type
+            switch (type) {
+                case BASIC:
+                    gameDataManager.setHealth(gameDataManager.getHealth() - 3);
+                    break;
+                case FAST:
+                    gameDataManager.setHealth(gameDataManager.getHealth() - 2);
+                    break;
+                case DEFENSE:
+                    gameDataManager.setHealth(gameDataManager.getHealth() - 5);
+                    break;
+                case BOSS:
+                    gameDataManager.setHealth(gameDataManager.getHealth() - 15);
+                    break;
+            }
         }
 
         if (!directionChanged) {
@@ -217,8 +238,9 @@ public class Enemy {
         float healthBarWidth = 80;
         float healthBarHeight = 10;
         float healthBarX = position.x - 10;
-        float healthBarY = position.y + 50;
-        uiBatch.draw(healthBarTexture, healthBarX, healthBarY, health > 100 ? healthBarWidth : healthBarWidth * (health / 100f), healthBarHeight);
+        healthBarY += position.y;
+        uiBatch.draw(healthBarTexture, healthBarX, healthBarY, healthBarWidth * ((float) health / maxHealth), healthBarHeight);
+        healthBarY -= position.y;
         uiBatch.setColor(Color.WHITE);
 
         // Render damage texts

@@ -9,7 +9,7 @@ public class Bullet {
     private Enemy target;
     private int damage;
     private Texture texture;
-    private float speed = 100f;
+    private float speed = 500f;
 
     public Bullet(Vector2 position, Enemy target, int damage, Texture texture) {
         this.position = new Vector2(position);

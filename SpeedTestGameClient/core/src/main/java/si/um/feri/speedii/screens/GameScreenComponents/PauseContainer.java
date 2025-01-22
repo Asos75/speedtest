@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.Gdx;
 import si.um.feri.speedii.SpeediiApp;
+import si.um.feri.speedii.towerdefense.config.GameDataManager;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.TowerDescription;
 import si.um.feri.speedii.towerdefense.gameobjects.towers.TowerDescriptionLoader;
 import si.um.feri.speedii.assets.RegionNames;
@@ -28,15 +29,22 @@ public class PauseContainer extends Table {
     private final Map<String, TowerDescription> towerDescriptions = new HashMap<>();
     private final TextureAtlas atlas;
 
-    public PauseContainer(SpeediiApp app, Skin skin) {
+    private Label enemiesKilledLabel;
+    private Label towersPlacedLabel;
+    private Label moneyGotLabel;
+
+    private final GameDataManager gameDataManager;
+
+    public PauseContainer(SpeediiApp app, Skin skin, GameDataManager gameDataManager) {
         this.skin = skin;
         this.atlas = new TextureAtlas(Gdx.files.internal("images/spediiIcons.atlas"));
+        this.gameDataManager = gameDataManager;
         initializeUI(app);
     }
 
     private void initializeUI(SpeediiApp app) {
         // Set a background color for visibility
-        Drawable background = skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 0.9f);
+        Drawable background = skin.newDrawable("white", 0.8f, 0.8f, 0.8f, 0.7f);
         this.setBackground(background);
 
         // Load tower descriptions
@@ -66,16 +74,24 @@ public class PauseContainer extends Table {
         // Create statistics table
         Table statisticsTable = new Table();
         statisticsTable.add(new Label("Statistics", skin)).colspan(2).align(Align.center).padBottom(10).row();
-        // Add statistics labels here
-        statisticsTable.add(new Label("Stat 1: Value", skin)).align(Align.left).pad(5).row();
-        statisticsTable.add(new Label("Stat 2: Value", skin)).align(Align.left).pad(5).row();
-        // Add more statistics as needed
+        enemiesKilledLabel = new Label("Enemies Killed: " + gameDataManager.getEnemiesKilled(), skin);
+        statisticsTable.add(enemiesKilledLabel).align(Align.left).pad(5).row();
+        towersPlacedLabel = new Label("Towers Placed: " + gameDataManager.getTowersPlaced(), skin);
+        statisticsTable.add(towersPlacedLabel).align(Align.left).pad(5).row();
+        moneyGotLabel = new Label("Money Earned: " + gameDataManager.getmoneyGot(), skin);
+        statisticsTable.add(moneyGotLabel).align(Align.left).pad(5).row();
 
         // Add towerTable and statisticsTable to mainTable
         mainTable.add(towerTable).expand().fill().left().pad(10);
         mainTable.add(statisticsTable).expand().fill().right().pad(10);
 
         this.add(mainTable).expand().fill();
+    }
+
+    public void updateStatistics() {
+        enemiesKilledLabel.setText("Enemies Killed: " + gameDataManager.getEnemiesKilled());
+        towersPlacedLabel.setText("Towers Placed: " + gameDataManager.getTowersPlaced());
+        moneyGotLabel.setText("Money Earned: " + gameDataManager.getmoneyGot());
     }
 
     private void addTowerInfo(Table towerTable, String towerName) {

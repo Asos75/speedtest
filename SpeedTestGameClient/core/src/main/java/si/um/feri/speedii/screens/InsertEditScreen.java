@@ -5,6 +5,8 @@ package si.um.feri.speedii.screens;
 
 
 
+import static si.um.feri.speedii.config.GameConfig.WORLD_WIDTH;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -74,14 +76,10 @@ public class InsertEditScreen implements Screen {
     private Table table;
 
 
-
-
     public InsertEditScreen(SpeediiApp app, SessionManager sessionManager, User user) {
         this.app = app;
         this.sessionManager = sessionManager;
         this.user = user;
-
-
         this.spriteBatch = new SpriteBatch();
         this.font = new BitmapFont();
         this.font.getData().setScale(1.5f);
@@ -102,7 +100,7 @@ public class InsertEditScreen implements Screen {
         font = new BitmapFont();
 
 
-        stage = new Stage(new StretchViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT));
+        stage = new Stage(new StretchViewport(WORLD_WIDTH, GameConfig.WORLD_HEIGHT));
 
 
         skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -130,9 +128,6 @@ public class InsertEditScreen implements Screen {
 
     }
 
-
-
-
     public void run(Boolean showMeasurements) {
 
         if (showMeasurements) {
@@ -146,16 +141,13 @@ public class InsertEditScreen implements Screen {
             scrollPane.setScrollingDisabled(true, false);
             scrollPane.setFadeScrollBars(false);
 
-
             scrollPane.setFillParent(true);
             stage.addActor(scrollPane);
 
-            TextButton showBtn = new TextButton("Measurements/Towers", skin);
-            table.add(showBtn).width(200).pad(10).row();
-
-
-
-
+// Gumb na sredini
+            TextButton showBtn = new TextButton("Show Towers", skin);
+            showBtn.setPosition(WORLD_WIDTH / 2, showBtn.getY());
+            table.add(showBtn).width(200).padBottom(30).row();
 
             showBtn.addListener(new ClickListener() {
                 @Override
@@ -166,35 +158,43 @@ public class InsertEditScreen implements Screen {
                 }
             });
 
+// Dodaj "Measurements" naslov pod gumbom, centrirano
+            table.add(new Label("Add measurement", skin)).pad(10).center().colspan(2).row();
 
-            Gdx.input.setInputProcessor(stage);
-            table.add(new Label("Measurements", skin)).pad(10).center().row();
-
-            table.add(new Label("Longitude", skin)).pad(10).right();
+// Prva vrstica z Longitude in Latitude
+           // table.add(new Label("Longitude", skin)).pad(10).right();
             TextField locationLongitudeAdd = new TextField("", skin);
+            locationLongitudeAdd.setMessageText("Longitude");
             table.add(locationLongitudeAdd).width(200).pad(10);
 
-            table.add(new Label("Latitude", skin)).pad(10).right();
+            //table.add(new Label("Latitude", skin)).pad(10).right();
             TextField locationLatitudeAdd = new TextField("", skin);
+            locationLatitudeAdd.setMessageText("Latitude");
             table.add(locationLatitudeAdd).width(200).pad(10).row();
 
-
-            table.add(new Label("Provider", skin)).pad(10).right();
+// Druga vrstica z Provider in Speed
+          //  table.add(new Label("Provider", skin)).pad(10).right();
             TextField providerFieldAdd = new TextField("", skin);
+            providerFieldAdd.setMessageText("Provider");
             table.add(providerFieldAdd).width(200).pad(10);
 
-            table.add(new Label("Speed", skin)).pad(10).right();
+           // table.add(new Label("Speed", skin)).pad(10).right();
             TextField speedAdd = new TextField("", skin);
+            speedAdd.setMessageText("Speed");
             table.add(speedAdd).width(200).pad(10).row();
 
-
+// Dodaj "Add" gumb centrirano in z razmikom pod besedilnimi polji
             TextButton addButton = new TextButton("Add", skin);
-            table.add(addButton).width(200).pad(10).center().colspan(4).row();
+            table.add(addButton).width(200).colspan(2).padTop(30).row();
 
-            table.add(new Label("Speed", skin)).pad(10);
-            table.add(new Label("Provider", skin)).pad(10);
-            table.add(new Label("Date", skin)).pad(10);
+// Tabela za prikaz podatkov
+            table.add(new Label("Speed", skin)).pad(10).center();
+            table.add(new Label("Provider", skin)).pad(10).center();
+            table.add(new Label("Date", skin)).pad(10).center();
             table.row();
+
+            Gdx.input.setInputProcessor(stage);
+
 
             addButton.addListener(new ClickListener() {
                 @Override
@@ -277,7 +277,7 @@ public class InsertEditScreen implements Screen {
             stage.addActor(scrollPane);
             Gdx.input.setInputProcessor(stage);
 
-            TextButton showBtn = new TextButton("Measurements/Towers", skin);
+            TextButton showBtn = new TextButton("Show Measurements", skin);
             table.add(showBtn).width(200).pad(10).row();
 
 
@@ -291,27 +291,27 @@ public class InsertEditScreen implements Screen {
             });
 
 
-            table.add(new Label("Mobile Towers", skin)).pad(10).center().row();
+            table.add(new Label("Add Mobile Tower", skin)).pad(10).center().row();
 
-            table.add(new Label("Longitude", skin)).pad(10).right();
             TextField locationLongitudeAdd = new TextField("", skin);
+            locationLongitudeAdd.setMessageText("Longitude");
             table.add(locationLongitudeAdd).width(200).pad(10);
 
-            table.add(new Label("Latitude", skin)).pad(10).right();
             TextField locationLatitudeAdd = new TextField("", skin);
+            locationLatitudeAdd.setMessageText("Latitude");
             table.add(locationLatitudeAdd).width(200).pad(10).row();
 
 
-            table.add(new Label("Provider", skin)).pad(10).right();
             TextField providerFieldAdd = new TextField("", skin);
+            providerFieldAdd.setMessageText("Provider");
             table.add(providerFieldAdd).width(200).pad(10);
 
-            table.add(new Label("Type", skin)).pad(10).right();
             TextField typeFieldAdd = new TextField("", skin);
+            typeFieldAdd.setMessageText("Type");
             table.add(typeFieldAdd).width(200).pad(10).row();
 
             TextButton addButton = new TextButton("Add", skin);
-            table.add(addButton).width(200).pad(10).center().colspan(4).row();
+            table.add(addButton).width(200).pad(10).colspan(2).row();
 
             table.add(new Label("Confirmed", skin)).pad(10);
             table.add(new Label("Provider", skin)).pad(10);

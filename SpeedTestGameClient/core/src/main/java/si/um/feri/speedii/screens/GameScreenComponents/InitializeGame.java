@@ -59,7 +59,6 @@ public class InitializeGame {
     //private Stage stage;
 
     public Label locationLabel;
-    public Label uploadSpeedLabel;
     public Label downloadSpeedLabel;
     public Label healthLabel;
     public Label waveLabel;
@@ -115,7 +114,7 @@ public class InitializeGame {
             int sellPrice = tower.getPrice() / 2; // Example: sell for half the price
             gameDataManager.addMoney(sellPrice);
             updateLabels(); // Update labels to reflect new money amount
-            Gdx.app.log("InitializeGame", "Tower sold for: " + sellPrice);
+            //Gdx.app.log("InitializeGame", "Tower sold for: " + sellPrice);
 
             // Remove the tower's actor from the stage
             for (Actor actor : gameScreen.getStage().getActors()) {
@@ -149,11 +148,7 @@ public class InitializeGame {
         locationLabel.setFontScale(1.2f);
         locationLabel.getStyle().font.getData().markupEnabled = true;
 
-        uploadSpeedLabel = new Label("Upload speed: " + gameDataManager.getUploadSpeed(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        uploadSpeedLabel.setFontScale(1.2f);
-        uploadSpeedLabel.getStyle().font.getData().markupEnabled = true;
-
-        downloadSpeedLabel = new Label("Download speed: " + gameDataManager.getDownloadSpeed(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        downloadSpeedLabel = new Label("Download speed: " + gameDataManager.getDownloadSpeed() + " mb", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         downloadSpeedLabel.setFontScale(1.2f);
         downloadSpeedLabel.getStyle().font.getData().markupEnabled = true;
 
@@ -176,8 +171,7 @@ public class InitializeGame {
 
     public void updateLabels() {
         locationLabel.setText("Location: " + gameDataManager.getLocation());
-        uploadSpeedLabel.setText("Upload speed: " + gameDataManager.getUploadSpeed());
-        downloadSpeedLabel.setText("Download speed: " + gameDataManager.getDownloadSpeed());
+        downloadSpeedLabel.setText("Download speed: " + gameDataManager.getDownloadSpeed() + " mb");
         healthLabel.setText("Health: " + gameDataManager.getHealth());
         if (gameDataManager.getCurrentWave() == 1) { waveLabel.setText("Wave " + gameDataManager.getCurrentWave());}
         else { waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves());}
@@ -217,8 +211,7 @@ public class InitializeGame {
     private void initializeTables() {
         Table topTable = new Table();
         topTable.add(locationLabel).left().pad(10).expandX();
-        topTable.add(uploadSpeedLabel).center().pad(10).expandX();
-        topTable.add(downloadSpeedLabel).right().pad(10).expandX();
+        topTable.add(downloadSpeedLabel).expandX();
         topTable.add(moneyLabel).right().pad(10).expandX();
 
         Table leftTable = new Table();

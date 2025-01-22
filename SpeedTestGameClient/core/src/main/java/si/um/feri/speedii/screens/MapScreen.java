@@ -56,6 +56,7 @@ import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.config.GameConfig;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
+import si.um.feri.speedii.screens.mapcomponents.LocationHelper;
 import si.um.feri.speedii.screens.mapcomponents.ScrollWheelInputProcessor;
 import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 import si.um.feri.speedii.utils.Constants;
@@ -63,6 +64,8 @@ import si.um.feri.speedii.utils.Geolocation;
 import si.um.feri.speedii.utils.MapRasterTiles;
 import si.um.feri.speedii.utils.ZoomXY;
 import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
+
+import java.text.DecimalFormat;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener {
 
@@ -125,6 +128,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Label extremeEventDateNotificationLabel;
     private Label extremeUserLocationNotificationLabel;
     private Button extremeEventNotificationCloseButton;
+    // ASUS FIX
+    private String location = "Sample Location";
+    private float lastSelectedSpeed = 0;
 
     private Skin skin;
 
@@ -135,6 +141,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private boolean drawGrid = true;
     private float gridOpacity = Constants.OVERLAY_ALPHA;
     private boolean drawMobileTowers = true;
+    private float lastX = 0;
+    private float lastY = 0;
     private int minSpeed = 0;
     private int maxSpeed = 0;
     private DIFFICULTY selectedDifficulty = DIFFICULTY.VERY_EASY;
@@ -176,8 +184,24 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
-                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty));
                 app.mqttClient.setMapScreen(null);
+
+                // Log the last selected speed
+                System.out.println("Last selected speed: " + lastSelectedSpeed);
+
+                DecimalFormat df = new DecimalFormat("#.00");
+                String formattedSpeed = df.format(lastSelectedSpeed / 1_000_000.0);
+
+                // Log the formatted speed
+                System.out.println("Formatted speed: " + formattedSpeed);
+
+                Geolocation geolocation = MapRasterTiles.getGeolocationFromPixel((int) lastX, (int) lastY, TILE_SIZE, ZOOM, beginTile.x, beginTile.y, height);
+                location = LocationHelper.getLocationName(geolocation.lat, geolocation.lng);
+
+                // Log the location
+                System.out.println("Location: " + location);
+
+                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, location, formattedSpeed));
             }
         });
 
@@ -625,7 +649,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         camera.unproject(touchPosition);
 
         if(drawGrid) {
+
             int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
+
+            lastX = touchPosition.x;
+            lastY = touchPosition.y;
+
+            lastSelectedSpeed = speed;
+
             speedInfo = "Speed: " + String.format("%.2f", speed / 1_000_000.0) + " Mbps";
             selectedDifficulty = calculateDifficulty(speed);
             difficultyLabel.setText("Difficulty: " + selectedDifficulty.toString());
@@ -639,7 +670,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
         return false;
     }
-
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {

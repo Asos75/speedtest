@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import si.um.feri.speedii.screens.GameScreenComponents.InitializeGame;
+import si.um.feri.speedii.towerdefense.config.GameDataManager;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,14 +30,15 @@ public class TileHoverHandler extends InputListener {
     private OrthographicCamera camera;
     private InitializeGame initializeGame;
     private Set<Rectangle> occupiedTiles;
+    private final GameDataManager gameDataManager;
 
-    public TileHoverHandler(TiledMapTileLayer fieldLayer, OrthographicCamera camera, InitializeGame initializeGame) {
+    public TileHoverHandler(TiledMapTileLayer fieldLayer, OrthographicCamera camera, InitializeGame initializeGame, GameDataManager gameDataManager) {
         this.fieldLayer = fieldLayer;
         this.shapeRenderer = new ShapeRenderer();
         this.camera = camera;
         this.initializeGame = initializeGame;
         this.occupiedTiles = new HashSet<>();
-        //Gdx.app.log("TileHoverHandler", "Initialized with field layer: " + fieldLayer.getName());
+        this.gameDataManager = gameDataManager;
     }
 
     public void render() {
@@ -81,6 +83,7 @@ public class TileHoverHandler extends InputListener {
                 initializeGame.placeTower(regionName, hoveredTile.x, hoveredTile.y, tileWidth, tileHeight);
                 occupiedTiles.add(new Rectangle(hoveredTile.x, hoveredTile.y, hoveredTile.width, hoveredTile.height));
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                gameDataManager.incrementTowersPlaced();
             } else {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
             }

@@ -3,7 +3,7 @@
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "BasicEnemy", "health": 250, "speed": 50, "delay": 0.0, "count": 7},
+        {"type": "BasicEnemy", "health": 250, "speed": 50, "delay": 2.0, "count": 7},
         {"type": "FastEnemy", "health": 150, "speed": 100, "delay": 5.0, "count": 5}
       ]
     },
@@ -13,6 +13,63 @@
         {"type": "BasicEnemy", "health": 270, "speed": 50, "delay": 0.0, "count": 7},
         {"type": "DefenseEnemy", "health": 350, "speed": 30, "delay": 5.0, "count": 5},
         {"type": "BossEnemy", "health": 1000, "speed": 20, "delay": 10.0, "count": 1}
+      ]
+    },
+    {
+      "waveNumber": 3,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 290, "speed": 50, "delay": 0.0, "count": 8},
+        {"type": "FastEnemy", "health": 160, "speed": 100, "delay": 5.0, "count": 6}
+      ]
+    },
+    {
+      "waveNumber": 4,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 310, "speed": 50, "delay": 0.0, "count": 8},
+        {"type": "DefenseEnemy", "health": 370, "speed": 30, "delay": 5.0, "count": 6}
+      ]
+    },
+    {
+      "waveNumber": 5,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 330, "speed": 50, "delay": 0.0, "count": 9},
+        {"type": "FastEnemy", "health": 170, "speed": 110, "delay": 5.0, "count": 6}
+      ]
+    },
+    {
+      "waveNumber": 6,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 350, "speed": 50, "delay": 0.0, "count": 9},
+        {"type": "DefenseEnemy", "health": 390, "speed": 30, "delay": 5.0, "count": 6}
+      ]
+    },
+    {
+      "waveNumber": 7,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 370, "speed": 50, "delay": 0.0, "count": 10},
+        {"type": "FastEnemy", "health": 180, "speed": 120, "delay": 5.0, "count": 7}
+      ]
+    },
+    {
+      "waveNumber": 8,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 390, "speed": 50, "delay": 0.0, "count": 10},
+        {"type": "DefenseEnemy", "health": 410, "speed": 30, "delay": 5.0, "count": 7}
+      ]
+    },
+    {
+      "waveNumber": 9,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 410, "speed": 50, "delay": 0.0, "count": 11},
+        {"type": "FastEnemy", "health": 190, "speed": 130, "delay": 5.0, "count": 7}
+      ]
+    },
+    {
+      "waveNumber": 10,
+      "enemies": [
+        {"type": "BasicEnemy", "health": 430, "speed": 50, "delay": 0.0, "count": 11},
+        {"type": "DefenseEnemy", "health": 430, "speed": 30, "delay": 5.0, "count": 7},
+        {"type": "BossEnemy", "health": 1500, "speed": 20, "delay": 10.0, "count": 1}
       ]
     }
   ]

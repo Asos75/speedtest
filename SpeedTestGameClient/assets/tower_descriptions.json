@@ -6,7 +6,7 @@
     },
     {
       "name": "cabinets",
-      "description": " "
+      "description": "Provides moderate damage with a balanced attack speed."
     },
     {
       "name": "server-control",
@@ -14,7 +14,7 @@
     },
     {
       "name": "hub",
-      "description": " "
+      "description": "Slows down enemies significantly within its range."
     },
     {
       "name": "switch",

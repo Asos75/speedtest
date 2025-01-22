@@ -2,17 +2,21 @@ package si.um.feri.speedii.towerdefense.config;
 
 public class GameDataManager {
     private String location;
-    private float uploadSpeed;
     private float downloadSpeed;
+
     private int health;
     private int currentWave;
     private int totalWaves;
     private int enemiesRemaining;
     private int money;
 
+    // All time stats
+    private int enemiesKilled;
+    private int towersPlaced;
+    private int moneyGot;
+
     public GameDataManager() {
         this.location = "Unknown";
-        this.uploadSpeed = 0.0f;
         this.downloadSpeed = 0.0f;
         this.health = 100;
         this.currentWave = 0;
@@ -21,9 +25,8 @@ public class GameDataManager {
         this.money = 250;
     }
 
-    public GameDataManager(String location, float uploadSpeed, float downloadSpeed, int health, int currentWave, int totalWaves, int enemiesRemaining, int money) {
+    public GameDataManager(String location, float downloadSpeed, int health, int currentWave, int totalWaves, int enemiesRemaining, int money) {
         this.location = location;
-        this.uploadSpeed = uploadSpeed;
         this.downloadSpeed = downloadSpeed;
         this.health = health;
         this.currentWave = currentWave;
@@ -55,10 +58,6 @@ public class GameDataManager {
 
     public void setLocation(String location) { this.location = location; }
 
-    public float getUploadSpeed() { return uploadSpeed; }
-
-    public void setUploadSpeed(float uploadSpeed) { this.uploadSpeed = uploadSpeed; }
-
     public float getDownloadSpeed() { return downloadSpeed; }
 
     public void setDownloadSpeed(float downloadSpeed) { this.downloadSpeed = downloadSpeed; }
@@ -84,4 +83,20 @@ public class GameDataManager {
     }
 
     public void increaseEnemiesRemaining() { enemiesRemaining++; }
+
+    // All time stats
+
+    public int getEnemiesKilled() { return enemiesKilled; }
+
+    public void incrementEnemiesKilled() { enemiesKilled++; }
+
+    public int getTowersPlaced() { return towersPlaced; }
+
+    public void incrementTowersPlaced() { towersPlaced++; }
+
+    public int getmoneyGot() { return moneyGot; }
+
+    public void addmoneyGot(int amount) { moneyGot += amount; }
+
+    public void subtractmoneyGot(int amount) { moneyGot -= amount; }
 }
