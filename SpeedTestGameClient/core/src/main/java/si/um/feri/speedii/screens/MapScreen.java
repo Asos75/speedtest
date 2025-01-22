@@ -301,7 +301,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
 
         atlas = assetManager.get(AssetDescriptors.UI_IMAGES);
-        mobileTowerTexture =  (atlas.findRegion(RegionNames.CELL_TOWER));
+        mobileTowerTexture =  (atlas.findRegion(RegionNames.CELLTOWER));
         tiledMap = new TiledMap();
         MapLayers layers = tiledMap.getLayers();
 
