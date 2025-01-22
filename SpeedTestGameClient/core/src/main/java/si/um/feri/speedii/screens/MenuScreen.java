@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -29,6 +30,8 @@ public class MenuScreen extends ScreenAdapter {
     private SessionManager sessionManager;
     private final Skin skin;
 
+    private TextureRegion logoRegion;
+    private Image logoImage;
     private TextureAtlas atlas;
     private Viewport viewport;
     private Stage stage;
@@ -94,9 +97,11 @@ public class MenuScreen extends ScreenAdapter {
         Table table = new Table();
         table.defaults().pad(20);
 
-        Label titleLabel = new Label("TOWER DEFENSE", skin);
-        titleLabel.setFontScale(4f);
-        table.add(titleLabel).colspan(4).padBottom(50).center().row();
+        logoRegion = atlas.findRegion(RegionNames.LOGO);
+
+        TextureRegionDrawable logoDrawable = new TextureRegionDrawable(logoRegion);
+        logoImage = new Image(logoDrawable);
+        logoImage.setSize(logoImage.getWidth() / 1.2f, logoImage.getHeight() / 4f);
 
         TextButton playButton = new TextButton("Play", skin);
         playButton.addListener(new ClickListener() {
@@ -138,6 +143,7 @@ public class MenuScreen extends ScreenAdapter {
         quitButton.pad(10);
 
 
+        table.add(logoImage).row();
         table.add(playButton).width(250).padBottom(15).expandX().row();
         table.add(leaderboardButton).width(250).expandX().row();
         table.add(mapButton).width(250).expandX().row();
