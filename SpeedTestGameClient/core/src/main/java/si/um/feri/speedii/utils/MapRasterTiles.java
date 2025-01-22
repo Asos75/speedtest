@@ -314,4 +314,18 @@ public class MapRasterTiles {
             return null;
         }
     }
+
+    public static Geolocation getGeolocationFromPixel(int pixelX, int pixelY, int tileSize, int zoom, int beginTileX, int beginTileY, int height) {
+        // Reverse the pixel position calculation
+        double scale = Math.pow(2, zoom);
+        double worldX = (pixelX + (beginTileX * tileSize)) / scale;
+        double worldY = (height - pixelY + (beginTileY * tileSize) - 1) / scale;
+
+        // Convert world coordinates to geographic coordinates
+        double lng = (worldX / tileSize - 0.5) * 360;
+        double latRadians = Math.atan(Math.sinh(Math.PI * (1 - 2 * worldY / tileSize)));
+        double lat = Math.toDegrees(latRadians);
+
+        return new Geolocation(lat, lng);
+    }
 }

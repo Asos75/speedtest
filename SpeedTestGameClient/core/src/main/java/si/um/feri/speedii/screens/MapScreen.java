@@ -55,6 +55,7 @@ import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.config.GameConfig;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
+import si.um.feri.speedii.screens.mapcomponents.LocationHelper;
 import si.um.feri.speedii.screens.mapcomponents.ScrollWheelInputProcessor;
 import si.um.feri.speedii.towerdefense.config.DIFFICULTY;
 import si.um.feri.speedii.utils.Constants;
@@ -131,6 +132,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private boolean drawGrid = true;
     private float gridOpacity = Constants.OVERLAY_ALPHA;
     private boolean drawMobileTowers = true;
+    private float lastX = 0;
+    private float lastY = 0;
     private int minSpeed = 0;
     private int maxSpeed = 0;
     private DIFFICULTY selectedDifficulty = DIFFICULTY.VERY_EASY;
@@ -171,6 +174,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
                 String formattedSpeed = String.format("%.2f", lastSelectedSpeed);
+                Geolocation geolocation = MapRasterTiles.getGeolocationFromPixel((int) lastX, (int) lastY, TILE_SIZE, ZOOM, beginTile.x, beginTile.y, height);
+                location = LocationHelper.getLocationName(geolocation.lat, geolocation.lng);
                 app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, location, formattedSpeed));
             }
         });
@@ -575,7 +580,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         camera.unproject(touchPosition);
 
         if(drawGrid) {
+
             int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
+
+            lastX = touchPosition.x;
+            lastY = touchPosition.y;
 
             lastSelectedSpeed = speed;
 
