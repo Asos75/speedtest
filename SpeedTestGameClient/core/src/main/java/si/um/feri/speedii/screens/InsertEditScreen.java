@@ -122,7 +122,7 @@ public class InsertEditScreen implements Screen {
         stage.act();
         stage.draw();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             app.setScreen(new MenuScreen(app, sessionManager));
         }
 
@@ -144,7 +144,7 @@ public class InsertEditScreen implements Screen {
             scrollPane.setFillParent(true);
             stage.addActor(scrollPane);
 
-// Gumb na sredini
+
             TextButton showBtn = new TextButton("Show Towers", skin);
             showBtn.setPosition(WORLD_WIDTH / 2, showBtn.getY());
             table.add(showBtn).width(200).padBottom(30).row();
@@ -158,36 +158,30 @@ public class InsertEditScreen implements Screen {
                 }
             });
 
-// Dodaj "Measurements" naslov pod gumbom, centrirano
+
             table.add(new Label("Add measurement", skin)).pad(10).center().colspan(2).row();
 
-// Prva vrstica z Longitude in Latitude
-           // table.add(new Label("Longitude", skin)).pad(10).right();
+
             TextField locationLongitudeAdd = new TextField("", skin);
             locationLongitudeAdd.setMessageText("Longitude");
             table.add(locationLongitudeAdd).width(200).pad(10);
 
-            //table.add(new Label("Latitude", skin)).pad(10).right();
+
             TextField locationLatitudeAdd = new TextField("", skin);
             locationLatitudeAdd.setMessageText("Latitude");
             table.add(locationLatitudeAdd).width(200).pad(10).row();
 
-// Druga vrstica z Provider in Speed
-          //  table.add(new Label("Provider", skin)).pad(10).right();
             TextField providerFieldAdd = new TextField("", skin);
             providerFieldAdd.setMessageText("Provider");
             table.add(providerFieldAdd).width(200).pad(10);
 
-           // table.add(new Label("Speed", skin)).pad(10).right();
             TextField speedAdd = new TextField("", skin);
             speedAdd.setMessageText("Speed");
             table.add(speedAdd).width(200).pad(10).row();
 
-// Dodaj "Add" gumb centrirano in z razmikom pod besedilnimi polji
             TextButton addButton = new TextButton("Add", skin);
             table.add(addButton).width(200).colspan(2).padTop(30).row();
 
-// Tabela za prikaz podatkov
             table.add(new Label("Speed", skin)).pad(10).center();
             table.add(new Label("Provider", skin)).pad(10).center();
             table.add(new Label("Date", skin)).pad(10).center();
@@ -230,35 +224,44 @@ public class InsertEditScreen implements Screen {
                 TextButton updateButton = new TextButton("Update", skin);
                 table.add(speedField).width(200).pad(10);
                 table.add(providerField).width(200).pad(10);
-                table.add(timeField).width(200).pad(10);
-                table.add(updateButton).width(200).pad(10).row();
 
-
-                updateButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        long newSpeed = Long.parseLong(speedField.getText());
-                        String newProvider = providerField.getText();
-                        LocalDateTime newDate = LocalDateTime.parse(timeField.getText());
-                        Measurement newMeasurement = new Measurement(
-                            newSpeed,
-                            measurement.getType(),
-                            newProvider,
-                            measurement.getLocation(),
-                            newDate,
-                            measurement.getUser(),
-                            measurement.getId()
-                        );
-                        HttpMeasurement newHttpMeasurement = new HttpMeasurement(sessionManager);
-                        try {
-                            System.out.println(newHttpMeasurement.update(newMeasurement));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                if(sessionManager.getUser().isAdmin()) {
+                    table.add(timeField).width(200).pad(10);
+                    table.add(updateButton).width(200).pad(10).row();
+                    updateButton.addListener(new ClickListener() {
+                        @Override
+                        public void clicked(InputEvent event, float x, float y) {
+                            long newSpeed = Long.parseLong(speedField.getText());
+                            String newProvider = providerField.getText();
+                            LocalDateTime newDate = LocalDateTime.parse(timeField.getText());
+                            Measurement newMeasurement = new Measurement(
+                                    newSpeed,
+                                    measurement.getType(),
+                                    newProvider,
+                                    measurement.getLocation(),
+                                    newDate,
+                                    measurement.getUser(),
+                                    measurement.getId()
+                            );
+                            HttpMeasurement newHttpMeasurement = new HttpMeasurement(sessionManager);
+                            try {
+                                System.out.println(newHttpMeasurement.update(newMeasurement));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            System.out.println(newMeasurement);
+                            try {
+                                measurements = httpMeasurement.getByUser(user);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            run(true);
                         }
-                        System.out.println(newMeasurement);
-                    }
-                });
-
+                    });
+                }
+                else {
+                    table.add(timeField).width(200).pad(10).row();
+                }
 
             }
         } else {
@@ -284,11 +287,11 @@ public class InsertEditScreen implements Screen {
             showBtn.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    System.out.println("clicked");
                     table.clear();
                     run(true);
                 }
             });
+
 
 
             table.add(new Label("Add Mobile Tower", skin)).pad(10).center().row();
@@ -351,7 +354,7 @@ public class InsertEditScreen implements Screen {
                 table.add(confirmedField).width(200).pad(10);
                 table.add(providerField).width(200).pad(10);
                 table.add(typeField).width(200).pad(10);
-                table.add(updateButton).width(200).pad(10).row();
+                table.add(updateButton).width(100).pad(10).row();
 
 
                 updateButton.addListener(new ClickListener() {
@@ -407,8 +410,6 @@ public class InsertEditScreen implements Screen {
 
     @Override
     public void hide() {
-
-
     }
 
 
