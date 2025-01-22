@@ -29,11 +29,10 @@ public class Bullet {
         }
     }
 
-
     private void hitTarget() {
         if (target != null) {
-            target.setHealth(target.getHealth() - damage);
-            target = null; // Bullet is no longer active
+            target.takeDamage(damage);
+            target = null; // No longer active
         }
     }
 

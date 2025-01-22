@@ -47,8 +47,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +64,7 @@ public class InitializeGame {
     public Label healthLabel;
     public Label waveLabel;
     public Label enemiesRemainingLabel;
+    private Label moneyLabel;
     public TextButton pauseButton;
 
     Drawable whiteBackground;
@@ -135,6 +134,10 @@ public class InitializeGame {
         enemiesRemainingLabel = new Label(gameDataManager.getEnemiesRemaining() + " enemies remaining", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         enemiesRemainingLabel.setFontScale(1.2f);
         enemiesRemainingLabel.getStyle().font.getData().markupEnabled = true;
+
+        moneyLabel = new Label("Money: " + gameDataManager.getMoney(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        moneyLabel.setFontScale(1.2f);
+        moneyLabel.getStyle().font.getData().markupEnabled = true;
     }
 
     public void updateLabels() {
@@ -144,7 +147,10 @@ public class InitializeGame {
         healthLabel.setText("Health: " + gameDataManager.getHealth());
         if (gameDataManager.getCurrentWave() == 1) { waveLabel.setText("Wave " + gameDataManager.getCurrentWave());}
         else { waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves());}
-        enemiesRemainingLabel.setText(gameDataManager.getEnemiesRemaining() + " enemies remaining");
+        // TODO Fix this bug at the start of the game
+        if (gameDataManager.getEnemiesRemaining() == 0) { enemiesRemainingLabel.setText("All enemies remaining");}
+        else {enemiesRemainingLabel.setText(gameDataManager.getEnemiesRemaining() + " enemies remaining");}
+        moneyLabel.setText("Money: " + gameDataManager.getMoney());
     }
 
     public void updateWaveLabel() { waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves()); }
@@ -174,12 +180,12 @@ public class InitializeGame {
         });
     }
 
-    // TODO FIX from Fixed sizes to scale with screen size
     private void initializeTables() {
         Table topTable = new Table();
         topTable.add(locationLabel).left().pad(10).expandX();
         topTable.add(uploadSpeedLabel).center().pad(10).expandX();
         topTable.add(downloadSpeedLabel).right().pad(10).expandX();
+        topTable.add(moneyLabel).right().pad(10).expandX();
 
         Table leftTable = new Table();
         leftTable.add(healthLabel).left().pad(10).expandX().fillX();
@@ -211,18 +217,26 @@ public class InitializeGame {
 
     public void addTower(Tower tower) {
         towers.add(tower);
-        Gdx.app.log("InitializeGame", "Tower added at position: " + tower.getPosition());
+        //Gdx.app.log("InitializeGame", "Tower added at position: " + tower.getPosition());
     }
 
     public void placeTower(String towerType, float x, float y, float tileWidth, float tileHeight) {
-        //Gdx.app.log("InitializeGame", "Attempting to place tower of type: " + selectedTowerType + " at: (" + x + ", " + y + ")");
         if (selectedTowerType == null) {
             Gdx.app.log("InitializeGame", "Tower type is null, cannot place tower.");
+            return;
+        }
+        int towerPrice = RegionPrices.valueOf(selectedTowerType.toUpperCase().replace("-", "_")).getPrice();
+        if (gameDataManager.getMoney() < towerPrice) {
+            Gdx.app.log("InitializeGame", "Not enough money to place tower.");
             return;
         }
         Tower tower = TowerFactory.createTower(selectedTowerType, new Vector2(x, y));
         if (tower != null) {
             addTower(tower);
+
+            gameDataManager.subtractMoney(towerPrice);
+            updateLabels(); // Update labels to reflect new money amount
+
             //Gdx.app.log("InitializeGame", "Tower created successfully: " + selectedTowerType);
             Table towerContent = new Table();
             Image towerImage = new Image(atlas.findRegion(selectedTowerType));
@@ -433,16 +447,13 @@ public class InitializeGame {
 
     private Container<Table> createIconWithPriceContainer(Image icon, String price) {
         Table iconTable = new Table();
-        iconTable.add(icon).row();
+        iconTable.add(icon).expand().fill().row();
         Label priceLabel = new Label(price, skin);
         iconTable.add(priceLabel).center();
 
         Container<Table> container = new Container<>(iconTable);
         container.setBackground(whiteBackground);
         container.setTouchable(Touchable.enabled);
-
-        //Drawable grayBackground = createGrayBackground();
-        //Drawable border = createTableBorder();
 
         container.addListener(new InputListener() {
             @Override
@@ -480,11 +491,7 @@ public class InitializeGame {
         return new TextureRegionDrawable(texture);
     }
 
-    public void updateEnemiesRemainingLabel() {
-        enemiesRemainingLabel.setText(gameDataManager.getEnemiesRemaining() + " enemies remaining");
-    }
+    public void updateEnemiesRemainingLabel() { enemiesRemainingLabel.setText(gameDataManager.getEnemiesRemaining() + " enemies remaining"); }
 
-    public Table getTable() {
-        return table;
-    }
+    public Table getTable() { return table; }
 }

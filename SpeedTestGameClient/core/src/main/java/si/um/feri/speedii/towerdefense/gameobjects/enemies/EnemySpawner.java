@@ -19,10 +19,10 @@ public class EnemySpawner {
                 return spawnBasicEnemy(health, speed);
             case "DefenseEnemy":
                 return spawnDefenseEnemy(health, speed);
-            case "SpeedEnemy":
-                return spawnSpeedEnemy(health, speed);
-            case "DifficultEnemy":
-                return spawnDifficultEnemy(health, speed);
+            case "FastEnemy":
+                return spawnFastEnemy(health, speed);
+            case "BossEnemy":
+                return spawnBossEnemy(health, speed);
             default:
                 throw new IllegalArgumentException("Unknown enemy type: " + type);
         }
@@ -52,7 +52,7 @@ public class EnemySpawner {
         }
     }
 
-    public Enemy spawnSpeedEnemy(int health, float speed) {
+    public Enemy spawnFastEnemy(int health, float speed) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
             Enemy enemy = new Enemy(health, speed, Enemy.Type.FAST, "images/Bugs/BeetleMove.png", gameLogic);
@@ -64,7 +64,7 @@ public class EnemySpawner {
         }
     }
 
-    public Enemy spawnDifficultEnemy(int health, float speed) {
+    public Enemy spawnBossEnemy(int health, float speed) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
             Enemy enemy = new Enemy(health, speed, Enemy.Type.BOSS, "images/Bugs/MantisMove.png", gameLogic);

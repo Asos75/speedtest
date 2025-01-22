@@ -1,11 +1,15 @@
 package si.um.feri.speedii.towerdefense.gameobjects.enemies;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import java.util.Iterator;
 
 // Healthbar
 import com.badlogic.gdx.graphics.Color;
@@ -31,6 +35,8 @@ public class Enemy {
     private GameLogic gameLogic;
     private Texture healthBarTexture;
     private float speedMultiplier = 1.0f;
+    private Array<DamageText> damageTexts = new Array<>();
+    private BitmapFont font = new BitmapFont();
 
     // Constructor to initialize enemy attributes
     public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic) {
@@ -74,7 +80,31 @@ public class Enemy {
         idleAnimation = new Animation<>(0.15f, frames, Animation.PlayMode.LOOP);
     }
 
-    // Getters and setters for enemy attributes
+    public int getMoneyReward() {
+        switch (type) {
+            case BASIC:
+                return 50;
+            case FAST:
+                return 40;
+            case DEFENSE:
+                return 70;
+            case BOSS:
+                return 100;
+            default:
+                return 0;
+        }
+    }
+
+    public void takeDamage(int damage) {
+        // Deduct health
+        this.health -= damage;
+
+        // Create damage text
+        Vector2 position = new Vector2(this.getX() + MathUtils.random(-10, 10), this.getY() + MathUtils.random(-10, 10));
+        DamageText damageText = new DamageText("-" + damage, position, 1.0f, font);
+        damageTexts.add(damageText);
+    }
+
     public int getHealth() { return health; }
     public void setHealth(int health) { this.health = health; }
     public float getSpeed() { return speed; }
@@ -82,10 +112,7 @@ public class Enemy {
     public Type getType() { return type; }
     public void setType(Type type) { this.type = type; }
     public Vector2 getPosition(){ return position; }
-
-    public boolean isDead() {
-        return health <= 0;
-    }
+    public boolean isDead() { return health <= 0; }
 
     // Update enemy state
     public void update(float delta) {
@@ -193,6 +220,16 @@ public class Enemy {
         float healthBarY = position.y + 50;
         uiBatch.draw(healthBarTexture, healthBarX, healthBarY, health > 100 ? healthBarWidth : healthBarWidth * (health / 100f), healthBarHeight);
         uiBatch.setColor(Color.WHITE);
+
+        // Render damage texts
+        for (Iterator<DamageText> iterator = damageTexts.iterator(); iterator.hasNext();) {
+            DamageText damageText = iterator.next();
+            damageText.update(Gdx.graphics.getDeltaTime());
+            damageText.render(uiBatch);
+            if (damageText.isFinished()) {
+                iterator.remove();
+            }
+        }
     }
 
     public void setPosition(float x, float y) { this.position.set(x, y); }

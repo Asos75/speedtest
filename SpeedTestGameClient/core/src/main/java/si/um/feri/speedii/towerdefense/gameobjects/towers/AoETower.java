@@ -64,8 +64,7 @@ public class AoETower extends Tower {
     private void dealAoEDamage(List<Enemy> enemies) {
         for (Enemy enemy : enemies) {
             if (position.dst(enemy.getPosition()) <= range) {
-                enemy.setHealth(enemy.getHealth() - damage);
-                //Gdx.app.log("AoETower", "Dealt " + damage + " damage to enemy at position: " + enemy.getPosition());
+                enemy.takeDamage(damage);
             }
         }
     }

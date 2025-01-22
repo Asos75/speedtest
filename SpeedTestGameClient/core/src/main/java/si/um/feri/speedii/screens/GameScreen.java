@@ -220,9 +220,13 @@ public class GameScreen implements Screen {
         for (Iterator<Enemy> iterator = enemies.iterator(); iterator.hasNext();) {
             Enemy enemy = iterator.next();
             if (enemy.isDead()) {
+                // Add money
+                gameDataManager.addMoney(enemy.getMoneyReward());
                 iterator.remove();
                 gameDataManager.decrementEnemiesRemaining();
                 initializeGame.updateEnemiesRemainingLabel();
+                // Money logic
+                initializeGame.updateLabels();
                 continue;
             }
             if (isRoundActive && !isPaused) {
