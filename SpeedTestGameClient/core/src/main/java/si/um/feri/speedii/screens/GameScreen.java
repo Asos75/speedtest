@@ -224,6 +224,8 @@ public class GameScreen implements Screen {
         // Begin the sprite batch
         spriteBatch.begin();
 
+        initializeGame.drawTowers(spriteBatch);
+
         // Update and draw enemies
         for (Iterator<Enemy> iterator = enemies.iterator(); iterator.hasNext();) {
             Enemy enemy = iterator.next();
@@ -270,7 +272,6 @@ public class GameScreen implements Screen {
 
         // Update and draw towers
         if (!isPaused) { initializeGame.updateTowers(delta, enemies, shapeRenderer); }
-        initializeGame.drawTowers(spriteBatch);
 
         // End the sprite batch
         spriteBatch.end();
