@@ -40,6 +40,8 @@ public class Enemy {
     private BitmapFont font = new BitmapFont();
     private GameDataManager gameDataManager;
 
+    float healthBarY = 50 + MathUtils.random(-10, 10);
+
     // Constructor to initialize enemy attributes
     public Enemy(int health, float speed, Type type, String texturePath, GameLogic gameLogic, GameDataManager gameDataManager) {
         this.health = health;
@@ -236,8 +238,9 @@ public class Enemy {
         float healthBarWidth = 80;
         float healthBarHeight = 10;
         float healthBarX = position.x - 10;
-        float healthBarY = position.y + 50;
+        healthBarY += position.y;
         uiBatch.draw(healthBarTexture, healthBarX, healthBarY, healthBarWidth * ((float) health / maxHealth), healthBarHeight);
+        healthBarY -= position.y;
         uiBatch.setColor(Color.WHITE);
 
         // Render damage texts

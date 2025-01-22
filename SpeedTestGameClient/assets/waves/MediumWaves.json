@@ -3,7 +3,7 @@
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "BasicEnemy", "health": 150, "speed": 50, "delay": 0.0, "count": 5},
+        {"type": "BasicEnemy", "health": 150, "speed": 50, "delay": 2.0, "count": 5},
         {"type": "FastEnemy", "health": 100, "speed": 80, "delay": 5.0, "count": 3}
       ]
     },

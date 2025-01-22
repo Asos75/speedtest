@@ -211,7 +211,7 @@ public class InitializeGame {
     private void initializeTables() {
         Table topTable = new Table();
         topTable.add(locationLabel).left().pad(10).expandX();
-        topTable.add(downloadSpeedLabel).right().pad(10).expandX();
+        topTable.add(downloadSpeedLabel).expandX();
         topTable.add(moneyLabel).right().pad(10).expandX();
 
         Table leftTable = new Table();

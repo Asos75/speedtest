@@ -39,4 +39,8 @@
       "waveNumber": 6,
       "enemies": [
         {"type": "BasicEnemy", "health": 220, "speed": 50, "delay": 0.0, "count": 6},
-        {"type": "DefenseEnemy", "health": 240, "speed": 30,
+        {"type": "DefenseEnemy", "health": 240, "speed": 30, "delay": 5.0, "count": 3}
+      ]
+    }
+  ]
+}

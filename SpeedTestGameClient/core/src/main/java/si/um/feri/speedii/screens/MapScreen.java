@@ -64,6 +64,8 @@ import si.um.feri.speedii.utils.MapRasterTiles;
 import si.um.feri.speedii.utils.ZoomXY;
 import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
 
+import java.text.DecimalFormat;
+
 public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     private Viewport viewport;
@@ -173,9 +175,22 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
-                String formattedSpeed = String.format("%.2f", lastSelectedSpeed);
+
+                // Log the last selected speed
+                System.out.println("Last selected speed: " + lastSelectedSpeed);
+
+                DecimalFormat df = new DecimalFormat("#.00");
+                String formattedSpeed = df.format(lastSelectedSpeed / 1_000_000.0);
+
+                // Log the formatted speed
+                System.out.println("Formatted speed: " + formattedSpeed);
+
                 Geolocation geolocation = MapRasterTiles.getGeolocationFromPixel((int) lastX, (int) lastY, TILE_SIZE, ZOOM, beginTile.x, beginTile.y, height);
                 location = LocationHelper.getLocationName(geolocation.lat, geolocation.lng);
+
+                // Log the location
+                System.out.println("Location: " + location);
+
                 app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, location, formattedSpeed));
             }
         });
