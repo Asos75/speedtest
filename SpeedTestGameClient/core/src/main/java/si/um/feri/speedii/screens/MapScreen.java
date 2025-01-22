@@ -1,14 +1,18 @@
 package si.um.feri.speedii.screens;
 
+import static si.um.feri.speedii.utils.Constants.ZOOM;
+import static si.um.feri.speedii.utils.MapRasterTiles.TILE_SIZE;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
@@ -21,16 +25,36 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import javax.xml.parsers.SAXParser;
-
+import si.um.feri.speedii.SpeediiApp;
+import si.um.feri.speedii.assets.AssetDescriptors;
+import si.um.feri.speedii.assets.RegionNames;
+import si.um.feri.speedii.classes.ExtremeEvent;
 import si.um.feri.speedii.classes.Measurement;
+import si.um.feri.speedii.classes.MobileTower;
+import si.um.feri.speedii.classes.Pair;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
+import si.um.feri.speedii.dao.http.HttpMobileTower;
+import si.um.feri.speedii.screens.mapcomponents.ScrollWheelInputProcessor;
 import si.um.feri.speedii.utils.Constants;
 import si.um.feri.speedii.utils.Geolocation;
 import si.um.feri.speedii.utils.MapRasterTiles;
@@ -38,13 +62,22 @@ import si.um.feri.speedii.utils.ZoomXY;
 import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener {
+
+    private Viewport viewport;
+
+    boolean debug = false;
+    private final SpeediiApp app;
+
     private ShapeRenderer shapeRenderer;
     private Vector3 touchPosition;
 
+
     private TiledMap tiledMap;
+    int height = Gdx.graphics.getHeight();
     private TiledMapRenderer tiledMapRenderer;
     private OrthographicCamera camera;
 
+    private final AssetManager assetManager;
     private Texture[] mapTiles;
     private ZoomXY beginTile;   // top left tile
 
@@ -62,17 +95,184 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private SpriteBatch spriteBatch;
     private String speedInfo;
     private Vector2 speedInfoPosition;
+    private Vector2 extremeEventPosition;
 
-    public MapScreen(SessionManager sessionManager) {
+    TextureAtlas atlas;
+    private TextureRegion mobileTowerTexture;
+
+    private List<Pair<Vector2, MobileTower>> mobileTowerPositions;
+
+    private Stage stage;
+    private Window speedInfoWindow;
+    private Label speedInfoLabel;
+    private Label difficultyLabel;
+    private Window towerInfoWindow;
+    private Label providerLabel;
+    private Label typeLabel;
+    private Label confirmedLabel;
+    private Window extremeEventWindow;
+    private Label extremeEventTypeLabel;
+    private Label extremeEventTimeLabel;
+    private Label extremeEventDateLabel;
+    private Label extremeUserLocationLabel;
+
+
+
+    private Skin skin;
+
+    private Vector2 drawnTower;
+    private float towerRadius = 1.2f;
+    private float pxPerKm;
+
+    private boolean drawGrid = true;
+    private float gridOpacity = Constants.OVERLAY_ALPHA;
+    private boolean drawMobileTowers = true;
+    private int minSpeed = 0;
+    private int maxSpeed = 0;
+    private int selectedDifficulty = 0;
+
+    private boolean drawExtremeEvents = true;
+
+
+
+    public MapScreen(SpeediiApp app, SessionManager sessionManager, AssetManager assetManager) {
         Gdx.graphics.setWindowedMode(Constants.HUD_WIDTH, Constants.HUD_HEIGHT);
-
+        this.app = app;
         this.sessionManager = sessionManager;
-
         this.font = new BitmapFont();
         this.spriteBatch = new SpriteBatch();
         this.speedInfo = "";
+        this.assetManager = assetManager;
         this.speedInfoPosition = new Vector2();
+        this.extremeEventPosition = new Vector2();
+        this.camera = new OrthographicCamera();
+        this.viewport = new ScreenViewport(camera);
+
+
+        stage = new Stage(new ScreenViewport());
+        skin = new Skin(Gdx.files.internal("skin/flat-earth-ui.json"));
+
+        createActors();
     }
+
+    private void createActors(){
+        //SPEED INFO WINDOW
+        speedInfoWindow = new Window("Average speed", skin);
+        speedInfoLabel = new Label("", skin);
+        difficultyLabel = new Label("", skin);
+        TextButton playButton = new TextButton("Play", skin);
+
+        playButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO - launch game with difficulty selected
+
+                System.out.println("Button clicked");
+            }
+        });
+
+        speedInfoWindow.add(speedInfoLabel).pad(10);
+        speedInfoWindow.row();
+        speedInfoWindow.add(difficultyLabel).pad(10);
+        speedInfoWindow.row();
+        speedInfoWindow.add(playButton).pad(10);
+        speedInfoWindow.pack();
+        speedInfoWindow.setVisible(false);
+
+        towerInfoWindow = new Window("Tower Info", skin);
+        providerLabel = new Label("", skin);
+        typeLabel = new Label("", skin);
+        confirmedLabel = new Label("", skin);
+
+        towerInfoWindow.add(providerLabel).left().pad(10);
+        towerInfoWindow.row();
+        towerInfoWindow.add(typeLabel).left().pad(10);
+        towerInfoWindow.row();
+        towerInfoWindow.add(confirmedLabel).left().pad(10);
+        towerInfoWindow.pack();
+        towerInfoWindow.setVisible(false);
+
+        //EXTREME EVENT WINDOW
+        extremeEventWindow = new Window("Extreme Event                          ", skin);
+        extremeEventTypeLabel = new Label("", skin);
+        extremeEventTimeLabel = new Label("", skin);
+        extremeEventDateLabel = new Label("", skin);
+        extremeUserLocationLabel = new Label("", skin);
+
+        extremeEventWindow.add(extremeEventTypeLabel).left().pad(10);
+        extremeEventWindow.row();
+        extremeEventWindow.add(extremeEventTimeLabel).left().pad(10);
+        extremeEventWindow.row();
+        extremeEventWindow.add(extremeEventDateLabel).left().pad(10);
+        extremeEventWindow.row();
+        extremeEventWindow.add(extremeUserLocationLabel).left().pad(10);
+        extremeEventWindow.pack();
+
+        extremeEventWindow.setVisible(false);
+
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.setPosition(10, Gdx.graphics.getHeight() - 50); // Adjust position as needed
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                app.setScreen(new MenuScreen(app, sessionManager));
+            }
+        });
+
+        stage.addActor(backButton);
+
+        TextButton toggleGridButton = new TextButton("Toggle Grid", skin);
+        TextButton toggleExtremeEventsButton = new TextButton("Toggle Extreme Events", skin);
+        TextButton toggleTowersButton = new TextButton("Toggle Towers", skin);
+        Slider gridOpacitySlider = new Slider(0.0f, 1.0f, 0.01f, false, skin);
+
+        toggleTowersButton.setPosition(10, Gdx.graphics.getHeight() - 100);
+        toggleExtremeEventsButton.setPosition(10, Gdx.graphics.getHeight() - 150);
+        toggleGridButton.setPosition(10, Gdx.graphics.getHeight() - 200);
+        gridOpacitySlider.setPosition(10, Gdx.graphics.getHeight() - 250);
+
+        toggleGridButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawGrid = !drawGrid;
+                gridOpacitySlider.setVisible(drawGrid);
+            }
+        });
+
+        toggleExtremeEventsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawExtremeEvents = !drawExtremeEvents;
+            }
+        });
+
+        toggleTowersButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawMobileTowers = !drawMobileTowers;
+                if(drawnTower != null) {
+                    drawnTower = null;
+                }
+            }
+        });
+
+        gridOpacitySlider.setValue(gridOpacity);
+        gridOpacitySlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                gridOpacity = gridOpacitySlider.getValue();
+            }
+        });
+
+        stage.addActor(gridOpacitySlider);
+        stage.addActor(toggleExtremeEventsButton);
+        stage.addActor(toggleGridButton);
+        stage.addActor(toggleTowersButton);
+        stage.addActor(speedInfoWindow);
+        stage.addActor(towerInfoWindow);
+        stage.addActor(extremeEventWindow);
+    }
+
 
     @Override
     public void show() {
@@ -90,23 +290,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         try {
             //in most cases, geolocation won't be in the center of the tile because tile borders are predetermined (geolocation can be at the corner of a tile)
-            ZoomXY centerTile = MapRasterTiles.getTileNumber(CENTER_GEOLOCATION.lat, CENTER_GEOLOCATION.lng, Constants.ZOOM);
+            ZoomXY centerTile = MapRasterTiles.getTileNumber(CENTER_GEOLOCATION.lat, CENTER_GEOLOCATION.lng, ZOOM);
             mapTiles = MapRasterTiles.getRasterTileZone(centerTile, Constants.NUM_TILES);
             //you need the beginning tile (tile on the top left corner) to convert geolocation to a location in pixels.
-            beginTile = new ZoomXY(Constants.ZOOM, centerTile.x - ((Constants.NUM_TILES - 1) / 2), centerTile.y - ((Constants.NUM_TILES - 1) / 2));
+            beginTile = new ZoomXY(ZOOM, centerTile.x - ((Constants.NUM_TILES - 1) / 2), centerTile.y - ((Constants.NUM_TILES - 1) / 2));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        atlas = assetManager.get(AssetDescriptors.IMAGES);
+        mobileTowerTexture =  (atlas.findRegion(RegionNames.CELL_TOWER));
         tiledMap = new TiledMap();
         MapLayers layers = tiledMap.getLayers();
 
-        TiledMapTileLayer layer = new TiledMapTileLayer(Constants.NUM_TILES, Constants.NUM_TILES, MapRasterTiles.TILE_SIZE, MapRasterTiles.TILE_SIZE);
+        TiledMapTileLayer layer = new TiledMapTileLayer(Constants.NUM_TILES, Constants.NUM_TILES, TILE_SIZE, TILE_SIZE);
         int index = 0;
         for (int j = Constants.NUM_TILES - 1; j >= 0; j--) {
             for (int i = 0; i < Constants.NUM_TILES; i++) {
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                cell.setTile(new StaticTiledMapTile(new TextureRegion(mapTiles[index], MapRasterTiles.TILE_SIZE, MapRasterTiles.TILE_SIZE)));
+                cell.setTile(new StaticTiledMapTile(new TextureRegion(mapTiles[index], TILE_SIZE, TILE_SIZE)));
                 layer.setCell(i, j, cell);
                 index++;
             }
@@ -115,14 +317,24 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        Gdx.input.setInputProcessor(new GestureDetector(this));
+        GestureDetector gestureDetector = new GestureDetector(this);
+        ScrollWheelInputProcessor scrollWheelInputProcessor = new ScrollWheelInputProcessor(camera);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer(stage, gestureDetector, scrollWheelInputProcessor);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        mapOverlay = new MapOverlay();
 
-        // Initialize MapOverlay
-        mapOverlay = new MapOverlay(); // Adjust grid size as needed
-
-        // Example measurements, replace with actual data
         List<Measurement> measurements = getMeasurements();
+        List<MobileTower> mobileTowers = getMobileTowers();
+
         mapOverlay.calculateAverageSpeeds(measurements, beginTile);
+        minSpeed = mapOverlay.getMinSpeed();
+        maxSpeed = mapOverlay.getMaxSpeed();
+
+        mobileTowerPositions =  mapOverlay.turnMobileTowerCoordinatesToPixels(mobileTowers,beginTile);
+        speedInfoWindow.setSize(300, 200); // Set the desired width and height
+        speedInfoWindow.pack();
+
+        pxPerKm = (float) calculatePixelsPerKm(CENTER_GEOLOCATION.lat, ZOOM);
     }
 
     @Override
@@ -130,39 +342,104 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         ScreenUtils.clear(0, 0, 0, 1);
 
         handleInput();
-
         camera.update();
 
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
 
-        drawMarkers();
+        if(drawGrid) {
+            mapOverlay.drawGrid(shapeRenderer, camera, gridOpacity);
+        }
 
-        mapOverlay.drawGrid(shapeRenderer, camera);
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+
+        if(drawMobileTowers) {
+            float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
+            float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
+            for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
+                spriteBatch.draw(mobileTowerTexture, position.getFirst().x - textureWidth / 2, position.getFirst().y - textureHeight / 2, textureWidth, textureHeight);
+
+            }
+
+        }
+
+        spriteBatch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.setColor(Color.RED);
+        if(drawExtremeEvents) {
+            for(ExtremeEvent e : app.extremeEvents) {
+                drawMarker(e.location.coordinates.get(1), e.location.coordinates.get(0));
+            }
+        }
+
+        shapeRenderer.end();
+
 
         if (!speedInfo.isEmpty()) {
-            // Calculate the scale factor based on the window size
             float scaleFactor = Math.min(Gdx.graphics.getWidth() / 100f, Gdx.graphics.getHeight() / 100f);
-
-            // Set the font scale
             font.getData().setScale(scaleFactor);
 
-            GlyphLayout layout = new GlyphLayout(font, speedInfo);
-            float textWidth = layout.width;
-            float textHeight = layout.height;
+            speedInfoLabel.setText(speedInfo);
+            speedInfoWindow.pack();
 
-            shapeRenderer.setProjectionMatrix(camera.combined);
+            // Convert touch position to screen coordinates
+            Vector3 screenPosition = camera.project(new Vector3(speedInfoPosition.x, speedInfoPosition.y, 0));
+
+            // Set the position of the popup on the screen
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - speedInfoWindow.getHeight();
+            speedInfoWindow.setPosition(popupX, popupY);
+
+        }
+
+        if(extremeEventWindow.isVisible()) {
+            Vector3 screenPosition = camera.project(new Vector3(extremeEventPosition.x, extremeEventPosition.y, 0));
+
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - extremeEventWindow.getHeight();
+            extremeEventWindow.setPosition(popupX, popupY);
+        }
+
+        if(drawnTower != null) {
+            towerInfoWindow.pack();
+            towerInfoWindow.setPosition(Gdx.graphics.getWidth() - towerInfoWindow.getWidth(), Gdx.graphics.getHeight() - towerInfoWindow.getHeight());
+
+        }
+
+        stage.act(delta);
+        stage.draw();
+
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        if(drawnTower != null) {
+            shapeRenderer.setColor(Color.BLUE);
+            if (typeLabel.getText().toString().toLowerCase().contains("5g".toLowerCase())) {
+                float pixelRadius = (Constants.RANGE_5G * pxPerKm);
+                shapeRenderer.circle(drawnTower.x, drawnTower.y, pixelRadius);
+            } else if (typeLabel.getText().toString().toLowerCase().contains("4g".toLowerCase())) {
+                float pixelRadius = (Constants.RANGE_4G * pxPerKm);
+                shapeRenderer.circle(drawnTower.x, drawnTower.y, pixelRadius);
+            } else if (typeLabel.getText().toString().toLowerCase().contains("3g".toLowerCase())) {
+                float pixelRadius = (Constants.RANGE_3G * pxPerKm);
+                shapeRenderer.circle(drawnTower.x, drawnTower.y, pixelRadius);
+            }
+        }
+        shapeRenderer.end();
+
+
+        if(debug) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(Color.BLACK);
-            shapeRenderer.rect(speedInfoPosition.x, speedInfoPosition.y - textHeight, textWidth, textHeight);
+            shapeRenderer.setColor(Color.RED);
+            for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
+                shapeRenderer.circle(position.getFirst().x, position.getFirst().y, 10);
+            }
             shapeRenderer.end();
-
-            spriteBatch.setProjectionMatrix(camera.combined);
-            spriteBatch.begin();
-            font.draw(spriteBatch, speedInfo, speedInfoPosition.x, speedInfoPosition.y);
-            spriteBatch.end();
         }
     }
+
 
     private void drawMarkers() {
         Vector2 marker = MapRasterTiles.getPixelPosition(MARKER_GEOLOCATION.lat, MARKER_GEOLOCATION.lng, beginTile.x, beginTile.y);
@@ -174,9 +451,35 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         shapeRenderer.end();
     }
 
+    private void drawMarker(double x, double y) {
+        Vector2 marker = MapRasterTiles.getPixelPosition(x, y, beginTile.x, beginTile.y);
+        shapeRenderer.circle(marker.x, marker.y, 10);
+    }
+
     @Override
     public void resize(int width, int height) {
+        viewport.update(width, height, true);
+
+        if (speedInfoWindow.isVisible()) {
+            Vector3 screenPosition = camera.project(new Vector3(speedInfoPosition.x, speedInfoPosition.y, 0));
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - speedInfoWindow.getHeight();
+            speedInfoWindow.setPosition(popupX, popupY);
+        }
+
+        if (extremeEventWindow.isVisible()) {
+            Vector3 screenPosition = camera.project(new Vector3(extremeEventPosition.x, extremeEventPosition.y, 0));
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - extremeEventWindow.getHeight();
+            extremeEventWindow.setPosition(popupX, popupY);
+        }
+
+        if (drawnTower != null) {
+            towerInfoWindow.pack();
+            towerInfoWindow.setPosition(Gdx.graphics.getWidth() - towerInfoWindow.getWidth(), Gdx.graphics.getHeight() - towerInfoWindow.getHeight());
+        }
     }
+
 
     @Override
     public void pause() {
@@ -193,13 +496,66 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void dispose() {
         shapeRenderer.dispose();
+        font.dispose();
+        spriteBatch.dispose();
+        stage.dispose();
     }
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
         touchPosition.set(x, y, 0);
         camera.unproject(touchPosition);
+
+        // Convert touch position to stage coordinates
+        Vector2 stageCoords = stage.screenToStageCoordinates(new Vector2(x, y));
+
+        if (speedInfoWindow.isVisible() && speedInfoWindow.hit(stageCoords.x, stageCoords.y, true) != null) {
+            return true;
+        }
+
         speedInfo = "";
+        speedInfoWindow.setVisible(false);
+
+
+
+        if(drawMobileTowers) {
+            float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
+            for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
+                if (position.getFirst().dst(touchPosition.x, touchPosition.y) < textureWidth / 2) {
+                    drawnTower = position.getFirst();
+
+                    providerLabel.setText("Provider: " + position.getSecond().getProvider());
+                    typeLabel.setText("Type: " + position.getSecond().getType());
+                    confirmedLabel.setText("Confirmed: " + position.getSecond().isConfirmed());
+                    towerInfoWindow.setVisible(true);
+                    return false;
+                }
+            }
+            drawnTower = null;
+            towerInfoWindow.setVisible(false);
+        }
+        if (drawExtremeEvents){
+            for(ExtremeEvent e : app.extremeEvents) {
+                Vector2 marker = MapRasterTiles.getPixelPosition(e.location.coordinates.get(1), e.location.coordinates.get(0), beginTile.x, beginTile.y);
+                if (marker.dst(touchPosition.x, touchPosition.y) < 30) {
+                    System.out.println("Extreme event clicked");
+                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+                    extremeEventTypeLabel.setText("Type: " + e.type);
+                    extremeEventDateLabel.setText("Date: " + e.time.format(dateFormatter));
+                    extremeEventTimeLabel.setText("Time: " + e.time.format(timeFormatter));
+                    if (e.user != null) extremeUserLocationLabel.setText("Location: " + e.user);
+                    extremeEventWindow.setVisible(true);
+
+                    extremeEventPosition.set(touchPosition.x, touchPosition.y);
+
+                    return false;
+                }
+                extremeEventWindow.setVisible(false);
+            }
+        }
+
         return false;
     }
 
@@ -213,17 +569,22 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         touchPosition.set(x, y, 0);
         camera.unproject(touchPosition);
 
-        int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
-        speedInfo = "Speed: " + speed;
-        if(speed == -1) {
-            return false;
+        if(drawGrid) {
+            int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
+            speedInfo = "Speed: " + String.format("%.2f", speed / 1_000_000.0) + " Mbps";
+            selectedDifficulty = calculateDifficulty(speed);
+            difficultyLabel.setText("Difficulty: " + difficultyToString(selectedDifficulty));
+            if (speed == -1) {
+                speedInfo = "";
+                speedInfoWindow.setVisible(false);
+                return false;
+            }
+            speedInfoWindow.setVisible(true);
+            speedInfoPosition.set(touchPosition.x, touchPosition.y);
         }
-
-        speedInfoPosition.set(touchPosition.x, touchPosition.y);
-
-        System.out.println("Speed: " + speed);
         return false;
     }
+
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
@@ -260,6 +621,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     }
 
+
     private void handleInput() {
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             camera.zoom += 0.02;
@@ -279,6 +641,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             camera.translate(0, 3, 0);
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            app.setScreen(new MenuScreen(app, sessionManager));
+        }
+
 
         camera.zoom = MathUtils.clamp(camera.zoom, 0.5f, 2f);
 
@@ -297,7 +663,62 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(measurements.size());
         return measurements;
 
     }
+
+
+    private List<MobileTower> getMobileTowers() {
+        HttpMobileTower httpMobileTower = new HttpMobileTower(sessionManager);
+        List<MobileTower> mobileTowers;
+        mobileTowers = httpMobileTower.getAll();
+        return mobileTowers;
+
+    }
+
+    private int calculateDifficulty(int speed) {
+        if (speed < minSpeed + (maxSpeed - minSpeed) / 5) {
+            return 1;
+        } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 2) {
+            return 2;
+        } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 3) {
+            return 3;
+        } else if (speed < minSpeed + (maxSpeed - minSpeed) / 5 * 4) {
+            return 4;
+        } else {
+            return 5;
+        }
+    }
+
+    private String difficultyToString(int difficulty) {
+        switch (difficulty) {
+            case 1:
+                return "Very Easy";
+            case 2:
+                return "Easy";
+            case 3:
+                return "Medium";
+            case 4:
+                return "Hard";
+            case 5:
+                return "Very Hard";
+            default:
+                return "Unknown";
+        }
+    }
+
+    private double calculatePixelsPerKm(double latitude, int zoom) {
+        final double EARTH_CIRCUMFERENCE = 40075016.686;
+        final int TILE_SIZE = MapRasterTiles.TILE_SIZE;
+
+        double resolution = EARTH_CIRCUMFERENCE * Math.cos(Math.toRadians(latitude)) / Math.pow(2, zoom + 8);
+
+        double kmPerPixel = resolution / 1000.0;
+
+        return 1.0 / kmPerPixel;
+    }
+
+
+
 }

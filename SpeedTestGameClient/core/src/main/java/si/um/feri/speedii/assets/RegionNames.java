@@ -9,4 +9,6 @@ public class RegionNames {
         public static final String CELL_TOWER = "cell-tower";
         public static final String SATELLITE_TOWER = "satellite-tower";
         public static final String SIGNAL = "signal";
+        public static final String LOGO = "logo";
+        public static final String BACKGROUND= "background";
 }

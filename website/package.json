@@ -27,7 +27,7 @@
     "react-leaflet-heatmap-layer": "^2.0.0",
     "react-loader-spinner": "^6.1.6",
     "react-router-dom": "^6.23.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-window": "^1.8.10",
     "web-vitals": "^2.1.4"
   },
@@ -54,5 +54,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "engines": {
+    "node": "16.x"
   }
 }

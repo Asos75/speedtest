@@ -12,19 +12,26 @@ import org.bson.types.ObjectId;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import si.um.feri.speedii.classes.Events;
+import si.um.feri.speedii.classes.ExtremeEvent;
 import si.um.feri.speedii.classes.Location;
 import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.classes.Type;
 import si.um.feri.speedii.classes.User;
+import si.um.feri.speedii.connection.MQTTClient;
 import si.um.feri.speedii.connection.MongoDBConnection;
 import si.um.feri.speedii.dao.MeasurementCRUD;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
+import si.um.feri.speedii.dao.http.HttpMobileTower;
 import si.um.feri.speedii.dao.http.HttpUser;
+import si.um.feri.speedii.screens.GameScreen;
+import si.um.feri.speedii.screens.InsertEditScreen;
 import si.um.feri.speedii.screens.LoginScreen;
 import si.um.feri.speedii.screens.MapScreen;
 import si.um.feri.speedii.assets.AssetDescriptors;
@@ -36,15 +43,23 @@ public class SpeediiApp extends Game {
     private AssetManager assetManager;
     private SpriteBatch batch;
 
+    public ArrayList<ExtremeEvent> extremeEvents = new ArrayList<>();
+
+    public MQTTClient mqttClient;
     @Override
     public void create() {
         MongoDBConnection.connect();
 
-        //SessionManager sessionManager = new SessionManager();
-        //HttpUser httpUser = new HttpUser(sessionManager);
-        //boolean successful = httpUser.authenticate("admin", "admin");
-        //System.out.println("Successful: " + successful);
-        //System.out.println("Session: " + sessionManager);
+        mqttClient = new MQTTClient();
+        mqttClient.connectToBroker(extremeEvents);
+
+        if(mqttClient.isBrokerConnected()) mqttClient.requestExtremeEvents();
+
+        SessionManager sessionManager = new SessionManager();
+
+        HttpUser httpUser = new HttpUser(sessionManager);
+
+        System.out.println("Session: " + sessionManager);
 
         assetManager = new AssetManager();
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
@@ -55,10 +70,13 @@ public class SpeediiApp extends Game {
 
         batch = new SpriteBatch();
 
-        //setScreen(new MapScreen(sessionManager));
-        //setScreen(new GameScreen());
-        setScreen(new MenuScreen(this));
 
+       // setScreen(new InsertEditScreen(httpMeasurement, httpMobileTower, httpUser));
+        //setScreen(new MapScreen(this, sessionManager, assetManager));
+        //setScreen(new GameScreen(this));
+        //setScreen(new GameScreen());
+        //new MenuScreen(this);
+        setScreen(new LoginScreen(this,httpUser,sessionManager, assetManager));
         /*
 
 

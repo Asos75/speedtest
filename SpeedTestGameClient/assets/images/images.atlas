@@ -1,0 +1,41 @@
+
+images.png
+size: 2048, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+background
+  rotate: false
+  xy: 2, 2
+  size: 657, 360
+  orig: 657, 360
+  offset: 0, 0
+  index: -1
+celltower
+  rotate: false
+  xy: 2, 364
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+logo
+  rotate: false
+  xy: 661, 153
+  size: 800, 209
+  orig: 800, 209
+  offset: 0, 0
+  index: -1
+router
+  rotate: false
+  xy: 516, 364
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+switch
+  rotate: false
+  xy: 1030, 364
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
