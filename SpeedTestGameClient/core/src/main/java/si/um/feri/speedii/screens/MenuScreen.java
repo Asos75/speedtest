@@ -1,5 +1,6 @@
 package si.um.feri.speedii.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -117,6 +118,7 @@ public class MenuScreen extends ScreenAdapter {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
                 app.setScreen(new GameScreen(app, selectedDifficulty));
             }
         });
@@ -144,6 +146,7 @@ public class MenuScreen extends ScreenAdapter {
         mapButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                 com.badlogic.gdx.Gdx.graphics.setWindowedMode(900, 900);
                  app.setScreen(new MapScreen(app, sessionManager, assetManager));
             }
         });

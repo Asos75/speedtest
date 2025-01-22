@@ -6,7 +6,7 @@ public class RegionNames {
         public static final String SERVER_CONTROL = "server-control";
         public static final String HUB = "hub";
         public static final String SWITCH = "switch";
-        public static final String CELL_TOWER = "cell-tower";
+        public static final String CELL_TOWER = "celltower";
         public static final String SATELLITE_TOWER = "satellite-tower";
         public static final String SIGNAL = "signal";
         public static final String LOGO = "logo";

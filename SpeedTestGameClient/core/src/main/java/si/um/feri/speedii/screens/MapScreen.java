@@ -52,6 +52,7 @@ import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.classes.Pair;
 import si.um.feri.speedii.classes.SessionManager;
+import si.um.feri.speedii.config.GameConfig;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
 import si.um.feri.speedii.screens.mapcomponents.ScrollWheelInputProcessor;
@@ -166,7 +167,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
+                Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
                 app.setScreen(new GameScreen(app, selectedDifficulty));
             }
         });
@@ -215,6 +216,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
                 app.setScreen(new MenuScreen(app, sessionManager));
             }
         });
@@ -298,7 +300,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             e.printStackTrace();
         }
 
-        atlas = assetManager.get(AssetDescriptors.IMAGES);
+        atlas = assetManager.get(AssetDescriptors.UI_IMAGES);
         mobileTowerTexture =  (atlas.findRegion(RegionNames.CELL_TOWER));
         tiledMap = new TiledMap();
         MapLayers layers = tiledMap.getLayers();
