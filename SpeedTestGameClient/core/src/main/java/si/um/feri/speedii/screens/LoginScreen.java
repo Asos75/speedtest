@@ -51,7 +51,7 @@ public class LoginScreen implements Screen {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         // Nalaganje tekstur in logotipa
-        atlas = assetManager.get(AssetDescriptors.IMAGES);
+        atlas = assetManager.get(AssetDescriptors.UI_IMAGES);
         logoRegion = atlas.findRegion(RegionNames.LOGO);
 
         TextureRegionDrawable logoDrawable = new TextureRegionDrawable(logoRegion);

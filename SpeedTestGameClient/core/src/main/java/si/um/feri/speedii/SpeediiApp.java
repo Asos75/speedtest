@@ -64,6 +64,7 @@ public class SpeediiApp extends Game {
         assetManager = new AssetManager();
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
         assetManager.load(AssetDescriptors.IMAGES);
+        assetManager.load(AssetDescriptors.UI_IMAGES);
         assetManager.load(AssetDescriptors.UI_SKIN);
 
         assetManager.finishLoading();

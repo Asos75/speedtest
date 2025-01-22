@@ -43,7 +43,7 @@ public class MenuScreen extends ScreenAdapter {
     //private DIFFICULTY selectedDifficulty = DIFFICULTY.MEDIUM; // Default difficulty
     private DIFFICULTY selectedDifficulty = DIFFICULTY.VERY_EASY;
 
-    public MenuScreen(SpeediiApp app) {
+    public MenuScreen(SpeediiApp app, SessionManager sessionManager) {
         this.app = app;
         this.assetManager = app.getAssetManager();
         this.sessionManager = sessionManager;
@@ -54,7 +54,7 @@ public class MenuScreen extends ScreenAdapter {
     public void show() {
         viewport = new FitViewport(GameConfig.HUD_WIDTH, GameConfig.HUD_HEIGHT);
         stage = new Stage(viewport, app.getBatch());
-        atlas = assetManager.get(AssetDescriptors.IMAGES);
+        atlas = assetManager.get(AssetDescriptors.UI_IMAGES);
 
         stage.addActor(createBackground());
         stage.addActor(createUi());
@@ -114,6 +114,16 @@ public class MenuScreen extends ScreenAdapter {
                 // app.setScreen(new PlayScreen(game));
             }
         });
+
+        SelectBox<DIFFICULTY> difficultySelectBox = new SelectBox<>(skin);
+        difficultySelectBox.setItems(DIFFICULTY.values());
+        difficultySelectBox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                selectedDifficulty = difficultySelectBox.getSelected();
+            }
+        });
+        table.add(difficultySelectBox).width(250).pad(30).padBottom(15).expandX().row();
 
         TextButton leaderboardButton = new TextButton("Edit", skin);
         leaderboardButton.addListener(new ClickListener() {
