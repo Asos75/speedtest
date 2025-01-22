@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import si.um.feri.speedii.SpeediiApp;
 import si.um.feri.speedii.assets.AssetDescriptors;
+import si.um.feri.speedii.assets.RegionNames;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.config.GameConfig;
 
@@ -26,6 +28,8 @@ public class MenuScreen extends ScreenAdapter {
     private final AssetManager assetManager;
     private SessionManager sessionManager;
     private final Skin skin;
+
+    private TextureAtlas atlas;
     private Viewport viewport;
     private Stage stage;
 
@@ -40,10 +44,28 @@ public class MenuScreen extends ScreenAdapter {
     public void show() {
         viewport = new FitViewport(GameConfig.HUD_WIDTH, GameConfig.HUD_HEIGHT);
         stage = new Stage(viewport, app.getBatch());
+        atlas = assetManager.get(AssetDescriptors.IMAGES);
 
+        stage.addActor(createBackground());
         stage.addActor(createUi());
 
         com.badlogic.gdx.Gdx.input.setInputProcessor(stage);
+
+    }
+
+    private Actor createBackground() {
+        Table table = new Table();
+        table.setFillParent(true);
+
+        TextureRegion backgroundRegion = atlas.findRegion(RegionNames.BACKGROUND);
+        table.setBackground(new TextureRegionDrawable(backgroundRegion));
+
+
+
+        table.center();
+        table.setFillParent(true);
+
+        return table;
     }
 
     @Override
@@ -72,14 +94,15 @@ public class MenuScreen extends ScreenAdapter {
         Table table = new Table();
         table.defaults().pad(20);
 
-        //TextureRegion menuBackground = gameplayAtlas.findRegion(RegionNames.BACKGROUND);
-        //table.setBackground(new TextureRegionDrawable(menuBackground));
+        Label titleLabel = new Label("TOWER DEFENSE", skin);
+        titleLabel.setFontScale(4f);
+        table.add(titleLabel).colspan(4).padBottom(50).center().row();
 
         TextButton playButton = new TextButton("Play", skin);
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              //  game.setScreen(new PlayScreen(game));
+                // app.setScreen(new PlayScreen(game));
             }
         });
 
@@ -92,8 +115,8 @@ public class MenuScreen extends ScreenAdapter {
         });
 
 
-        TextButton settingsButton = new TextButton("Map", skin);
-        settingsButton.addListener(new ClickListener() {
+        TextButton mapButton = new TextButton("Map", skin);
+        mapButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                  app.setScreen(new MapScreen(app, sessionManager, assetManager));
@@ -109,9 +132,15 @@ public class MenuScreen extends ScreenAdapter {
             }
         });
 
+        playButton.pad(10);
+        leaderboardButton.pad(10);
+        mapButton.pad(10);
+        quitButton.pad(10);
+
+
         table.add(playButton).width(250).padBottom(15).expandX().row();
         table.add(leaderboardButton).width(250).expandX().row();
-        table.add(settingsButton).width(250).expandX().row();
+        table.add(mapButton).width(250).expandX().row();
         table.add(quitButton).width(250);
 
         table.center();
