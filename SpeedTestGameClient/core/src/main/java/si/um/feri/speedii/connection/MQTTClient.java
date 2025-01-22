@@ -2,8 +2,7 @@ package si.um.feri.speedii.connection;
 
 import com.google.gson.*;
 import org.eclipse.paho.client.mqttv3.*;
-import java.io.*;
-import java.net.*;
+
 import java.nio.charset.StandardCharsets;
 import io.github.cdimascio.dotenv.Dotenv;
 import si.um.feri.speedii.classes.ExtremeEvent;
@@ -12,6 +11,7 @@ import si.um.feri.speedii.classes.Events;
 import si.um.feri.speedii.classes.User;
 import si.um.feri.speedii.classes.gsonserializers.LocalDateTimeDeserializer;
 import si.um.feri.speedii.classes.gsonserializers.LocalDateTimeSerializer;
+import si.um.feri.speedii.screens.MapScreen;
 
 import java.util.*;
 import java.time.LocalDateTime;
@@ -26,9 +26,16 @@ public class MQTTClient {
 
     private static final String EXTREME_EVENTS_REQUEST_URL = "http://your-api-url/measurements/extreme/request";
 
+    private MapScreen mapScreen = null;
+    public ExtremeEvent lastAddedEvent = null;
+
     public MQTTClient() {
         Dotenv dotenv = Dotenv.configure().filename(".env").load();
         this.mqttBrokerURL = dotenv.get("MQTT_BROKER_URL");
+    }
+
+    public void setMapScreen(MapScreen mapScreen) {
+        this.mapScreen = mapScreen;
     }
 
     public void connectToBroker(ArrayList<ExtremeEvent> extremeEvents) {
@@ -39,6 +46,9 @@ public class MQTTClient {
 
             mqttClient.subscribe(EXTREME_EVENTS_TOPIC_RESPONSE);
             System.out.println("Subscribed to topic: " + EXTREME_EVENTS_TOPIC_RESPONSE);
+
+            mqttClient.subscribe(EXTREME_EVENTS_TOPIC);
+            System.out.println("Subscribed to topic: " + EXTREME_EVENTS_TOPIC);
 
             mqttClient.setCallback(new MqttCallback() {
                 @Override
@@ -62,8 +72,19 @@ public class MQTTClient {
                         String response = new String(message.getPayload(), StandardCharsets.UTF_8);
                         System.out.println("Received response: " + response);
 
-                        ExtremeEvent event = parseEventsResponse(response)[0];
+                        ExtremeEvent event = parseEventResponse(response);
+                        System.out.println("Received event: " + event);
+
                         extremeEvents.add(event);
+                        System.out.println("Added event to list: " + event);
+
+                        lastAddedEvent = event;
+                        System.out.println("Last added event: " + lastAddedEvent);
+
+                        if(mapScreen != null){
+                            mapScreen.pushExtremeEvent(event);
+                            System.out.println("Pushed event to map screen: " + event);
+                        }
                     }
                 }
 
@@ -98,6 +119,15 @@ public class MQTTClient {
         Gson gson = gsonBuilder.create();
 
         return gson.fromJson(response, ExtremeEvent[].class);
+    }
+
+    private static ExtremeEvent parseEventResponse(String response) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer());
+
+        Gson gson = gsonBuilder.create();
+
+        return gson.fromJson(response, ExtremeEvent.class);
     }
 
     public void publishEvent(String topic, String message) {

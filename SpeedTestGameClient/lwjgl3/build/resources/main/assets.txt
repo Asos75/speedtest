@@ -1,12 +1,69 @@
 fonts/myFont.fnt
 fonts/myFont1.png
 fonts/myFont2.png
+images/Bugs/BeetleMove.png
+images/Bugs/Dragonfly Sprite Sheet.png
+images/Bugs/MaggotWalk.png
+images/Bugs/MantisMove.png
+images/black_pixel.png
 images/images.atlas
 images/images.png
+images/spediiIcons.atlas
+images/spediiIcons.png
+images/white_pixel.png
 libgdx.png
+logo.png
+maptiles/tile_15_17805_11582.png
+maptiles/tile_15_17805_11583.png
+maptiles/tile_15_17805_11584.png
+maptiles/tile_15_17805_11585.png
+maptiles/tile_15_17805_11586.png
+maptiles/tile_15_17806_11582.png
+maptiles/tile_15_17806_11583.png
+maptiles/tile_15_17806_11584.png
+maptiles/tile_15_17806_11585.png
+maptiles/tile_15_17806_11586.png
+maptiles/tile_15_17807_11582.png
+maptiles/tile_15_17807_11583.png
+maptiles/tile_15_17807_11584.png
+maptiles/tile_15_17807_11585.png
+maptiles/tile_15_17807_11586.png
+maptiles/tile_15_17808_11582.png
+maptiles/tile_15_17808_11583.png
+maptiles/tile_15_17808_11584.png
+maptiles/tile_15_17808_11585.png
+maptiles/tile_15_17808_11586.png
+maptiles/tile_15_17809_11582.png
+maptiles/tile_15_17809_11583.png
+maptiles/tile_15_17809_11584.png
+maptiles/tile_15_17809_11585.png
+maptiles/tile_15_17809_11586.png
+shaders/heatmap.frag
+shaders/heatmap.vert
 skin/flat-earth-ui.atlas
 skin/flat-earth-ui.json
 skin/flat-earth-ui.png
 skin/font-button-export.fnt
 skin/font-export.fnt
 skin/font-title-export.fnt
+tiled/DungeonFloor/TopDown StoneAndBridge - DungeonFloor JSON.png
+tiled/DungeonFloor/TopDown StoneAndBridge - DungeonFloor JSON.txt
+tiled/DungeonFloor/tileset_TopDown StoneAndBridge - DungeonFloor GODOT.png
+tiled/DungeonFloor/tileset_TopDown StoneAndBridge - DungeonFloor GODOT.png.import
+tiled/DungeonFloor/tileset_TopDown StoneAndBridge - DungeonFloor GODOT.tres
+tiled/Maps/EasyMap.tmx
+tiled/Maps/HardMap.tmx
+tiled/Maps/MangoPunch.png
+tiled/Maps/MangoPunch.tsx
+tiled/Maps/MediumMap.tmx
+tiled/Maps/Speedii.tiled-project
+tiled/Maps/Speedii.tiled-session
+tiled/Maps/VeryEasyMap.tmx
+tiled/Maps/VeryHardMap.tmx
+tiled/Speedii.tiled-session
+tower_descriptions.json
+waves/EasyWaves.json
+waves/HardWaves.json
+waves/MediumWaves.json
+waves/VeryEasyWaves.json
+waves/VeryHardWaves.json

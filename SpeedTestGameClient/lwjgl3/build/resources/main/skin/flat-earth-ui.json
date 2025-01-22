@@ -17,30 +17,15 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0
 		a: 1
 	}
-	color: {
-		r: 0.3372549
-		g: 0.8
-		b: 0.44705883
-		a: 1
-	}
+	color: { a: 1.0, b: 0.7490196, g: 0.5137255, r: 0.30980393 }
 	gray: {
 		r: 0.5
 		g: 0.5
 		b: 0.5
 		a: 1
 	}
-	highlight: {
-		r: 0.42156863
-		g: 1
-		b: 0.5552286
-		a: 1
-	}
-	pressed: {
-		r: 0.2529412
-		g: 0.6
-		b: 0.33313715
-		a: 1
-	}
+	highlight: { a: 1.0, b: 0.9254902, g: 0.6666667, r: 0.33333334 }
+	pressed: { a: 1.0, b: 0.5686275, g: 0.38431373, r: 0.25490198 }
 	selection: {
 		r: 0.22745098
 		g: 0.59607846
@@ -53,12 +38,7 @@ com.badlogic.gdx.graphics.Color: {
 		b: 1
 		a: 1
 	}
-	window: {
-		r: 0.76862746
-		g: 0.4509804
-		b: 0
-		a: 1
-	}
+	window: { a: 1.0, b: 0.62352943, g: 0.6431373, r: 0.67058825 }
 }
 com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	button-c: {
@@ -317,7 +297,7 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
 		font: font
-		fontColor: color
+		fontColor: black
 	}
 	button: {
 		font: button

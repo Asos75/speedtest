@@ -28,6 +28,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -118,7 +119,12 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Label extremeEventDateLabel;
     private Label extremeUserLocationLabel;
 
-
+    private Window extremeEventNotificationWindow;
+    private Label extremeEventTypeNotificationLabel;
+    private Label extremeEventTimeNotificationLabel;
+    private Label extremeEventDateNotificationLabel;
+    private Label extremeUserLocationNotificationLabel;
+    private Button extremeEventNotificationCloseButton;
 
     private Skin skin;
 
@@ -154,6 +160,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("skin/flat-earth-ui.json"));
 
+        app.mqttClient.setMapScreen(this);
+
         createActors();
     }
 
@@ -169,6 +177,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
                 app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty));
+                app.mqttClient.setMapScreen(null);
             }
         });
 
@@ -211,6 +220,39 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         extremeEventWindow.setVisible(false);
 
+        //Extreme event notification window
+        extremeEventNotificationWindow = new Window("Extreme Event                          ", skin);
+        extremeEventTypeNotificationLabel = new Label("", skin);
+        extremeEventTimeNotificationLabel = new Label("", skin);
+        extremeEventDateNotificationLabel = new Label("", skin);
+        extremeUserLocationNotificationLabel = new Label("", skin);
+        extremeEventNotificationCloseButton = new TextButton("Close", skin);
+
+        extremeEventNotificationCloseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                extremeEventNotificationWindow.setVisible(false);
+            }
+        });
+
+        extremeEventNotificationWindow.add(extremeEventTypeNotificationLabel).left().pad(10);
+        extremeEventNotificationWindow.row();
+        extremeEventNotificationWindow.add(extremeEventTimeNotificationLabel).left().pad(10);
+        extremeEventNotificationWindow.row();
+        extremeEventNotificationWindow.add(extremeEventDateNotificationLabel).left().pad(10);
+        extremeEventNotificationWindow.row();
+        extremeEventNotificationWindow.add(extremeUserLocationNotificationLabel).left().pad(10);
+        extremeEventNotificationWindow.row();
+        extremeEventNotificationWindow.add(extremeEventNotificationCloseButton).pad(10);
+        extremeEventNotificationWindow.pack();
+
+        extremeEventNotificationWindow.setVisible(false);
+
+        extremeEventNotificationWindow.pack();
+        extremeEventNotificationWindow.setPosition(0, 0);
+
+
+
         TextButton backButton = new TextButton("Back", skin);
         backButton.setPosition(10, Gdx.graphics.getHeight() - 50); // Adjust position as needed
         backButton.addListener(new ClickListener() {
@@ -218,6 +260,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
                 app.setScreen(new MenuScreen(app, sessionManager));
+                app.mqttClient.setMapScreen(null);
             }
         });
 
@@ -273,6 +316,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         stage.addActor(speedInfoWindow);
         stage.addActor(towerInfoWindow);
         stage.addActor(extremeEventWindow);
+        stage.addActor(extremeEventNotificationWindow);
     }
 
 
@@ -373,7 +417,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         shapeRenderer.setColor(Color.RED);
         if(drawExtremeEvents) {
             for(ExtremeEvent e : app.extremeEvents) {
-                drawMarker(e.location.coordinates.get(1), e.location.coordinates.get(0));
+                if(e == app.mqttClient.lastAddedEvent){
+                    shapeRenderer.setColor(Color.BLUE);
+                    drawMarker(e.location.coordinates.get(1), e.location.coordinates.get(0));
+                    shapeRenderer.setColor(Color.RED);
+                } else {
+                    drawMarker(e.location.coordinates.get(1), e.location.coordinates.get(0));
+                }
             }
         }
 
@@ -547,7 +597,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                     extremeEventTypeLabel.setText("Type: " + e.type);
                     extremeEventDateLabel.setText("Date: " + e.time.format(dateFormatter));
                     extremeEventTimeLabel.setText("Time: " + e.time.format(timeFormatter));
-                    if (e.user != null) extremeUserLocationLabel.setText("Location: " + e.user);
+                    if (e.user != null) extremeUserLocationLabel.setText("User: " + e.user);
                     extremeEventWindow.setVisible(true);
 
                     extremeEventPosition.set(touchPosition.x, touchPosition.y);
@@ -704,6 +754,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         return 1.0 / kmPerPixel;
     }
 
+    public void pushExtremeEvent(ExtremeEvent event) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        extremeEventTypeNotificationLabel.setText("Type: " + event.type);
+        extremeEventDateNotificationLabel.setText("Date: " + event.time.format(dateFormatter));
+        extremeEventTimeNotificationLabel.setText("Time: " + event.time.format(timeFormatter));
+        if (event.user != null) extremeUserLocationNotificationLabel.setText("User: " + event.user);
+        extremeEventNotificationWindow.setVisible(true);
+    }
 
 
 }
