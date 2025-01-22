@@ -2,6 +2,7 @@ package si.um.feri.speedii.towerdefense.gameobjects.enemies;
 
 import com.badlogic.gdx.math.Vector2;
 import si.um.feri.speedii.screens.GameScreenComponents.LoadMap;
+import si.um.feri.speedii.towerdefense.config.GameDataManager;
 import si.um.feri.speedii.towerdefense.logic.GameLogic;
 
 public class EnemySpawner {
@@ -13,25 +14,25 @@ public class EnemySpawner {
         this.gameLogic = gameLogic;
     }
 
-    public Enemy spawnEnemyByType(String type, int health, float speed) {
+    public Enemy spawnEnemyByType(String type, int health, float speed, GameDataManager gameDataManager) {
         switch (type) {
             case "BasicEnemy":
-                return spawnBasicEnemy(health, speed);
+                return spawnBasicEnemy(health, speed, gameDataManager);
             case "DefenseEnemy":
-                return spawnDefenseEnemy(health, speed);
+                return spawnDefenseEnemy(health, speed, gameDataManager);
             case "FastEnemy":
-                return spawnFastEnemy(health, speed);
+                return spawnFastEnemy(health, speed, gameDataManager);
             case "BossEnemy":
-                return spawnBossEnemy(health, speed);
+                return spawnBossEnemy(health, speed, gameDataManager);
             default:
                 throw new IllegalArgumentException("Unknown enemy type: " + type);
         }
     }
 
-    public Enemy spawnBasicEnemy(int health, float speed) {
+    public Enemy spawnBasicEnemy(int health, float speed, GameDataManager gameDataManager) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
-            Enemy enemy = new Enemy(health, speed, Enemy.Type.BASIC, "images/Bugs/Dragonfly Sprite Sheet.png", gameLogic);
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.BASIC, "images/Bugs/Dragonfly Sprite Sheet.png", gameLogic, gameDataManager);
             enemy.setPosition(spawnPoint.x, spawnPoint.y);
             return enemy;
         } else {
@@ -40,10 +41,10 @@ public class EnemySpawner {
         }
     }
 
-    public Enemy spawnDefenseEnemy(int health, float speed) {
+    public Enemy spawnDefenseEnemy(int health, float speed, GameDataManager gameDataManager) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
-            Enemy enemy = new Enemy(health, speed, Enemy.Type.DEFENSE, "images/Bugs/MaggotWalk.png", gameLogic);
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.DEFENSE, "images/Bugs/MaggotWalk.png", gameLogic, gameDataManager);
             enemy.setPosition(spawnPoint.x, spawnPoint.y);
             return enemy;
         } else {
@@ -52,10 +53,10 @@ public class EnemySpawner {
         }
     }
 
-    public Enemy spawnFastEnemy(int health, float speed) {
+    public Enemy spawnFastEnemy(int health, float speed, GameDataManager gameDataManager) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
-            Enemy enemy = new Enemy(health, speed, Enemy.Type.FAST, "images/Bugs/BeetleMove.png", gameLogic);
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.FAST, "images/Bugs/BeetleMove.png", gameLogic, gameDataManager);
             enemy.setPosition(spawnPoint.x, spawnPoint.y);
             return enemy;
         } else {
@@ -64,10 +65,10 @@ public class EnemySpawner {
         }
     }
 
-    public Enemy spawnBossEnemy(int health, float speed) {
+    public Enemy spawnBossEnemy(int health, float speed, GameDataManager gameDataManager) {
         Vector2 spawnPoint = loadMap.getStartPoint();
         if (spawnPoint != null) {
-            Enemy enemy = new Enemy(health, speed, Enemy.Type.BOSS, "images/Bugs/MantisMove.png", gameLogic);
+            Enemy enemy = new Enemy(health, speed, Enemy.Type.BOSS, "images/Bugs/MantisMove.png", gameLogic, gameDataManager);
             enemy.setPosition(spawnPoint.x, spawnPoint.y);
             return enemy;
         } else {

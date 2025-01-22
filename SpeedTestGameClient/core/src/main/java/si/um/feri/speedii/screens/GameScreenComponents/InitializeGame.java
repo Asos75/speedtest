@@ -115,7 +115,7 @@ public class InitializeGame {
             int sellPrice = tower.getPrice() / 2; // Example: sell for half the price
             gameDataManager.addMoney(sellPrice);
             updateLabels(); // Update labels to reflect new money amount
-            Gdx.app.log("InitializeGame", "Tower sold for: " + sellPrice);
+            //Gdx.app.log("InitializeGame", "Tower sold for: " + sellPrice);
 
             // Remove the tower's actor from the stage
             for (Actor actor : gameScreen.getStage().getActors()) {

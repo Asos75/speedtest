@@ -10,6 +10,11 @@ public class GameDataManager {
     private int enemiesRemaining;
     private int money;
 
+    // All time stats
+    private int enemiesKilled;
+    private int towersPlaced;
+    private int moneySpent;
+
     public GameDataManager() {
         this.location = "Unknown";
         this.uploadSpeed = 0.0f;
@@ -84,4 +89,20 @@ public class GameDataManager {
     }
 
     public void increaseEnemiesRemaining() { enemiesRemaining++; }
+
+    // All time stats
+
+    public int getEnemiesKilled() { return enemiesKilled; }
+
+    public void incrementEnemiesKilled() { enemiesKilled++; }
+
+    public int getTowersPlaced() { return towersPlaced; }
+
+    public void incrementTowersPlaced() { towersPlaced++; }
+
+    public int getMoneySpent() { return moneySpent; }
+
+    public void addMoneySpent(int amount) { moneySpent += amount; }
+
+    public void subtractMoneySpent(int amount) { moneySpent -= amount; }
 }

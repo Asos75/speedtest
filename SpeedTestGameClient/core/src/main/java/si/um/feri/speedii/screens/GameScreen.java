@@ -93,6 +93,8 @@ public class GameScreen implements Screen {
         this.selectedDifficulty = selectedDifficulty;
         this.skin = app.getAssetManager().get(AssetDescriptors.UI_SKIN);
         this.sessionManager = sessionManager;
+        // Initialize game data manager
+        gameDataManager = new GameDataManager();
     }
 
     @Override
@@ -105,7 +107,7 @@ public class GameScreen implements Screen {
         //stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        pauseContainer = new PauseContainer(app, skin);
+        pauseContainer = new PauseContainer(app, skin, gameDataManager);
         pauseContainer.setFillParent(true);
         pauseContainer.setVisible(false);
         stage.addActor(pauseContainer);
@@ -147,9 +149,6 @@ public class GameScreen implements Screen {
                 teleportIntersectionEnterGoRight, teleportIntersectionGoRight, teleportIntersectionEnter, teleportIntersectionLeave,
                 teleportIntersectionEnterGoUpGoDown, teleportIntersectionGoDown, teleportIntersectionGoUp);
 
-        // Initialize game data manager
-        gameDataManager = new GameDataManager();
-
         // Initialize enemy spawner
         enemySpawner = new EnemySpawner(loadMap, gameLogic);
         //spawnEnemies();
@@ -169,7 +168,7 @@ public class GameScreen implements Screen {
         // Initialize TileHoverHandler
         MapLayer fieldLayer = loadMap.getFieldLayer();
         if (fieldLayer instanceof TiledMapTileLayer) {
-            tileHoverHandler = new TileHoverHandler((TiledMapTileLayer) fieldLayer, camera, initializeGame);
+            tileHoverHandler = new TileHoverHandler((TiledMapTileLayer) fieldLayer, camera, initializeGame, gameDataManager);
         } else {
             Gdx.app.log("GameScreen", "Field layer not found or is not a TiledMapTileLayer");
         }
@@ -190,7 +189,7 @@ public class GameScreen implements Screen {
                     Timer.schedule(new Timer.Task() {
                         @Override
                         public void run() {
-                            Enemy enemy = enemySpawner.spawnEnemyByType(enemyConfig.getType(), enemyConfig.getHealth(), enemyConfig.getSpeed());
+                            Enemy enemy = enemySpawner.spawnEnemyByType(enemyConfig.getType(), enemyConfig.getHealth(), enemyConfig.getSpeed(), gameDataManager);
                             if (enemy != null) {
                                 enemies.add(enemy);
                             }
@@ -225,13 +224,26 @@ public class GameScreen implements Screen {
             if (enemy.isDead()) {
                 // Add money
                 gameDataManager.addMoney(enemy.getMoneyReward());
+                gameDataManager.addMoneySpent(enemy.getMoneyReward());
                 iterator.remove();
                 gameDataManager.decrementEnemiesRemaining();
+                gameDataManager.incrementEnemiesKilled();
                 initializeGame.updateEnemiesRemainingLabel();
                 // Money logic
                 initializeGame.updateLabels();
                 continue;
             }
+
+            if (enemy.isAtEnd()) {
+                iterator.remove();
+                gameDataManager.decrementEnemiesRemaining();
+                initializeGame.updateEnemiesRemainingLabel();
+                initializeGame.updateLabels();
+                // Decrease 5 health for each enemy
+                gameDataManager.setHealth(gameDataManager.getHealth() - 5);
+                continue;
+            }
+
             if (isRoundActive && !isPaused) {
                 enemy.update(delta);
             }
@@ -241,6 +253,11 @@ public class GameScreen implements Screen {
 
         // Check if all enemies are defeated
         checkAndStartNextRound();
+
+        // Check if health is 0 or less
+        if (gameDataManager.getHealth() <= 0) {
+            app.setScreen(new GameOverScreen(app, "You Lose!", gameDataManager, sessionManager));
+        }
 
         // Draw the tower range circle
         //drawTowerRangeCircle();
@@ -259,6 +276,7 @@ public class GameScreen implements Screen {
         if (isPaused) {
             pauseContainer.setVisible(true);
             pauseContainer.toFront();
+            pauseContainer.updateStatistics();
         } else {
             pauseContainer.setVisible(false);
         }
@@ -270,7 +288,7 @@ public class GameScreen implements Screen {
     private void checkAndStartNextRound() {
         if (enemies.isEmpty()) {
             if (gameDataManager.getCurrentWave() >= gameDataManager.getTotalWaves()) {
-                app.setScreen(new GameOverScreen());
+                app.setScreen(new GameOverScreen(app, "You Win!", gameDataManager, sessionManager));
             } else {
                 gameDataManager.incrementWave();
                 initializeGame.updateLabels();
