@@ -168,7 +168,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
-                app.setScreen(new GameScreen(app, selectedDifficulty));
+                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty));
             }
         });
 

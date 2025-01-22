@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import si.um.feri.speedii.SpeediiApp;
+import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.screens.GameScreenComponents.InitializeGame;
 
 // Map
@@ -83,11 +84,15 @@ public class GameScreen implements Screen {
 
     private final Skin skin;
 
-    public GameScreen(SpeediiApp app, DIFFICULTY selectedDifficulty) {
+    private SessionManager sessionManager;
+
+
+    public GameScreen(SpeediiApp app, SessionManager sessionManager, DIFFICULTY selectedDifficulty) {
         this.app = app;
         this.assetManager = app.getAssetManager();
         this.selectedDifficulty = selectedDifficulty;
         this.skin = app.getAssetManager().get(AssetDescriptors.UI_SKIN);
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -297,7 +302,9 @@ public class GameScreen implements Screen {
 
     public void resumeGame() { isPaused = false; }
 
-    public void quitGame() { Gdx.app.exit(); }
+    public void quitGame() {
+        app.setScreen(new MenuScreen(app, sessionManager));
+    }
 
     public Stage getStage() { return stage; }
 

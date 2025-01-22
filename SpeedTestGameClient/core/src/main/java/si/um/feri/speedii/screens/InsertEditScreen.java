@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 
 import org.bson.types.ObjectId;
@@ -35,6 +36,7 @@ import si.um.feri.speedii.classes.MobileTower;
 import si.um.feri.speedii.classes.SessionManager;
 import si.um.feri.speedii.classes.Type;
 import si.um.feri.speedii.classes.User;
+import si.um.feri.speedii.config.GameConfig;
 import si.um.feri.speedii.dao.http.HttpMeasurement;
 import si.um.feri.speedii.classes.Measurement;
 import si.um.feri.speedii.dao.http.HttpMobileTower;
@@ -100,7 +102,7 @@ public class InsertEditScreen implements Screen {
         font = new BitmapFont();
 
 
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new StretchViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT));
 
 
         skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -378,6 +380,7 @@ public class InsertEditScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
 
