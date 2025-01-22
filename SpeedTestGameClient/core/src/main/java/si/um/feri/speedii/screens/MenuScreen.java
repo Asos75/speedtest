@@ -124,7 +124,7 @@ public class MenuScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
-                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty));
+                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, null, null, null));
             }
         });
 

@@ -57,6 +57,10 @@ public class GameScreen implements Screen {
     private InitializeGame initializeGame;
     private GameDataManager gameDataManager;
 
+    private String location;
+    private float uploadSpeed;
+    private float downloadSpeed;
+
     private OrthogonalTiledMapRenderer mapRenderer;
     private OrthographicCamera camera;
 
@@ -87,14 +91,19 @@ public class GameScreen implements Screen {
     private SessionManager sessionManager;
 
 
-    public GameScreen(SpeediiApp app, SessionManager sessionManager, DIFFICULTY selectedDifficulty) {
+    public GameScreen(SpeediiApp app, SessionManager sessionManager, DIFFICULTY selectedDifficulty, String location, Float uploadSpeed, Float downloadSpeed) {
         this.app = app;
         this.assetManager = app.getAssetManager();
         this.selectedDifficulty = selectedDifficulty;
         this.skin = app.getAssetManager().get(AssetDescriptors.UI_SKIN);
         this.sessionManager = sessionManager;
-        // Initialize game data manager
+        this.location = location;
+        this.uploadSpeed = uploadSpeed != null ? uploadSpeed : 0f;
+        this.downloadSpeed = downloadSpeed != null ? downloadSpeed : 0f;
         gameDataManager = new GameDataManager();
+        gameDataManager.setLocation(location);
+        gameDataManager.setUploadSpeed(this.uploadSpeed);
+        gameDataManager.setDownloadSpeed(this.downloadSpeed);
     }
 
     @Override

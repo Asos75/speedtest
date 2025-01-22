@@ -4,6 +4,7 @@ public class GameDataManager {
     private String location;
     private float uploadSpeed;
     private float downloadSpeed;
+
     private int health;
     private int currentWave;
     private int totalWaves;

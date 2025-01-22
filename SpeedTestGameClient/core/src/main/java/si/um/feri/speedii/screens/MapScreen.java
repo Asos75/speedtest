@@ -118,7 +118,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Label extremeEventDateLabel;
     private Label extremeUserLocationLabel;
 
-
+    // ASUS FIX
+    private String location = "Sample Location";
+    private float uploadSpeed = 10.5f;
+    private float downloadSpeed = 50.0f;
 
     private Skin skin;
 
@@ -168,7 +171,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
-                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty));
+                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, location, uploadSpeed, downloadSpeed));
             }
         });
 
