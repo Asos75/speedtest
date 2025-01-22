@@ -404,8 +404,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             float textureWidth = mobileTowerTexture.getRegionWidth() * 0.3f;
             float textureHeight = mobileTowerTexture.getRegionHeight() * 0.3f;
             for (Pair<Vector2, MobileTower> position : mobileTowerPositions) {
-                spriteBatch.draw(mobileTowerTexture, position.getFirst().x - textureWidth / 2, position.getFirst().y - textureHeight / 2, textureWidth, textureHeight);
-
+                if(!position.getSecond().isConfirmed()){
+                    spriteBatch.draw(atlas.findRegion(RegionNames.CELLTOWERNOTCONFIRMED), position.getFirst().x - textureWidth / 2, position.getFirst().y - textureHeight / 2, textureWidth, textureHeight);
+                } else {
+                    spriteBatch.draw(mobileTowerTexture, position.getFirst().x - textureWidth / 2, position.getFirst().y - textureHeight / 2, textureWidth, textureHeight);
+                }
             }
 
         }

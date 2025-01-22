@@ -2,6 +2,7 @@ package si.um.feri.speedii.assets;
 
 public class RegionNames {
         public static final String CELLTOWER = "celltower";
+        public static final String CELLTOWERNOTCONFIRMED = "celltowernotconfirmed";
         public static final String FAST_ACCESS = "fast-access";
         public static final String CABINETS = "cabinets";
         public static final String SERVER_CONTROL = "server-control";
