@@ -38,6 +38,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -61,6 +62,8 @@ import si.um.feri.speedii.utils.ZoomXY;
 import si.um.feri.speedii.screens.mapcomponents.MapOverlay;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener {
+
+    private Viewport viewport;
 
     boolean debug = false;
     private final SpeediiApp app;
@@ -142,6 +145,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         this.assetManager = assetManager;
         this.speedInfoPosition = new Vector2();
         this.extremeEventPosition = new Vector2();
+        this.camera = new OrthographicCamera();
+        this.viewport = new ScreenViewport(camera);
+
 
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("skin/flat-earth-ui.json"));
@@ -204,19 +210,27 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         extremeEventWindow.setVisible(false);
 
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.setPosition(10, Gdx.graphics.getHeight() - 50); // Adjust position as needed
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                app.setScreen(new MenuScreen(app, sessionManager));
+            }
+        });
+
+        stage.addActor(backButton);
 
         TextButton toggleGridButton = new TextButton("Toggle Grid", skin);
         TextButton toggleExtremeEventsButton = new TextButton("Toggle Extreme Events", skin);
         TextButton toggleTowersButton = new TextButton("Toggle Towers", skin);
         Slider gridOpacitySlider = new Slider(0.0f, 1.0f, 0.01f, false, skin);
 
-        // Set button positions
-        toggleTowersButton.setPosition(10, Gdx.graphics.getHeight() - 50);
-        toggleExtremeEventsButton.setPosition(10, Gdx.graphics.getHeight() - 100);
-        toggleGridButton.setPosition(10, Gdx.graphics.getHeight() - 150);
-        gridOpacitySlider.setPosition(10, Gdx.graphics.getHeight() - 200);
+        toggleTowersButton.setPosition(10, Gdx.graphics.getHeight() - 100);
+        toggleExtremeEventsButton.setPosition(10, Gdx.graphics.getHeight() - 150);
+        toggleGridButton.setPosition(10, Gdx.graphics.getHeight() - 200);
+        gridOpacitySlider.setPosition(10, Gdx.graphics.getHeight() - 250);
 
-        // Add listeners to buttons
         toggleGridButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -444,16 +458,28 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        viewport.update(width, height, true);
 
         if (speedInfoWindow.isVisible()) {
             Vector3 screenPosition = camera.project(new Vector3(speedInfoPosition.x, speedInfoPosition.y, 0));
-
             float popupX = screenPosition.x;
             float popupY = screenPosition.y - speedInfoWindow.getHeight();
             speedInfoWindow.setPosition(popupX, popupY);
         }
+
+        if (extremeEventWindow.isVisible()) {
+            Vector3 screenPosition = camera.project(new Vector3(extremeEventPosition.x, extremeEventPosition.y, 0));
+            float popupX = screenPosition.x;
+            float popupY = screenPosition.y - extremeEventWindow.getHeight();
+            extremeEventWindow.setPosition(popupX, popupY);
+        }
+
+        if (drawnTower != null) {
+            towerInfoWindow.pack();
+            towerInfoWindow.setPosition(Gdx.graphics.getWidth() - towerInfoWindow.getWidth(), Gdx.graphics.getHeight() - towerInfoWindow.getHeight());
+        }
     }
+
 
     @Override
     public void pause() {
