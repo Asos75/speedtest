@@ -1,0 +1,102 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "HardMap.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "EasyMap.tmx": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 0.75,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 560.6666666666666,
+                "y": 320
+            }
+        },
+        "HardMap.tmx": {
+            "expandedObjectLayers": [
+                5,
+                7,
+                6
+            ],
+            "scale": 1,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 567.5,
+                "y": 361.5
+            }
+        },
+        "MangoPunch.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "Maps/MangoPunch.tsx": {
+            "scaleInDock": 1
+        },
+        "MediumMap.tmx": {
+            "expandedObjectLayers": [
+                5,
+                7,
+                6
+            ],
+            "scale": 1,
+            "selectedLayer": 6,
+            "viewCenter": {
+                "x": 432.5,
+                "y": 286.5
+            }
+        },
+        "VeryEasyMap.tmx": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 0.75,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 560.6666666666666,
+                "y": 318.6666666666667
+            }
+        },
+        "VeryHardMap.tmx": {
+            "expandedObjectLayers": [
+                5,
+                6
+            ],
+            "scale": 0.75,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 719.3333333333333,
+                "y": 343.33333333333326
+            }
+        }
+    },
+    "last.externalTilesetPath": "C:/Users/Domi/Desktop/Sola/3.letnik 1.polovica/RRI - Razvoj Računalniških Iger/SkupinskaPraksa/SpeedTestGameClient/core/src/main/java/si/um/feri/speedii/assets/Tiled",
+    "last.imagePath": "C:/Users/Domi/Desktop/Sola/3.letnik 1.polovica/RRI - Razvoj Računalniških Iger/SkupinskaPraksa/SpeedTestGameClient/core/src/main/java/si/um/feri/speedii/assets/Tiled",
+    "map.height": 20,
+    "map.lastUsedFormat": "tmx",
+    "map.width": 35,
+    "openFiles": [
+        "VeryEasyMap.tmx",
+        "EasyMap.tmx",
+        "MediumMap.tmx",
+        "HardMap.tmx",
+        "VeryHardMap.tmx"
+    ],
+    "project": "Speedii.tiled-project",
+    "recentFiles": [
+        "VeryEasyMap.tmx",
+        "EasyMap.tmx",
+        "MediumMap.tmx",
+        "VeryHardMap.tmx",
+        "HardMap.tmx",
+        "MangoPunch.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}

@@ -1,0 +1,36 @@
+{
+  "towers": [
+    {
+      "name": "fast-access",
+      "description": "Fast shooting tower that provides low damage."
+    },
+    {
+      "name": "cabinets",
+      "description": " "
+    },
+    {
+      "name": "server-control",
+      "description": "Creates a control zone that slows down enemies within its range."
+    },
+    {
+      "name": "hub",
+      "description": " "
+    },
+    {
+      "name": "switch",
+      "description": "Short range tower that gives boost to friendly towers."
+    },
+    {
+      "name": "cell-tower",
+      "description": "A powerful tower that deals damage in a wide AOE area."
+    },
+    {
+      "name": "satellite-tower",
+      "description": "Tower that can hit everywhere on the map for devastating damage."
+    },
+    {
+      "name": "signal",
+      "description": "Slow firing, long distance, hard hitting tower."
+    }
+  ]
+}

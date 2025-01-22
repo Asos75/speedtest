@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,8 +44,20 @@ public class MapRasterTiles {
      * @throws IOException
      */
     public static Texture getRasterTile(int zoom, int x, int y) throws IOException {
+
+        //Checks if a tile is saved on the disk and if it is, it returns it, otherwise it fetches it from the server
+        String fileName = Constants.TILE_FOLDER_PATH + "tile_" + zoom + "_" + x + "_" + y + ".png";
+        File file = new File(fileName);
+        if (file.exists()) {
+            return new Texture(file.getAbsolutePath());
+        }
+
         URL url = new URL(mapServiceUrl + tilesetId + "/" + zoom + "/" + x + "/" + y + format + token);
         ByteArrayOutputStream bis = fetchTile(url);
+
+        FileOutputStream fos = new FileOutputStream(fileName);
+        fos.write(bis.toByteArray());
+        fos.close();
         return getTexture(bis.toByteArray());
     }
 

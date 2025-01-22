@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+//UNUSED CLASS
 public class MongoDBConnection {
     private static MongoClient mongoClient;
     private static MongoDatabase database;
