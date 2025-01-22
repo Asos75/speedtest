@@ -57,7 +57,6 @@ public class LoginScreen implements Screen {
         TextureRegionDrawable logoDrawable = new TextureRegionDrawable(logoRegion);
         logoImage = new Image(logoDrawable);
         logoImage.setSize(logoImage.getWidth() / 1.2f, logoImage.getHeight() / 1.2f);
-
         stage.addActor(createBackground());
         stage.addActor(logoImage);
 
