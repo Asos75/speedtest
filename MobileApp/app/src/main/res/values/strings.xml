@@ -70,4 +70,6 @@
     <string name="add_tower">Add Tower</string>
     <string name="no_network">NO NETWORK!</string>
     <string name="extreme_event">EXTREME EVENT:</string>
+    <string name="provider_info">Provider: %1$s</string>
+    <string name="type">Type: %1$s</string>
 </resources>

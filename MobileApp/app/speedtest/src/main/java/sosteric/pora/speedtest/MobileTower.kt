@@ -1,3 +1,5 @@
+import android.os.Parcel
+import android.os.Parcelable
 import org.bson.types.ObjectId
 
 class MobileTower(
@@ -7,9 +9,22 @@ class MobileTower(
     var confirmed: Boolean,
     var locator: User?,
     var id: ObjectId = ObjectId()
-) {
+) : Parcelable {
     override fun toString(): String {
         return "${location}, $provider, $type, $confirmed, $locator $id"
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeParcelable(location, flags)
+        parcel.writeString(provider)
+        parcel.writeString(type)
+        parcel.writeByte(if (confirmed) 1 else 0)
+        parcel.writeParcelable(locator, flags)
+        parcel.writeSerializable(id)
     }
 
     class MobileTowerAlt(

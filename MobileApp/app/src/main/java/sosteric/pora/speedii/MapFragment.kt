@@ -65,7 +65,8 @@ class MapFragment : Fragment() {
                     val marker = Marker(map)
                     marker.position = GeoPoint(it.location.coordinates[1], it.location.coordinates[0])
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    marker.title = it.provider
+                    marker.title = "Provider: " + it.provider
+                    marker.snippet = "Type: " + it.type + "\n" + "Confirmed: " + it.confirmed
                     map.overlays.add(marker)
                 }
                 map.invalidate()

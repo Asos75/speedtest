@@ -128,6 +128,7 @@ class SpeediiApplication : Application() {
                     .setRequiresDeviceIdle(false)
                     .build()
             )
+            .setInitialDelay(3, TimeUnit.MINUTES)
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(

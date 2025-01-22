@@ -10,13 +10,15 @@ import sosteric.pora.speedii.databinding.ItemMobileTowerBinding
 
 class MobileTowerAdapter(
     private val mobileTowers: List<MobileTower>,
+    private val onItemClick: (Int) -> Unit,
+    private val onItemLongClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<MobileTowerAdapter.MobileTowerViewHolder>() {
 
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MobileTowerViewHolder {
         val binding = ItemMobileTowerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MobileTowerViewHolder(binding)
+        return MobileTowerViewHolder(binding, onItemClick, onItemLongClick)
     }
 
 
@@ -31,14 +33,26 @@ class MobileTowerAdapter(
 
     class MobileTowerViewHolder(
         private val binding: ItemMobileTowerBinding,
+        private val onItemClick: (Int) -> Unit,
+        private val onItemLongClick: (Int) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                onItemClick(adapterPosition)
+            }
+            itemView.setOnLongClickListener {
+                onItemLongClick(adapterPosition)
+                true
+            }
+
+        }
 
         fun bind(mobileTower: MobileTower) {
-            val locationText = itemView.context.getString(R.string.location,(mobileTower.location).toString())
+            val locationText = itemView.context.getString(R.string.type,mobileTower.type)
             val providerText = itemView.context.getString(R.string.provider, mobileTower.provider)
 
 
-            binding.locationTextView.text = locationText;
+            binding.typeTextView.text = locationText;
             binding.providerMobileTextView.text = providerText
         }
     }

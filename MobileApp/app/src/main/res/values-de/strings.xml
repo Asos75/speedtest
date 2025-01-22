@@ -70,4 +70,6 @@
     <string name="add_tower">Turm hinzufügen</string>
     <string name="no_network">KEIN NETZWERK!</string>
     <string name="extreme_event">BESONDERES EREIGNIS:</string>
+    <string name="provider_info">Anbieter: %1$s</string>
+    <string name="type">Typ: %1$s</string>
 </resources>

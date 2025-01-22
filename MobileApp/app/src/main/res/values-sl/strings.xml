@@ -70,4 +70,6 @@
     <string name="add_tower">Dodaj stolp</string>
     <string name="no_network">NI POVEZAVE!</string>
     <string name="extreme_event">IZJEMNI DOGODEK:</string>
+    <string name="provider_info">Ponudnik: %1$s</string>
+    <string name="type">Tip: %1$s</string>
 </resources>

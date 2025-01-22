@@ -99,7 +99,9 @@ class ProfileFragment : Fragment() {
             }
 
             recyclerViewMobile.adapter = MobileTowerAdapter(
-                mobileTowers
+                mobileTowers,
+                { item -> onTowerItemClick(item) },
+                { item -> onTowerItemLongClick(item) }
             )
             recyclerViewMobile.addItemDecoration(PaddingItemDecoration(8))
         }
@@ -150,6 +152,47 @@ class ProfileFragment : Fragment() {
                     lifecycleScope.launch {
                         measurements = withContext(Dispatchers.IO) {
                             HttpMeasurement(app.sessionManager).getByUser(app.sessionManager.user!!)
+                        }
+                    }
+                }
+            }
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
+    private fun onTowerItemClick(pos: Int) {
+        val tower = mobileTowers[pos]
+        val fragment = TowerFragment.newInstance(tower)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace((requireActivity() as MainActivity).binding.fragmentContainer.id, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun onTowerItemLongClick(pos: Int) {
+        val tower = mobileTowers[pos]
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Delete Item")
+
+        builder.setMessage(Html.fromHtml("Are you sure you want to delete the tower from <b>${tower.provider}</b> " +
+                "with type <b>${tower.type}</b> at <b>${tower.location.coordinates[1]}, ${tower.location.coordinates[0]}</b>?"))
+
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            Log.d("MainActivity", "Attempting to delete: ${tower}")
+
+            lifecycleScope.launch {
+                val success = withContext(Dispatchers.IO) {
+                    HttpMobileTower(app.sessionManager).delete(tower)
+                }
+                if(success) {
+                    lifecycleScope.launch {
+                        mobileTowers = withContext(Dispatchers.IO) {
+                            HttpMobileTower(app.sessionManager).getByLocator(app.sessionManager.user!!)
                         }
                     }
                 }
