@@ -120,8 +120,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     // ASUS FIX
     private String location = "Sample Location";
-    private float uploadSpeed = 10.5f;
-    private float downloadSpeed = 50.0f;
+    private float lastSelectedSpeed = 0;
 
     private Skin skin;
 
@@ -171,7 +170,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setWindowedMode((int)GameConfig.WORLD_WIDTH, (int)GameConfig.WORLD_HEIGHT);
-                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, location, uploadSpeed, downloadSpeed));
+                String formattedSpeed = String.format("%.2f", lastSelectedSpeed);
+                app.setScreen(new GameScreen(app, sessionManager, selectedDifficulty, location, formattedSpeed));
             }
         });
 
@@ -576,6 +576,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         if(drawGrid) {
             int speed = mapOverlay.getSpeed((int) touchPosition.x, (int) touchPosition.y, beginTile);
+
+            lastSelectedSpeed = speed;
+
             speedInfo = "Speed: " + String.format("%.2f", speed / 1_000_000.0) + " Mbps";
             selectedDifficulty = calculateDifficulty(speed);
             difficultyLabel.setText("Difficulty: " + selectedDifficulty.toString());
@@ -589,7 +592,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
         return false;
     }
-
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {

@@ -2,7 +2,6 @@ package si.um.feri.speedii.towerdefense.config;
 
 public class GameDataManager {
     private String location;
-    private float uploadSpeed;
     private float downloadSpeed;
 
     private int health;
@@ -18,7 +17,6 @@ public class GameDataManager {
 
     public GameDataManager() {
         this.location = "Unknown";
-        this.uploadSpeed = 0.0f;
         this.downloadSpeed = 0.0f;
         this.health = 100;
         this.currentWave = 0;
@@ -27,9 +25,8 @@ public class GameDataManager {
         this.money = 250;
     }
 
-    public GameDataManager(String location, float uploadSpeed, float downloadSpeed, int health, int currentWave, int totalWaves, int enemiesRemaining, int money) {
+    public GameDataManager(String location, float downloadSpeed, int health, int currentWave, int totalWaves, int enemiesRemaining, int money) {
         this.location = location;
-        this.uploadSpeed = uploadSpeed;
         this.downloadSpeed = downloadSpeed;
         this.health = health;
         this.currentWave = currentWave;
@@ -60,10 +57,6 @@ public class GameDataManager {
     public String getLocation() { return location; }
 
     public void setLocation(String location) { this.location = location; }
-
-    public float getUploadSpeed() { return uploadSpeed; }
-
-    public void setUploadSpeed(float uploadSpeed) { this.uploadSpeed = uploadSpeed; }
 
     public float getDownloadSpeed() { return downloadSpeed; }
 
