@@ -6,10 +6,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Timer;
@@ -83,7 +81,7 @@ public class GameScreen implements Screen {
     private PauseContainer pauseContainer;
     private boolean isPaused = false;
 
-    private Skin skin;
+    private final Skin skin;
 
     public GameScreen(SpeediiApp app, DIFFICULTY selectedDifficulty) {
         this.app = app;
@@ -282,6 +280,8 @@ public class GameScreen implements Screen {
             circleDrawable.draw(spriteBatch, initializeGame.towerPosition.x - initializeGame.towerRange, initializeGame.towerPosition.y - initializeGame.towerRange, initializeGame.towerRange * 2, initializeGame.towerRange * 2);
         }
     }
+
+    public TileHoverHandler getTileHoverHandler() { return tileHoverHandler; }
 
     @Override
     public void resize(int width, int height) {

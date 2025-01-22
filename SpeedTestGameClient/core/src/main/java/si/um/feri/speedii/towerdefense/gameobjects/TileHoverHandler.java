@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import si.um.feri.speedii.screens.GameScreenComponents.InitializeGame;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class TileHoverHandler extends InputListener {
@@ -87,6 +89,15 @@ public class TileHoverHandler extends InputListener {
         }
     }
 
+    public void removeOccupiedTile(Vector2 position) {
+        for (Iterator<Rectangle> iterator = occupiedTiles.iterator(); iterator.hasNext();) {
+            Rectangle tile = iterator.next();
+            if (tile.contains(position)) {
+                iterator.remove();
+                break;
+            }
+        }
+    }
 
     public void dispose() {
         shapeRenderer.dispose();

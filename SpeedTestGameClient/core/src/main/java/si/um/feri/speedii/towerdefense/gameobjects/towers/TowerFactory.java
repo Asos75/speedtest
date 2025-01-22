@@ -30,4 +30,8 @@ public class TowerFactory {
         }
         return null;
     }
+
+    public static void removeTower(Tower tower) {
+        towerTypes.values().removeIf(existingTower -> existingTower.equals(tower));
+    }
 }

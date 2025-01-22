@@ -110,6 +110,40 @@ public class InitializeGame {
         initializeTables();
     }
 
+    public void sellTower(Tower tower) {
+        if (towers.remove(tower)) {
+            int sellPrice = tower.getPrice() / 2; // Example: sell for half the price
+            gameDataManager.addMoney(sellPrice);
+            updateLabels(); // Update labels to reflect new money amount
+            Gdx.app.log("InitializeGame", "Tower sold for: " + sellPrice);
+
+            // Remove the tower's actor from the stage
+            for (Actor actor : gameScreen.getStage().getActors()) {
+                if (actor instanceof Container) {
+                    Container<?> container = (Container<?>) actor;
+                    if (container.getActor() instanceof Table) {
+                        Table table = (Table) container.getActor();
+                        if (table.hasChildren() && table.getChildren().first() instanceof Image) {
+                            Image image = (Image) table.getChildren().first();
+                            if (image.getUserObject() == tower) {
+                                actor.remove();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Remove the tower from the factory
+            TowerFactory.removeTower(tower);
+
+            // Remove the tower's position from TileHoverHandler's occupiedTiles
+            gameScreen.getTileHoverHandler().removeOccupiedTile(tower.getPosition());
+        } else {
+            Gdx.app.log("InitializeGame", "Failed to sell tower: " + tower);
+        }
+    }
+
     private void initializeLabels() {
         locationLabel = new Label("Location: " + gameDataManager.getLocation(), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         locationLabel.setFontScale(1.2f);
@@ -240,6 +274,9 @@ public class InitializeGame {
             //Gdx.app.log("InitializeGame", "Tower created successfully: " + selectedTowerType);
             Table towerContent = new Table();
             Image towerImage = new Image(atlas.findRegion(selectedTowerType));
+
+            towerImage.setUserObject(tower);
+
             towerContent.add(towerImage).expand().fill().row();
             Container<Table> newTower = new Container<>(towerContent);
             newTower.setSize(tileWidth, tileHeight);
@@ -303,9 +340,7 @@ public class InitializeGame {
                 drawCircle = false; // When the dialog is closed
             }
         };
-
         Label.LabelStyle labelStyle = new Label.LabelStyle(skin.getFont("font"), skin.getColor("white"));
-
         Table table = new Table();
 
         table.add(new Label(tower.getDescription(), labelStyle)).row();
@@ -313,6 +348,16 @@ public class InitializeGame {
         table.add(new Label("Range: " + tower.getRange(), labelStyle)).row();
         table.add(new Label("Cooldown: " + tower.getCooldown(), labelStyle)).row();
         table.add(new Label("Enemies in Range: " + tower.getEnemiesInRange(), labelStyle)).row();
+
+        TextButton sellButton = new TextButton("Sell", skin);
+        sellButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                sellTower(tower);
+                statsDialog.hide();
+            }
+        });
+        table.add(sellButton).padTop(10);
 
         statsDialog.getContentTable().add(table);
         statsDialog.button(new TextButton("OK", skin));
