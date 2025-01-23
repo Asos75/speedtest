@@ -710,6 +710,78 @@
       "nonce": 536903651,
       "previousHash": "000000e0821c10089fea4a671d00dce604663cab2b040d5544ab8b4292c387b8",
       "timeStamp": 1736693103
+    },
+    {
+      "currentHash": "0000000112a7b4788b422bcd22d0b3ca54b0097502c5e8d101393eae686ae8f3",
+      "data": "{measurement: \"1804289383\"}",
+      "difficulty": 7,
+      "id": 79,
+      "nonce": 2238817244,
+      "previousHash": "000000235b92caa69cccf18f81c120133b6e7d52724e9b311ba52f12940fd3ce",
+      "timeStamp": 1737643493
+    },
+    {
+      "currentHash": "00000074692e742384bfd528813f7ecbc48724854f468d91859c7232debe5106",
+      "data": "{measurement: \"846930886\"}",
+      "difficulty": 6,
+      "id": 80,
+      "nonce": 4087057,
+      "previousHash": "0000000112a7b4788b422bcd22d0b3ca54b0097502c5e8d101393eae686ae8f3",
+      "timeStamp": 1737643572
+    },
+    {
+      "currentHash": "000008174a69215ab8103fab4cd404b29f1c70a4c718b3250b600a9302f93255",
+      "data": "{measurement: \"1681692777\"}",
+      "difficulty": 5,
+      "id": 81,
+      "nonce": 2147554629,
+      "previousHash": "00000074692e742384bfd528813f7ecbc48724854f468d91859c7232debe5106",
+      "timeStamp": 1737643576
+    },
+    {
+      "currentHash": "0000e169a8d74432a0eba8c9943261668c779a7d9265672a5505cf3ca8467852",
+      "data": "{measurement: \"1714636915\"}",
+      "difficulty": 4,
+      "id": 82,
+      "nonce": 2147492439,
+      "previousHash": "000008174a69215ab8103fab4cd404b29f1c70a4c718b3250b600a9302f93255",
+      "timeStamp": 1737643576
+    },
+    {
+      "currentHash": "0000fa3100c076da4eb920ca95bda64309d070e932d766b9607668b30b37d13e",
+      "data": "{measurement: \"1957747793\"}",
+      "difficulty": 4,
+      "id": 83,
+      "nonce": 143,
+      "previousHash": "0000e169a8d74432a0eba8c9943261668c779a7d9265672a5505cf3ca8467852",
+      "timeStamp": 1737643576
+    },
+    {
+      "currentHash": "00007c00db77532bf960e382d396d7010c3bc5cb3a9868874bcef3a7108ba49a",
+      "data": "{measurement: \"424238335\"}",
+      "difficulty": 4,
+      "id": 84,
+      "nonce": 2264,
+      "previousHash": "0000fa3100c076da4eb920ca95bda64309d070e932d766b9607668b30b37d13e",
+      "timeStamp": 1737643576
+    },
+    {
+      "currentHash": "00000e85e7794505c507386168379b98a54e88c50dde1123c7278895ddfde855",
+      "data": "{measurement: \"719885386\"}",
+      "difficulty": 5,
+      "id": 85,
+      "nonce": 156503,
+      "previousHash": "00007c00db77532bf960e382d396d7010c3bc5cb3a9868874bcef3a7108ba49a",
+      "timeStamp": 1737643576
+    },
+    {
+      "currentHash": "000000ffc5c2ca7bdd33e4a0fe292bcbd4ad7205dee286b0179f873cb785e4f2",
+      "data": "{measurement: \"1649760492\"}",
+      "difficulty": 6,
+      "id": 86,
+      "nonce": 6245914,
+      "previousHash": "00000e85e7794505c507386168379b98a54e88c50dde1123c7278895ddfde855",
+      "timeStamp": 1737643577
     }
   ],
   "difficulty": 7

@@ -23,10 +23,7 @@ Block::Block(int id, const std::string& data, int difficulty)
 }
 
 std::string Block::calculateHash() const {
-    std::stringstream ss;
-    ss << id << data << timeStamp << previousHash << difficulty << nonce;
-
-    std::string input = ss.str();
+    std::string input = std::to_string(id) + data + std::to_string(timeStamp) + previousHash + std::to_string(difficulty) + std::to_string(nonce);
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
 
@@ -44,11 +41,14 @@ void Block::print() {
 }
 
 std::string Block::toHex(const unsigned char* in, size_t length) {
-    std::stringstream ss;
+    std::string result;
+    result.reserve(length * 2);
+    const char* hexChars = "0123456789abcdef";
     for (size_t i = 0; i < length; ++i) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int)in[i];
+        result.push_back(hexChars[(in[i] >> 4) & 0xF]);
+        result.push_back(hexChars[in[i] & 0xF]);
     }
-    return ss.str();
+    return result;
 }
 
 std::string Block::fromHex(const std::string& hex) {

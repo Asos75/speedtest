@@ -8,7 +8,7 @@ BlockChain::BlockChain(int difficulty) : difficulty(difficulty) {
     chain = std::vector<Block>();
 }
 
-bool BlockChain::add(Block block) {
+bool BlockChain::add(Block block, bool constDifficulty) {
     if (!block.isTimestampValidForward()) {
         std::cout << "Invalid forward timestamp" << std::endl;
         return false;
@@ -30,7 +30,7 @@ bool BlockChain::add(Block block) {
     }
 
     chain.push_back(block);
-    changeDifficulty();
+    if (!constDifficulty) changeDifficulty();
     return true;
 }
 

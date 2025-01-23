@@ -66,10 +66,10 @@ void httpPost(const std::string& url, const std::string& jsonData) {
     }
 }
 
-void mainProcess(int size, unsigned int difficulty, bool fakeData) {
+void mainProcess(int size, unsigned int difficulty, bool fakeData, bool constDifficulty) {
 
     char data[512];
-    const std::string BASE_URL = "http://192.168.1.102:5000";
+    const std::string BASE_URL = "http://192.168.56.1:5000";
 
     int currentDifficulty = difficulty;
     BlockChain blockchain(currentDifficulty);
@@ -152,7 +152,7 @@ void mainProcess(int size, unsigned int difficulty, bool fakeData) {
         std::cout << "Received block from process " << senderRank << "\n";
 
         if (receivedBlock.hasValidHashDifficulty() && receivedBlock.previousHash == previousHash) {
-            blockchain.add(receivedBlock);
+            blockchain.add(receivedBlock, constDifficulty);
             std::cout << "Block added by process " << senderRank << " with hash: " << receivedBlock.currentHash << "\n";
             std::cout << "<-------------------------------------------->\n";
             blockchain.printLast();
@@ -177,10 +177,11 @@ void mainProcess(int size, unsigned int difficulty, bool fakeData) {
             std::cerr << "Received invalid block from process " << senderRank << "\n";
         }
 
-        int totalOperations = 0;
+        long long totalOperations = 0;
         for (int i = 1; i < size; ++i) {
             int operations;
             MPI_Recv(&operations, 1, MPI_INT, i, TAG_OPERATIONS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            std::cout << "Operations from process " << i << ": " << operations << "\n";
             totalOperations += operations;
         }
 
@@ -204,23 +205,23 @@ void mainProcess(int size, unsigned int difficulty, bool fakeData) {
 }
 
 void miningTask(unsigned int threadId, unsigned int blockId, char* data, unsigned int difficulty, std::string& previousHash, uint32_t startNonce, uint32_t endNonce, std::atomic<bool>& stopMiningFlag, Block& minedBlock, std::atomic<uint64_t>& operationsInThread){
-    char* localData = new char[256];
+    thread_local char* localData = new char[256];
     for(int i = 0; i < 256; i++){
         localData[i] = data[i];
     }
-    Block block(blockId, localData, difficulty);
+    thread_local Block block(blockId, localData, difficulty);
     block.previousHash = previousHash;
 
-    uint64_t operations = 0;
+    thread_local uint64_t operations = 0;
 
-    while (startNonce <= endNonce && !stopMiningFlag) {
+    while (startNonce <= endNonce && !stopMiningFlag.load(std::memory_order_relaxed)) {
         block.nonce = startNonce++;
         block.currentHash = block.calculateHash();
         operations++;
         if(operations % 1000000 == 0){
             std::cout << "Thread: " << threadId << " Operations: " << operations << std::endl;
         }
-        if (!stopMiningFlag && block.hasValidHashDifficulty()) {
+        if (block.hasValidHashDifficulty() && !stopMiningFlag.load(std::memory_order_relaxed)) {
             minedBlock = block;
             stopMiningFlag = true;
             break;
@@ -228,6 +229,7 @@ void miningTask(unsigned int threadId, unsigned int blockId, char* data, unsigne
     }
 
     operationsInThread.fetch_add(operations, std::memory_order_relaxed);
+    std::cout << "Operations in thread " << threadId << ": " << operations << std::endl;
 
 }
 
@@ -326,6 +328,7 @@ int main(int argc, char* argv[]) {
     unsigned int threads = 1;
     unsigned int difficulty = INITIAL_DIFFICULTY;
     bool fakeData = false;
+    bool constDifficulty = false;
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -339,6 +342,9 @@ int main(int argc, char* argv[]) {
         }
         else if(arg == "-f") {
             fakeData = true;
+        }
+        else if(arg == "-c"){
+            constDifficulty = true;
         }
         else if(arg == "-h") {
             printHelp();
@@ -363,7 +369,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (worldRank == 0) {
-        mainProcess(worldSize, difficulty, fakeData);
+        std::cout << "Starting main process with " << worldSize << " processes and " << threads << " threads\n";
+        mainProcess(worldSize, difficulty, fakeData, constDifficulty);
     } else {
         workerProcess(worldRank, threads);
     }

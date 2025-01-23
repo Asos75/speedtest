@@ -21,7 +21,7 @@ public:
 
     explicit BlockChain(int difficulty);
 
-    bool add(Block block);
+    bool add(Block block, bool constDifficulty);
     [[nodiscard]] uint64_t getTotalDifficulty() const;
     void printLast();
 
