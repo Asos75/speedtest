@@ -89,7 +89,6 @@ public class GameScreen implements Screen {
 
     private SessionManager sessionManager;
 
-
     public GameScreen(SpeediiApp app, SessionManager sessionManager, DIFFICULTY selectedDifficulty, String location, String downloadSpeed) {
         this.app = app;
         this.assetManager = app.getAssetManager();

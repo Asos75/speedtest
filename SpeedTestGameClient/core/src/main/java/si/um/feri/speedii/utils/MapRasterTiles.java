@@ -49,6 +49,7 @@ public class MapRasterTiles {
         String fileName = Constants.TILE_FOLDER_PATH + "tile_" + zoom + "_" + x + "_" + y + ".png";
         File file = new File(fileName);
         if (file.exists()) {
+            System.out.println("Tile: " + fileName + " already exists. Fetching from disk.");
             return new Texture(file.getAbsolutePath());
         }
 

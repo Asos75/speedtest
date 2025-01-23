@@ -148,7 +148,7 @@ public class InitializeGame {
         locationLabel.setFontScale(1.2f);
         locationLabel.getStyle().font.getData().markupEnabled = true;
 
-        downloadSpeedLabel = new Label("Download speed: " + gameDataManager.getDownloadSpeed() + " mb", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        downloadSpeedLabel = new Label("Download speed: " + gameDataManager.getDownloadSpeed() + " Mb", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         downloadSpeedLabel.setFontScale(1.2f);
         downloadSpeedLabel.getStyle().font.getData().markupEnabled = true;
 
@@ -171,7 +171,7 @@ public class InitializeGame {
 
     public void updateLabels() {
         locationLabel.setText("Location: " + gameDataManager.getLocation());
-        downloadSpeedLabel.setText("Download speed: " + gameDataManager.getDownloadSpeed() + " mb");
+        downloadSpeedLabel.setText("Download speed: " + gameDataManager.getDownloadSpeed() + " Mb");
         healthLabel.setText("Health: " + gameDataManager.getHealth());
         if (gameDataManager.getCurrentWave() == 1) { waveLabel.setText("Wave " + gameDataManager.getCurrentWave());}
         else { waveLabel.setText("Wave " + gameDataManager.getCurrentWave() + " of " + gameDataManager.getTotalWaves());}
@@ -440,6 +440,12 @@ public class InitializeGame {
         container.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                int towerPrice = RegionPrices.valueOf(towerType.toUpperCase().replace("-", "_")).getPrice();
+                if (gameDataManager.getMoney() < towerPrice) {
+                    Gdx.app.log("InitializeGame", "Not enough money to select tower: " + towerType);
+                    return;
+                }
+
                 if (selectedTower == container) {
                     container.setBackground(whiteBackground);
                     selectedTower = null;
@@ -458,6 +464,31 @@ public class InitializeGame {
             }
         });
     }
+
+    /*
+    private void addInputListeners(Container<Table> container, String towerType) {
+        container.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (selectedTower == container) {
+                    container.setBackground(whiteBackground);
+                    selectedTower = null;
+                    selectedTowerType = null;
+                    //Gdx.app.log("InitializeGame", "Deselected tower: " + container);
+                } else {
+                    if (selectedTower != null) {
+                        selectedTower.setBackground(whiteBackground);
+                        //Gdx.app.log("InitializeGame", "Deselected previous tower: " + selectedTower);
+                    }
+                    container.setBackground(createGrayBackground());
+                    selectedTower = container;
+                    selectedTowerType = towerType;
+                    //Gdx.app.log("InitializeGame", "Selected tower: " + container);
+                }
+            }
+        });
+    }
+    */
 
     public void setSelectedTower(Container<Table> selectedTower) {
         this.selectedTower = selectedTower;
