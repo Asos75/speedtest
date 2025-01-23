@@ -65,8 +65,12 @@ public class InsertEditScreen implements Screen {
     private BitmapFont font;
 
    private SpeediiApp app;
+
+
     private List<Measurement> measurements;
     private List<MobileTower> mobileTowers;
+
+    private List<MobileTower> allMobileTowers;
 
 
     private Stage stage;
@@ -90,6 +94,7 @@ public class InsertEditScreen implements Screen {
             this.httpMobileTower = new HttpMobileTower(sessionManager);
             this.measurements = httpMeasurement.getByUser(user);
             this.mobileTowers = httpMobileTower.getByLocator(user);
+            this.allMobileTowers = httpMobileTower.getAll();
         } catch (IOException e) {
             e.printStackTrace();
             this.measurements = null;
@@ -159,63 +164,69 @@ public class InsertEditScreen implements Screen {
             });
 
 
-            table.add(new Label("Add measurement", skin)).pad(10).center().colspan(2).row();
+            if(sessionManager.getUser().isAdmin()) {
+                table.add(new Label("Add measurement", skin)).pad(10).center().colspan(2).row();
 
 
-            TextField locationLongitudeAdd = new TextField("", skin);
-            locationLongitudeAdd.setMessageText("Longitude");
-            table.add(locationLongitudeAdd).width(200).pad(10);
+                TextField locationLongitudeAdd = new TextField("", skin);
+                locationLongitudeAdd.setMessageText("Longitude");
+                table.add(locationLongitudeAdd).width(200).pad(10);
 
 
-            TextField locationLatitudeAdd = new TextField("", skin);
-            locationLatitudeAdd.setMessageText("Latitude");
-            table.add(locationLatitudeAdd).width(200).pad(10).row();
+                TextField locationLatitudeAdd = new TextField("", skin);
+                locationLatitudeAdd.setMessageText("Latitude");
+                table.add(locationLatitudeAdd).width(200).pad(10).row();
 
-            TextField providerFieldAdd = new TextField("", skin);
-            providerFieldAdd.setMessageText("Provider");
-            table.add(providerFieldAdd).width(200).pad(10);
+                TextField providerFieldAdd = new TextField("", skin);
+                providerFieldAdd.setMessageText("Provider");
+                table.add(providerFieldAdd).width(200).pad(10);
 
-            TextField speedAdd = new TextField("", skin);
-            speedAdd.setMessageText("Speed");
-            table.add(speedAdd).width(200).pad(10).row();
+                TextField speedAdd = new TextField("", skin);
+                speedAdd.setMessageText("Speed");
+                table.add(speedAdd).width(200).pad(10).row();
 
-            TextButton addButton = new TextButton("Add", skin);
-            table.add(addButton).width(200).colspan(2).padTop(30).row();
+                TextButton addButton = new TextButton("Add", skin);
+                table.add(addButton).width(200).colspan(2).padTop(30).row();
+
+
+                addButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        Location newLocationAdd = new Location(Arrays.asList(
+                                Double.parseDouble(locationLongitudeAdd.getText()),
+                                Double.parseDouble(locationLatitudeAdd.getText())
+                        ));
+                        String newProviderAdd = providerFieldAdd.getText();
+                        long newSpeedAdd = Long.parseLong(speedAdd.getText());
+                        Measurement newMeasurement = new Measurement(
+                                newSpeedAdd,
+                                Type.wifi,
+                                newProviderAdd,
+                                newLocationAdd,
+                                LocalDateTime.now(),
+                                sessionManager.getUser(),
+                                new ObjectId()
+                        );
+                        HttpMeasurement newHttpMeasurement = new HttpMeasurement(sessionManager);
+                        try {
+                            System.out.println(newHttpMeasurement.insert(newMeasurement));
+                            measurements.add(newMeasurement);
+                            run(true);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+
+            }
+            Gdx.input.setInputProcessor(stage);
+
 
             table.add(new Label("Speed", skin)).pad(10).center();
             table.add(new Label("Provider", skin)).pad(10).center();
             table.add(new Label("Date", skin)).pad(10).center();
             table.row();
 
-            Gdx.input.setInputProcessor(stage);
-
-
-            addButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    Location newLocationAdd = new Location(Arrays.asList(
-                        Double.parseDouble(locationLongitudeAdd.getText()),
-                        Double.parseDouble(locationLatitudeAdd.getText())
-                    ));
-                    String newProviderAdd = providerFieldAdd.getText();
-                    long newSpeedAdd = Long.parseLong(speedAdd.getText());
-                    Measurement newMeasurement = new Measurement(
-                        newSpeedAdd,
-                        Type.wifi,
-                        newProviderAdd,
-                        newLocationAdd,
-                        LocalDateTime.now(),
-                        sessionManager.getUser(),
-                        new ObjectId()
-                    );
-                    HttpMeasurement newHttpMeasurement = new HttpMeasurement(sessionManager);
-                    try {
-                        System.out.println(newHttpMeasurement.insert(newMeasurement));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
 
             for (Measurement measurement : measurements) {
                 TextField speedField = new TextField(String.valueOf(measurement.getSpeed()), skin);
@@ -227,7 +238,7 @@ public class InsertEditScreen implements Screen {
 
                 if(sessionManager.getUser().isAdmin()) {
                     table.add(timeField).width(200).pad(10);
-                    table.add(updateButton).width(200).pad(10).row();
+                    table.add(updateButton).width(100).pad(10).row();
                     updateButton.addListener(new ClickListener() {
                         @Override
                         public void clicked(InputEvent event, float x, float y) {
@@ -341,11 +352,20 @@ public class InsertEditScreen implements Screen {
                     );
                     HttpMobileTower newHttpMobileTower = new HttpMobileTower(sessionManager);
                     System.out.println(newHttpMobileTower.insert(newMobileTower));
+                    mobileTowers.add(newMobileTower);
+                    run(false);
                 }
             });
 
 
-            for (MobileTower mobileTower : mobileTowers) {
+            List<MobileTower> getMobileTowers;
+            if (sessionManager.getUser().isAdmin()) {
+                getMobileTowers = allMobileTowers;
+            }
+            else {
+                getMobileTowers = mobileTowers;
+            }
+            for (MobileTower mobileTower : getMobileTowers) {
                 System.out.println(mobileTower.getLocation());
                 TextField confirmedField = new TextField(String.valueOf(mobileTower.isConfirmed()), skin);
                 TextField providerField = new TextField(mobileTower.getProvider(), skin);
@@ -353,10 +373,14 @@ public class InsertEditScreen implements Screen {
                 TextButton updateButton = new TextButton("Update", skin);
                 table.add(confirmedField).width(200).pad(10);
                 table.add(providerField).width(200).pad(10);
-                table.add(typeField).width(200).pad(10);
-                table.add(updateButton).width(100).pad(10).row();
 
-
+                if(sessionManager.getUser().isAdmin()) {
+                    table.add(typeField).width(200).pad(10);
+                    table.add(updateButton).width(100).pad(10).row();
+                }
+                else {
+                    table.add(typeField).width(200).pad(10).row();
+                }
                 updateButton.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -372,7 +396,7 @@ public class InsertEditScreen implements Screen {
                         );
                         HttpMobileTower newHttpMobileTower = new HttpMobileTower(sessionManager);
                         System.out.println(newHttpMobileTower.update(newMobileTower));
-
+                        run(false);
                     }
                 });
             }
