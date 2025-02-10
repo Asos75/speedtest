@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const http = require('http');
+const http = require('https');
 const socketIo = require('socket.io');
 // Cors for cross origin allowance
 const cors = require('cors');
@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
 });
 
 
-app.use(cors({ origin: ['http://localhost:3000', 'http://52.178.15.171:4000'] }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://52.178.15.171:4000', 'https://website-davidrajlic-davids-projects-a2d28f04.vercel.app/']}));
 app.use(logger('dev'));
 //app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
